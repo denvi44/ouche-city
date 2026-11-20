@@ -25,6 +25,7 @@ from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, P
 from shapely.geometry.polygon import orient
 from shapely.ops import nearest_points
 
+from . import fiction
 from .config import GIS_DIR, Emprise, charger
 
 CACHE_OSM = GIS_DIR / "cache" / "osm_conches.json"
@@ -441,7 +442,7 @@ def points_interet(rep: Repere, ways, points, poc_centre, emp, origine: str = "o
             poly = _polygone(w["coords"])
             if poly is not None and "eglise" not in vus:
                 c = poly.centroid
-                ajout("eglise", "landmark", t.get("name", "Église"), c.x, c.y, radius=15.0, source=origine)
+                ajout("eglise_lointaine", "landmark", fiction.MONUMENTS["eglise"], c.x, c.y, radius=15.0, source=origine)
                 vus.add("eglise")
         if t.get("historic") in {"castle", "tower"} and "donjon" not in vus:
             poly = _polygone(w["coords"]) if w["coords"][0] == w["coords"][-1] else None
@@ -453,8 +454,8 @@ def points_interet(rep: Repere, ways, points, poc_centre, emp, origine: str = "o
         cat = t.get("shop") or t.get("amenity")
         if cat in LIBELLE_COMMERCE:
             x, z = rep.local(p["lat"], p["lon"])
-            ajout(f"commerce_{p['id']}", "shop", LIBELLE_COMMERCE[cat], x, z, source=origine)
-    return {"schemaVersion": 1, "pois": pois}
+            ajout(f"commerce_osm_{p['id']}", "shop", fiction.nom_commerce_generique(p["id"]), x, z, source="design")
+    return {"schemaVersion": 2, "pois": pois}
 
 
 def ecrire(path: Path, data) -> None:
@@ -486,7 +487,12 @@ def main(argv=None) -> int:
         t["buildings"].sort(key=lambda b: b["id"])
         ecrire(tiles_dir / f"{tx}_{ty}.json", t)
     ecrire(args.out / "road_graph.json", graphe_routier(src.ways, src.nodes, src.attribution))
-    ecrire(args.out / "poi.json", points_interet(rep, src.ways, src.points, poc_centre, emp, "ign" if args.ign.exists() else "osm"))
+    poi = points_interet(rep, src.ways, src.points, poc_centre, emp, "ign" if args.ign.exists() else "osm")
+    fictifs = fiction.lieux_fictifs(tuiles, emp.taille_tuile_m)
+    ids_fictifs = {p["id"] for p in fictifs}
+    # Les monuments trouvés dans la zone remplacent leurs homologues lointains.
+    poi["pois"] = [p for p in poi["pois"] if not (p["id"] == "eglise_lointaine" and "eglise" in ids_fictifs)] + fictifs
+    ecrire(args.out / "poi.json", poi)
     ecrire(args.out / "manifest.json", {
         "sources": src.meta, "attribution": src.attribution, "tiles": [f"{x}_{y}" for x, y in sorted(tuiles)],
         "tileSize": emp.taille_tuile_m, "pocCentre": [_r(poc_centre.x), _r(poc_centre.y)],
