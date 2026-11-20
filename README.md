@@ -3,14 +3,39 @@
 GTA-like en cel-shading, made in Normandie : une reproduction de Conches-en-Ouche (Eure), jouable seul ou à plusieurs en ligne, avec des missions « Normandie profonde ».
 
 - **Plateformes (phase 1)** : Windows 10/11 et macOS 12+ (Apple Silicon + Intel), cross-play.
-- **Moteur** : Godot 4, GDScript.
+- **Moteur** : Godot 4.4.1, GDScript.
 - **Production** : pilotée par une équipe d'agents IA (Claude Code), voir `CLAUDE.md` et `.claude/agents/`.
 
-## Démarrer
+## Jouer (M0)
 
-1. Ouvrir le dépôt dans Claude Code : la session principale joue le chef de projet (`CLAUDE.md`).
-2. Premier ticket : l'agent `cartographe` génère la rue Sainte-Foy depuis OpenStreetMap et l'IGN.
-3. Chaque étape visible produit des captures d'écran (`qa/screenshots/`).
+Ouvrir `game/` dans Godot 4.4.1, puis lancer (F5). Menu : *Jouer en solo* (serveur local fermé), *Héberger*, *Rejoindre*.
+
+En ligne de commande :
+
+```sh
+godot --path game -- --solo                 # partie solo directe
+godot --path game -- --host                 # héberger (port 24680/UDP)
+godot --path game -- --join=192.168.1.20    # rejoindre
+godot --headless --path game -- --server    # serveur dédié (ou : make server)
+```
+
+Contrôles : ZQSD/WASD (position physique), souris, Espace (sauter), Maj (sprinter), Échap (pause, ouvrir la partie aux amis).
+
+## Produire la ville
+
+```sh
+make gis-fetch   # télécharge IGN BD TOPO + RGE ALTI (et OSM si joignable) dans gis/cache/
+make gis         # tuiles gis/out/ → copie sans retouche dans game/assets/city/
+```
+
+Le pipeline est déterministe ; la zone (rue Sainte-Foy, rayon 200 m) se règle dans `gis/config/emprise.toml`.
+
+## Tests et captures
+
+```sh
+make test          # contrats JSON, pipeline SIG, GDScript, réseau (serveur dédié + 2 bots)
+make screenshots   # captures 1920×1080 de la scène témoin (qa/screenshots/out/<date>/)
+```
 
 ## Missions écrites
 
@@ -22,6 +47,10 @@ GTA-like en cel-shading, made in Normandie : une reproduction de Conches-en-Ouch
 
 Scénarios, dialogues et règles détaillées : document « Ouche City — Plan de production ».
 
+## Documentation
+
+`docs/gdd.md`, `docs/style-guide.md`, décisions dans `docs/decisions/`, budgets dans `qa/budgets.md`, contrats dans `contracts/`.
+
 ## Licences des données
 
-Voir `LICENSES/ATTRIBUTIONS.md`. Personnages, commerces et marques du jeu sont fictifs.
+Voir `LICENSES/ATTRIBUTIONS.md` : IGN BD TOPO et RGE ALTI (Licence Ouverte Etalab 2.0, « Source : IGN »), OpenStreetMap (ODbL, « © contributeurs OpenStreetMap »). Personnages, commerces et marques du jeu sont fictifs.
