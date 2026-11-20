@@ -22,9 +22,11 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | --- | --- | --- |
 | Ville générée (tuiles 250 m, relief, bâti) | 01, 02 | rue Sainte-Foy (26 tuiles, rayon 560 m) importée sans retouche |
 | Rendu toon, contours, jour/nuit | 03 | shaders et matériaux de base |
-| Joueur à pied, caméra | 05 | marche, sprint, saut, caméra 3ᵉ personne |
+| Joueur à pied, caméra | 05 | marche, sprint, saut, portage de caisse, caméra 3ᵉ personne |
+| Conduite arcade | 05 | camionnette de Gégé : accélération, freinage, frein à main, chocs, caméra qui se range |
 | Réseau autoritaire, solo local | 12 | poignée de main versionnée, prédiction et réconciliation |
-| Conduite arcade, recherche, cargaison fragile | 05 | M1 |
+| Cargaison fragile, niveau de recherche | 05 | cargaison (bouteilles cassées selon la violence du choc) faite ; recherche M1 |
+| Mission 01 | 05, 07 | jouable : 4 caisses → camionnette → barrage → stand → médaille ; manquent cinématique, choix d'équipe, événements de route, compagnons IA |
 | PNJ, trafic, compagnons IA | 06 | M1 (graphe routier déjà produit) |
 | Missions (JSON) | 07 | m01 à m03 écrites, validées par schéma |
 | Audio, radios fictives | 08 | M2 |
@@ -38,7 +40,8 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | Caméra | souris | stick droit |
 | Sauter | Espace | A / Croix |
 | Sprinter | Maj gauche | Start (provisoire, M1 : gâchette) |
-| Interagir | E | X / Carré |
+| Interagir (prendre / charger une caisse, monter, descendre) | E | X / Carré |
+| Conduire | W A S D / stick gauche ; Espace = frein à main | stick gauche ; A = frein à main |
 | Pause | Échap | Select |
 
 Aucun raccourci réservé au système (Cmd+Q, Cmd+H…). Remappage complet : M1 (agent 11).
