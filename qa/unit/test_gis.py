@@ -1,0 +1,63 @@
+"""Pipeline SIG sur un cache synthétique : déterminisme, anonymisation, typologies (agent 09)."""
+import json
+from pathlib import Path
+
+from jsonschema import Draft202012Validator
+
+from gis import build
+
+ROOT = Path(__file__).resolve().parents[2]
+FIXTURE = Path(__file__).parent / "fixtures" / "osm_mini.json"
+
+
+def _run(tmp_path, name):
+    out = tmp_path / name
+    assert build.main(["--osm", str(FIXTURE), "--ign", str(tmp_path / "absent.json"),
+                       "--alti", str(tmp_path / "absent_alti.json"), "--out", str(out)]) == 0
+    return out
+
+
+def test_sorties_deterministes(tmp_path):
+    a, b = _run(tmp_path, "a"), _run(tmp_path, "b")
+    fa = sorted(p.relative_to(a) for p in a.rglob("*.json"))
+    assert fa == sorted(p.relative_to(b) for p in b.rglob("*.json"))
+    for rel in fa:
+        assert (a / rel).read_bytes() == (b / rel).read_bytes()
+
+
+def test_tuiles_conformes_et_contenu(tmp_path):
+    out = _run(tmp_path, "o")
+    schema = Draft202012Validator(json.loads((ROOT / "contracts/tile.schema.json").read_text()))
+    batiments, routes = {}, []
+    for p in (out / "tiles").glob("*.json"):
+        t = json.loads(p.read_text())
+        assert not list(schema.iter_errors(t))
+        batiments.update({b["id"]: b for b in t["buildings"]})
+        routes += t["roads"]
+    assert batiments["b_201"]["typology"] == "eglise" and batiments["b_201"]["roof"] == "spire"
+    assert batiments["b_202"]["typology"] == "annexe"
+    assert batiments["b_200"]["typology"] == "commerce"  # contient la boulangerie
+    assert batiments["b_200"]["height"] == 7.0  # 2 niveaux × 3 m + 1 m
+    assert any(r["name"] == "Rue Sainte-Foy" for r in routes)
+
+
+def test_noms_de_commerces_supprimes(tmp_path):
+    out = _run(tmp_path, "o")
+    texte = "".join(p.read_text() for p in out.rglob("*.json"))
+    assert "Nom réel à supprimer" not in texte
+    pois = json.loads((out / "poi.json").read_text())["pois"]
+    assert any(p["kind"] == "shop" and p["label"] == "Boulangerie" for p in pois)
+
+
+def test_normalisation_des_noms():
+    assert build.normaliser_nom("Rue Sainte-Foy") == build.normaliser_nom("Rue Sainte Foy")
+    assert build.normaliser_nom("Rue de l'Hôtel de Ville") == "rue de l hotel de ville"
+
+
+def test_anneaux_antihoraires_vus_du_dessus(tmp_path):
+    out = _run(tmp_path, "o")
+    for p in (out / "tiles").glob("*.json"):
+        for b in json.loads(p.read_text())["buildings"]:
+            ring = b["footprint"]
+            area = sum(a[0] * c[1] - c[0] * a[1] for a, c in zip(ring, ring[1:] + ring[:1])) / 2
+            assert area < 0  # négative en (x, z) car z pointe au sud

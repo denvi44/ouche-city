@@ -1,0 +1,236 @@
+{
+"elements": [
+{
+"type": "node",
+"id": 1,
+"lat": 48.96138126,
+"lon": 0.94220787
+},
+{
+"type": "node",
+"id": 2,
+"lat": 48.9614,
+"lon": 0.9433
+},
+{
+"type": "node",
+"id": 3,
+"lat": 48.96146368,
+"lon": 0.94439036
+},
+{
+"type": "way",
+"id": 100,
+"nodes": [
+1,
+2,
+3
+],
+"tags": {
+"highway": "residential",
+"name": "Rue Sainte-Foy"
+}
+},
+{
+"type": "node",
+"id": 4,
+"lat": 48.9614,
+"lon": 0.9433
+},
+{
+"type": "node",
+"id": 5,
+"lat": 48.96086064,
+"lon": 0.94332134
+},
+{
+"type": "way",
+"id": 101,
+"nodes": [
+4,
+5
+],
+"tags": {
+"highway": "tertiary",
+"name": "Rue Fictive"
+}
+},
+{
+"type": "node",
+"id": 6,
+"lat": 48.96144612,
+"lon": 0.94336648
+},
+{
+"type": "node",
+"id": 7,
+"lat": 48.96144893,
+"lon": 0.9435303
+},
+{
+"type": "node",
+"id": 8,
+"lat": 48.96152983,
+"lon": 0.9435271
+},
+{
+"type": "node",
+"id": 9,
+"lat": 48.96152702,
+"lon": 0.94336328
+},
+{
+"type": "way",
+"id": 200,
+"nodes": [
+6,
+7,
+8,
+9,
+6
+],
+"tags": {
+"building": "house",
+"building:levels": "2"
+}
+},
+{
+"type": "node",
+"id": 10,
+"lat": 48.96144691,
+"lon": 0.94288831
+},
+{
+"type": "node",
+"id": 11,
+"lat": 48.96145159,
+"lon": 0.94316135
+},
+{
+"type": "node",
+"id": 12,
+"lat": 48.96166734,
+"lon": 0.94315281
+},
+{
+"type": "node",
+"id": 13,
+"lat": 48.96166265,
+"lon": 0.94287978
+},
+{
+"type": "way",
+"id": 201,
+"nodes": [
+10,
+11,
+12,
+13,
+10
+],
+"tags": {
+"building": "church"
+}
+},
+{
+"type": "node",
+"id": 14,
+"lat": 48.9612249,
+"lon": 0.94358015
+},
+{
+"type": "node",
+"id": 15,
+"lat": 48.96122583,
+"lon": 0.94363475
+},
+{
+"type": "node",
+"id": 16,
+"lat": 48.96126179,
+"lon": 0.94363333
+},
+{
+"type": "node",
+"id": 17,
+"lat": 48.96126085,
+"lon": 0.94357872
+},
+{
+"type": "way",
+"id": 202,
+"nodes": [
+14,
+15,
+16,
+17,
+14
+],
+"tags": {
+"building": "shed"
+}
+},
+{
+"type": "node",
+"id": 18,
+"lat": 48.96093648,
+"lon": 0.94249869
+},
+{
+"type": "node",
+"id": 19,
+"lat": 48.96094585,
+"lon": 0.94304475
+},
+{
+"type": "node",
+"id": 20,
+"lat": 48.96130542,
+"lon": 0.94303052
+},
+{
+"type": "node",
+"id": 21,
+"lat": 48.96129605,
+"lon": 0.94248446
+},
+{
+"type": "way",
+"id": 300,
+"nodes": [
+18,
+19,
+20,
+21,
+18
+],
+"tags": {
+"leisure": "park"
+}
+},
+{
+"type": "node",
+"id": 22,
+"lat": 48.96148325,
+"lon": 0.94343332,
+"tags": {
+"shop": "bakery",
+"name": "Nom r\u00e9el \u00e0 supprimer"
+}
+},
+{
+"type": "node",
+"id": 23,
+"lat": 48.9616767,
+"lon": 0.94369888,
+"tags": {
+"natural": "tree"
+}
+}
+],
+"_ouche": {
+"source": "fixture de test",
+"licence": "aucune",
+"extrait_le": "2026-01-01"
+}
+}
