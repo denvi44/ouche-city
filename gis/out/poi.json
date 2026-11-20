@@ -1,0 +1,41 @@
+{
+ "schemaVersion": 1,
+ "pois": [
+  {
+   "id": "spawn_rue_sainte_foy",
+   "kind": "spawn",
+   "label": "Rue Sainte-Foy",
+   "position": [
+    1399.26,
+    1462.43
+   ],
+   "tile": "5_5",
+   "radius": 5.0,
+   "source": "ign"
+  },
+  {
+   "id": "eglise",
+   "kind": "landmark",
+   "label": "Église",
+   "position": [
+    1523.27,
+    938.94
+   ],
+   "tile": "6_3",
+   "radius": 15.0,
+   "source": "ign"
+  },
+  {
+   "id": "donjon",
+   "kind": "landmark",
+   "label": "Donjon",
+   "position": [
+    2602.64,
+    910.41
+   ],
+   "tile": "10_3",
+   "radius": 12.0,
+   "source": "ign"
+  }
+ ]
+}
