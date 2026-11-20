@@ -21,7 +21,7 @@ Option 3, avec la règle de fusion suivante dans `gis/build.py` :
 - hauteurs de bâtiments : IGN (mesurées), sinon `building:levels` d'OSM, sinon valeur par typologie ;
 - noms de rues : champ BAN de l'IGN (« Rue Sainte Foy »), rapprochés du nom configuré par normalisation (accents, tirets, casse) ;
 - relief : RGE ALTI, grille de 50 m sur l'emprise, rééchantillonnée à 25 m par tuile ; altitude de référence = la chaussée de la rue Sainte-Foy (0 m dans le jeu) ;
-- POI, arbres, commerces (anonymisés) : OSM, dès que `python -m gis.fetch` aboutit.
+- POI et arbres : OSM, dès que `python -m gis.fetch` aboutit ; noms de lieux toujours fictifs (voir 0004).
 
 ## Conséquences
 
