@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ouche-city/contracts/mission.schema.json",
+  "title": "Mission Ouche City",
+  "description": "Données de mission (missions/*.json), écrites par narration (07), exécutées par le serveur (gameplay 05 + réseau 12). Les champs spécifiques à une mission restent permis (additionalProperties) tant que le socle commun est respecté.",
+  "version": 1,
+  "type": "object",
+  "required": ["id", "title", "players", "roles", "steps", "medals", "rewards"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^m[0-9]{2}_[a-z0-9_]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "requires": { "type": "array", "items": { "$ref": "#/$defs/missionId" } },
+    "players": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "max": { "type": "integer", "minimum": 1, "maximum": 4 }
+      }
+    },
+    "roles": { "type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z_]+$" } },
+    "companions": {
+      "type": "object",
+      "description": "Rôle → identifiant de compagnon IA. Chaque rôle doit pouvoir être tenu par une IA (règle « solo = même code »).",
+      "additionalProperties": { "type": "string", "pattern": "^[a-z_]+$" }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z_0-9]+$" },
+          "type": {
+            "type": "string",
+            "enum": ["cutscene", "collect", "collect_parallel", "team_choice", "convoy", "deliver_on_foot", "minigames", "time_trial", "jury", "drag_race", "rhythm_battle", "sabotage_defend", "event", "stealth", "escort", "free"]
+          },
+          "skip": { "type": "string", "enum": ["majority_vote", "host", "never"] },
+          "options": { "type": "array", "items": { "type": "string" } },
+          "events": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "checkpoints": { "type": "array", "items": { "type": "string" } },
+    "medals": { "type": "object", "required": ["gold", "silver", "bronze"] },
+    "rewards": {
+      "type": "object",
+      "properties": {
+        "unlocks": { "type": "array", "items": { "type": "string" } },
+        "reputation": { "type": "object", "additionalProperties": { "type": "integer" } }
+      }
+    }
+  },
+  "$defs": { "missionId": { "type": "string", "pattern": "^m[0-9]{2}_[a-z0-9_]+$" } }
+}
