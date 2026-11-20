@@ -93,7 +93,7 @@ func _pose(vp: Dictionary, pois: Dictionary, b: CityBuilder, facings: Dictionary
 		var f: float = facings[vp.anchor]
 		var dir := Vector2(sin(f), cos(f))
 		var eye: Vector2 = s + dir * float(vp.distance)
-		return [Vector3(eye.x, b.height_at(eye.x, eye.y) + float(vp.eyeHeight), eye.y), Vector3(s.x, b.height_at(s.x, s.y) + 3.0, s.y)]
+		return [Vector3(eye.x, b.height_at(eye.x, eye.y) + float(vp.eyeHeight), eye.y), Vector3(s.x, b.height_at(s.x, s.y) + float(vp.get("lookHeight", 3.0)), s.y)]
 	if vp.type == "anchor":
 		if not pois.has(vp.anchor) or not b.bounds.grow(-1.0).has_point(pois[vp.anchor]):
 			return null

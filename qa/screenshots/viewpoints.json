@@ -1,5 +1,5 @@
 {
-  "description": "Points de vue nommés de la scène témoin. Types : along_road (caméra posée sur la rue nommée, regard dans l'axe), anchor (POI + décalage). Un point de vue dont l'ancre n'est pas dans les tuiles chargées est ignoré et signalé. Type sign : face à l'enseigne d'un POI fictif.",
+  "description": "Points de vue nommés de la scène témoin. Types : along_road (caméra posée sur la rue nommée, regard dans l'axe), anchor (POI + décalage). Un point de vue dont l'ancre n'est pas dans les tuiles chargées est ignoré et signalé. Type sign : face à l'enseigne d'un POI fictif. Type sign accepte lookHeight. Les points de vue mission01_* montrent les lieux de la mission 01 (blockout).",
   "hours": [
     12,
     21
@@ -81,6 +81,84 @@
       "road": "Place Carnot",
       "eyeHeight": 1.7,
       "lookAhead": 30
+    },
+    {
+      "id": "mission01_vue_ensemble",
+      "type": "anchor",
+      "anchor": "van_gege",
+      "offset": [
+        -40,
+        230,
+        330
+      ],
+      "lookOffset": [
+        -60,
+        0,
+        -250
+      ]
+    },
+    {
+      "id": "mission01_cave",
+      "type": "sign",
+      "anchor": "cave_gege",
+      "distance": 14,
+      "eyeHeight": 2.5,
+      "lookHeight": 3.5
+    },
+    {
+      "id": "mission01_grange",
+      "type": "sign",
+      "anchor": "grange_pommiers",
+      "distance": 22,
+      "eyeHeight": 4.0,
+      "lookHeight": 3.0
+    },
+    {
+      "id": "mission01_fumier",
+      "type": "anchor",
+      "anchor": "fumier_tas",
+      "offset": [
+        -12,
+        6,
+        -12
+      ],
+      "lookOffset": [
+        0,
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "mission01_poulailler",
+      "type": "sign",
+      "anchor": "poulailler_ginette",
+      "distance": 14,
+      "eyeHeight": 2.5,
+      "lookHeight": 1.5
+    },
+    {
+      "id": "mission01_camionnette",
+      "type": "sign",
+      "anchor": "van_gege",
+      "distance": 11,
+      "eyeHeight": 2.2,
+      "lookHeight": 3.5
+    },
+    {
+      "id": "mission01_barrage",
+      "type": "sign",
+      "anchor": "barrage_bosc_tenney",
+      "distance": 18,
+      "eyeHeight": 2.2,
+      "lookHeight": 1.5
+    },
+    {
+      "id": "mission01_stand",
+      "type": "sign",
+      "anchor": "stand_comite",
+      "distance": 12,
+      "eyeHeight": 2.2,
+      "lookHeight": 1.5
     }
   ]
 }

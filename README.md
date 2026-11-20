@@ -28,7 +28,7 @@ make gis-fetch   # télécharge IGN BD TOPO + RGE ALTI (et OSM si joignable) dan
 make gis         # tuiles gis/out/ → copie sans retouche dans game/assets/city/
 ```
 
-Le pipeline est déterministe ; la zone (rue Sainte-Foy, rayon 200 m) se règle dans `gis/config/emprise.toml`.
+Le pipeline est déterministe ; la zone (rue Sainte-Foy, rayon 560 m) se règle dans `gis/config/emprise.toml`.
 
 ## Tests et captures
 

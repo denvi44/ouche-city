@@ -82,10 +82,22 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
             continue
-        base = p["label"].split(" (annexe")[0]
-        assert base in autorises, f"nom non fictif ou non répertorié : {p['label']}"
+        assert any(p["label"] == n or p["label"].startswith(n + " ") for n in autorises), f"nom non fictif ou non répertorié : {p['label']}"
+
+
+def test_lieux_de_mission01_couvrent_les_etapes():
+    """Chaque étape spatiale de m01 a un lieu posé sur la carte, et chaque lieu sert une étape existante."""
+    m = json.loads((ROOT / "missions/m01_calva_gege.json").read_text(encoding="utf-8"))
+    etapes = {s["id"] for s in m["steps"]}
+    pois = [p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"] if p.get("step")]
+    assert pois and all(p["step"] in etapes and "m01_calva_gege" in p["missions"] for p in pois)
+    servies = {p["step"] for p in pois}
+    assert {"crates", "vehicle", "checkpoint", "fair"} <= servies
+    # Les 4 sources de caisses du JSON (cave, grange, poulailler, fumier) ont chacune un lieu.
+    ids = {p["id"] for p in pois if p["step"] == "crates"}
+    assert len(ids) == len(next(s for s in m["steps"] if s["id"] == "crates")["spawns"])
