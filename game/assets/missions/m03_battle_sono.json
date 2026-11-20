@@ -1,0 +1,26 @@
+{
+  "id": "m03_battle_sono",
+  "title": "Battle de sono",
+  "requires": ["m02_tuning_samedi"],
+  "players": { "min": 1, "max": 4 },
+  "teams": { "player": "lotissement_pommiers", "rival": "clos_fleuri" },
+  "nuisance": { "policeCallAt": 0.7, "seizureAt": 1.0, "soloRateMultiplier": 0.75, "lemoineArrivalSec": 90 },
+  "playlists": [
+    { "id": "musette_remix", "rallies": "anciens" },
+    { "id": "techno_foraine", "rallies": "jeunes", "nuisanceMultiplier": 1.3 },
+    { "id": "tube_ete_2003", "rallies": "tous", "rallyMultiplier": 0.7 }
+  ],
+  "roles": ["dj", "saboteur", "electricien", "videur"],
+  "companions": { "saboteur": "kevin", "electricien": "gege", "videur": "ginette" },
+  "steps": [
+    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
+    { "id": "setup", "type": "collect", "items": ["caisson_fusee", "rallonge_ginette", "groupe_electrogene"], "timeLimitSec": 300 },
+    { "id": "round_volume", "type": "rhythm_battle" },
+    { "id": "round_sabotage", "type": "sabotage_defend", "sabotages": ["unplug", "usb_accordeon", "poules"], "rivalAttempts": { "solo": 2, "coop": 4 } },
+    { "id": "police_call", "type": "event", "trigger": "nuisance>=0.7", "choices": ["barbecue", "accuser_clos", "merguez"] },
+    { "id": "round_final", "type": "rhythm_battle", "finale": "lacher_de_basses" },
+    { "id": "outro", "type": "cutscene", "variants": ["gold", "win", "default"] }
+  ],
+  "medals": { "gold": { "rounds": 3, "policeVisit": false }, "silver": { "rounds": 3 }, "bronze": { "rounds": 2 } },
+  "rewards": { "items": ["sono_portable"], "radio": "radio_pommiers", "reputation": { "pommiers": 1 }, "unlocks": ["m04_mechoui_saint_jean"] }
+}

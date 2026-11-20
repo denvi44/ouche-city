@@ -35,6 +35,10 @@ jobs:
           godot --headless --path game -s ../qa/unit/run_gdscript_tests.gd
       - name: Test réseau (serveur dédié + 2 bots)
         run: bash qa/integration/two_players.sh
+      - name: Mission 01 de bout en bout (caisses, conduite, choc, livraison)
+        run: godot --headless --path game -s ../qa/integration/m01_flow.gd
+      - name: Conduite en ligne (serveur + conducteur + spectateur)
+        run: bash qa/integration/drive_online.sh
       - name: Captures (Compatibility, sans GPU)
         run: bash qa/screenshots/capture.sh "qa/screenshots/out/ci"
       - uses: actions/upload-artifact@v4

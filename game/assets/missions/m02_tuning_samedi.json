@@ -1,0 +1,28 @@
+{
+  "id": "m02_tuning_samedi",
+  "title": "Tuning du samedi soir",
+  "requires": ["m01_calva_gege"],
+  "players": { "min": 1, "max": 4 },
+  "deadline": "21:00",
+  "budget": { "solo": 400, "coop": 300, "addPreviousEarnings": true },
+  "parts": { "pool": ["jantes", "pot", "neons", "caisson", "aileron"], "required": { "solo": 3, "coop": 4 } },
+  "sources": [
+    { "id": "casse", "cost": 0, "type": "stealth_search" },
+    { "id": "annonce", "type": "haggle" },
+    { "id": "auto_bling_27", "type": "shop", "priceMultiplier": 1.5 },
+    { "id": "cour_dylan", "cost": 0, "wanted": 1, "flags": ["dylan_recognizes_parts"] }
+  ],
+  "roles": ["pilote", "chineur", "mecano", "ambianceur"],
+  "companions": { "chineur": "ginette", "mecano": "kevin", "ambianceur": "gege" },
+  "steps": [
+    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
+    { "id": "parts", "type": "collect_parallel" },
+    { "id": "assembly", "type": "minigames", "penaltyPerFail": -1 },
+    { "id": "test_drive", "type": "time_trial", "events": ["speed_trap"] },
+    { "id": "meet", "type": "jury", "criteria": ["look", "son", "presence"], "max": 10 },
+    { "id": "drag", "type": "drag_race", "distanceM": 400, "rival": "dylan", "boost": { "uses": 1, "engineBreakIfEarly": true } },
+    { "id": "outro", "type": "cutscene", "variants": ["win", "lose"] }
+  ],
+  "medals": { "gold": { "jury": 8, "win": true }, "silver": { "win": true }, "bronze": { "presented": true } },
+  "rewards": { "vehicle": "fusee_kevin", "unlocks": ["garage_tuning", "activite_drag_samedi", "m03_battle_sono"], "reputation": { "jeunesse": 1 } }
+}

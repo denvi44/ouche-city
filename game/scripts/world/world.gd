@@ -12,6 +12,8 @@ var city: Node3D
 var builder: CityBuilder
 var env: Environment
 var sun: DirectionalLight3D
+var van: Vehicle
+var mission: MissionM01
 
 
 func _ready() -> void:
@@ -24,6 +26,7 @@ func _ready() -> void:
 	players_root = Node3D.new()
 	players_root.name = "Joueurs"
 	add_child(players_root)
+	_build_van_and_mission()
 	if DisplayServer.get_name() != "headless":
 		add_child(preload("res://ui/hud.gd").new())
 
@@ -56,6 +59,34 @@ func _ready() -> void:
 	var quit_after = Net.arg("quit-after")
 	if quit_after != null:
 		get_tree().create_timer(float(quit_after)).timeout.connect(_qa_quit)
+
+
+## La camionnette et la mission existent sur tous les pairs (mêmes noms, même place) ;
+## seul le serveur décide, les clients reçoivent l'état par `MissionM01._sync` et `NetBody._state`.
+func _build_van_and_mission() -> void:
+	var poi = CityBuilder.read_json(CITY_DIR.path_join("poi.json"))
+	var pois: Array = poi.get("pois", []) if poi is Dictionary else []
+	var van_poi := {}
+	for p in pois:
+		if p.id == "van_gege":
+			van_poi = p
+	if not van_poi.is_empty():
+		van = Vehicle.new()
+		van.name = "Van"
+		var x := float(van_poi.position[0])
+		var z := float(van_poi.position[1])
+		van.position = Vector3(x, builder.height_at(x, z) + 0.4, z)
+		van.rotation.y = float(van_poi.facing) + PI
+		add_child(van)
+	mission = MissionM01.new()
+	mission.name = "Mission"
+	add_child(mission)
+	mission.setup(pois, builder.height_at, van, players_root)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact") and mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
+		mission.request_interact()
 
 
 func _build_environment() -> void:
@@ -116,6 +147,7 @@ func _spawn(id: int, player_name: String, pos: Vector3) -> Player:
 	p.name = str(id)
 	p.display_name = player_name
 	p.position = pos
+	p.vehicle = van
 	players_root.add_child(p)
 	return p
 
@@ -162,7 +194,10 @@ func _client_ready() -> void:
 	var id := multiplayer.get_remote_sender_id()
 	if not Net.players.has(id):
 		return
-	var pos := find_free_spawn(spawn_point)
+	var base := spawn_point
+	if Net.arg("spawn-at") == "van" and van:   # option QA : apparaître près de la camionnette
+		base = van.global_position + Vector3(2.6, 0, 0)
+	var pos := find_free_spawn(base)
 	var pname: String = Net.players[id].name
 	_spawn(id, pname, pos)
 	for child in players_root.get_children():
@@ -171,6 +206,7 @@ func _client_ready() -> void:
 		_spawn_remote.rpc_id(other, id, pname, pos)
 	_set_hour.rpc_id(id, day_night.hour)
 	Net.players[id].ready = true
+	mission.send_full_state(id)
 	print("[monde] joueur %d (%s) apparu en %s" % [id, pname, pos])
 
 
@@ -191,6 +227,7 @@ func _set_hour(h: float) -> void:
 
 
 func _on_peer_left(id: int) -> void:
+	mission.on_player_left(id)
 	_despawn(id)
 	for other in Net.ready_peers():
 		_despawn.rpc_id(other, id)
@@ -207,7 +244,8 @@ func _qa_report() -> void:
 	var parts := []
 	for p in players_root.get_children():
 		parts.append("%d@%.1f,%.1f,%.1f" % [p.peer_id, p.global_position.x, p.global_position.y, p.global_position.z])
-	print("[qa] mode=%s joueurs=%d positions=%s" % [Net.Mode.keys()[Net.mode], players_root.get_child_count(), " ".join(parts)])
+	var vinfo := "van=%.1f,%.1f,%.1f conducteur=%d etape=%s" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step] if van else "van=-"
+	print("[qa] mode=%s joueurs=%d %s positions=%s" % [Net.Mode.keys()[Net.mode], players_root.get_child_count(), vinfo, " ".join(parts)])
 
 
 func _qa_quit() -> void:

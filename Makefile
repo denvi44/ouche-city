@@ -18,6 +18,7 @@ gis:
 city:
 	rm -rf game/assets/city && mkdir -p game/assets/city
 	cp -r gis/out/tiles gis/out/poi.json gis/out/road_graph.json gis/out/manifest.json game/assets/city/
+	rm -rf game/assets/missions && mkdir -p game/assets/missions && cp missions/*.json game/assets/missions/
 
 test: test-py test-godot
 
@@ -28,6 +29,8 @@ test-godot:
 	$(GODOT) --headless --path game --import >/dev/null 2>&1 || true
 	$(GODOT) --headless --path game -s ../qa/unit/run_gdscript_tests.gd
 	bash qa/integration/two_players.sh
+	$(GODOT) --headless --path game -s ../qa/integration/m01_flow.gd
+	bash qa/integration/drive_online.sh
 
 ## Captures 1920×1080 de la scène témoin (GPU conseillé ; sinon rendu Compatibility).
 screenshots:

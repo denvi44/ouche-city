@@ -430,31 +430,8 @@ func build_tile(data: Dictionary) -> Node3D:
 	return root
 
 
-## Maillage de contour « inverted hull » : mêmes triangles que le bâti, avec en COLOR la normale
-## lissée du sommet (moyenne des faces qui partagent sa position), encodée de 0 à 1.
 func _build_hull(tris: Array) -> ArrayMesh:
-	var sums := {}
-	for t in tris:
-		var n: Vector3 = (t[1] - t[0]).cross(t[2] - t[0])
-		for v in t:
-			var key := Vector3i(roundi(v.x * 50.0), roundi(v.y * 50.0), roundi(v.z * 50.0))
-			sums[key] = sums.get(key, Vector3.ZERO) + n
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for t in tris:
-		for v in t:
-			var key := Vector3i(roundi(v.x * 50.0), roundi(v.y * 50.0), roundi(v.z * 50.0))
-			var sn: Vector3 = (sums[key] as Vector3).normalized()
-			# Le triangle est dans le sens horaire vu de l'extérieur : sa normale géométrique
-			# (produit vectoriel) pointe vers l'intérieur, on l'inverse pour gonfler vers l'extérieur.
-			sn = -sn
-			st.set_color(Color(sn.x * 0.5 + 0.5, sn.y * 0.5 + 0.5, sn.z * 0.5 + 0.5))
-			st.add_vertex(v)
-	var mesh := ArrayMesh.new()
-	if not tris.is_empty():
-		st.set_material(material("contour_decor"))
-		st.commit(mesh)
-	return mesh
+	return HullOutline.build(tris)
 
 
 func _add_collision(body: StaticBody3D, mesh: ArrayMesh) -> void:
@@ -641,8 +618,8 @@ func build_mission_markers(pois: Array) -> Node3D:
 		n.name = "Lieu_" + str(p.id)
 		n.position = Vector3(x, height_at(x, z), z)
 		n.rotation.y = float(p.get("facing", 0.0))
-		if p.has("prop"):
-			_add_prop(n, p.prop)
+		if p.has("prop") and p.prop != "van":
+			_add_prop(n, p.prop)   # la camionnette est un vrai véhicule (Vehicle), pas un accessoire
 		var color: Color = STEP_COLOR.get(p.step, Color.WHITE)
 		# Balise : cylindre translucide visible de loin.
 		var beam := CylinderMesh.new()

@@ -4,6 +4,10 @@ extends CanvasLayer
 var _info: Label
 var _pause: PanelContainer
 var _open_btn: Button
+var _mission_label: Label
+var _hint: Label
+var _speed: Label
+var _result: Label
 
 
 func _ready() -> void:
@@ -31,7 +35,62 @@ func _ready() -> void:
 	osm.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	osm.position -= Vector2(16, 10)
 	root.add_child(osm)
+	_build_mission(root)
 	_build_pause(root)
+
+
+func _outlined(l: Label, size: int) -> void:
+	l.add_theme_font_size_override("font_size", int(size * Settings.text_scale))
+	l.add_theme_color_override("font_color", ThemeUtil.CREAM)
+	l.add_theme_color_override("font_outline_color", ThemeUtil.INK)
+	l.add_theme_constant_override("outline_size", 8)
+
+
+func _build_mission(root: Control) -> void:
+	_mission_label = Label.new()
+	_mission_label.position = Vector2(24, 64)
+	_mission_label.custom_minimum_size = Vector2(620, 0)
+	_mission_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_outlined(_mission_label, 22)
+	root.add_child(_mission_label)
+	_hint = Label.new()
+	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_hint.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	_hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_hint.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_hint.position.y -= 90
+	_outlined(_hint, 30)
+	root.add_child(_hint)
+	_speed = Label.new()
+	_speed.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_speed.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_speed.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_speed.position -= Vector2(24, 60)
+	_outlined(_speed, 40)
+	root.add_child(_speed)
+	_result = Label.new()
+	_result.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_result.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_result.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_result.position.y += 140
+	_outlined(_result, 54)
+	root.add_child(_result)
+
+
+static func format_time(seconds: float) -> String:
+	var s := maxi(int(ceil(seconds)), 0)
+	return "%d:%02d" % [s / 60, s % 60]
+
+
+## Texte du panneau de mission (fonction pure, testée).
+static func mission_text(m: MissionM01) -> String:
+	var lines: PackedStringArray = [m.title]
+	lines.append(m.objective())
+	if m.step in ["crates", "road", "fair"]:
+		lines.append("Bouteilles intactes : %d / %d   (cassées : %d)   ·   Temps restant : %s" % [m.cargo, m.bottles_total, m.broken, format_time(m.time_limit - m.elapsed)])
+	for msg in m.messages.slice(maxi(m.messages.size() - 3, 0)):
+		lines.append("• " + msg)
+	return "\n".join(lines)
 
 
 ## Mention obligatoire des sources de la carte, d'après le manifeste du cartographe.
@@ -101,4 +160,22 @@ func _process(_delta: float) -> void:
 	var dn := get_parent().get_node_or_null("CycleJourNuit") as DayNight
 	var h: float = dn.hour if dn else 12.0
 	var mode_txt: String = {Net.Mode.SOLO: "Solo", Net.Mode.HOST: "Hôte", Net.Mode.CLIENT: "En ligne", Net.Mode.DEDICATED: "Serveur"}.get(Net.mode, "—")
+	var world := get_parent()
+	var mission := world.get("mission") as MissionM01 if world else null
+	if mission:
+		_mission_label.text = mission_text(mission)
+		var me := world.players_root.get_node_or_null(str(multiplayer.get_unique_id())) as Player
+		_hint.text = ""
+		_speed.text = ""
+		if me:
+			var r := mission.resolve(me.peer_id, me.global_position)
+			if r.has("label"):
+				_hint.text = ("[E]  " if r.kind != "none" else "") + r.label
+			if me.is_driving() and me.vehicle:
+				_speed.text = "%d km/h" % int(me.vehicle.speed_kmh())
+		_result.text = ""
+		if mission.step == "done":
+			_result.text = "Médaille : %s" % {"gold": "OR", "silver": "ARGENT", "bronze": "BRONZE"}.get(mission.medal, "aucune")
+		elif mission.step == "failed":
+			_result.text = "Mission ratée"
 	_info.text = "Rue Sainte-Foy · %02d h %02d · %s · %d joueur(s)" % [int(h), int(fmod(h, 1.0) * 60), mode_txt, maxi(Net.players.size(), 1)]

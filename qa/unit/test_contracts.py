@@ -101,3 +101,10 @@ def test_lieux_de_mission01_couvrent_les_etapes():
     # Les 4 sources de caisses du JSON (cave, grange, poulailler, fumier) ont chacune un lieu.
     ids = {p["id"] for p in pois if p["step"] == "crates"}
     assert len(ids) == len(next(s for s in m["steps"] if s["id"] == "crates")["spawns"])
+
+
+def test_missions_importees_dans_godot():
+    """game/assets/missions doit être une copie exacte de missions/ (make city)."""
+    for src in (ROOT / "missions").glob("m*.json"):
+        dst = ROOT / "game/assets/missions" / src.name
+        assert dst.exists() and dst.read_bytes() == src.read_bytes(), f"{src.name} : lancer make city"

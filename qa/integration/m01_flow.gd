@@ -1,0 +1,167 @@
+extends SceneTree
+## Test d'intégration de la mission 01 (agent 09), en solo headless, sans souris ni clavier.
+## Usage : godot --headless --path game -s ../qa/integration/m01_flow.gd
+## Déroulé : 4 caisses → camionnette → conduite → descente/remontée → choc (bouteilles cassées)
+## → barrage → stand → médaille. Chaque étape est vérifiée ; code de sortie 1 au premier échec.
+
+const WORLD := "res://scenes/temoin_rue_sainte_foy.tscn"
+var fails := 0
+var world
+var mission
+var van
+var player
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+func check(cond: bool, label: String) -> bool:
+	if cond:
+		print("  ok  ", label)
+	else:
+		fails += 1
+		printerr("ÉCHEC ", label)
+	return cond
+
+
+func frames(n: int) -> void:
+	for i in n:
+		await physics_frame
+
+
+func place(node, pos: Vector3) -> void:
+	node.global_position = pos
+	node.velocity = Vector3.ZERO
+
+
+func _run() -> void:
+	create_timer(120.0).timeout.connect(func(): printerr("ÉCHEC délai dépassé"); quit(2))
+	world = load(WORLD).instantiate()
+	root.add_child(world)
+	await frames(40)
+	mission = world.mission
+	van = world.van
+	player = world.players_root.get_node_or_null("1")
+	if not (check(mission != null and van != null and player != null, "monde, mission, camionnette et joueur créés")):
+		quit(1)
+		return
+	await frames(60)
+	check(van.is_on_floor(), "la camionnette repose sur le sol")
+	check(mission.started and mission.step == "crates", "mission démarrée à l'étape caisses")
+	check(mission.crates.size() == 4, "4 caisses posées (cave, grange, poulailler, fumier)")
+
+	# --- Caisses -------------------------------------------------------------------
+	for id in mission.crates.keys():
+		var c = mission.crates[id]
+		place(player, c.pos + Vector3(0, 0.1, 0))
+		var r = mission.resolve(1, player.global_position)
+		if not check(r.get("kind") == "pickup" and r.id == id, "caisse %s : prise possible" % id):
+			continue
+		mission.interact(1)
+		check(c.state == "carried" and player.carrying, "caisse %s portée (joueur ralenti)" % id)
+		var far = c.pos + Vector3(30, 0, 0)
+		check(mission.resolve(1, far).get("kind") == "none", "loin de la camionnette : consigne « rapportez »")
+		place(player, van.global_position + van.global_transform.basis.x * 2.6)
+		check(mission.resolve(1, player.global_position).get("kind") == "load", "caisse %s : chargement possible" % id)
+		mission.interact(1)
+		check(c.state == "loaded" and not player.carrying, "caisse %s chargée" % id)
+	check(mission.cargo == 24 and mission.step == "road", "24 bouteilles à bord, étape route")
+
+	# --- Monter, conduire ---------------------------------------------------------
+	place(player, van.global_position + van.global_transform.basis.x * 2.6)
+	check(mission.resolve(1, player.global_position).get("kind") == "enter", "monter possible")
+	mission.interact(1)
+	await frames(3)
+	check(van.driver == 1 and player.is_driving() and van.controller == 1, "joueur au volant")
+	check(not player.visual.visible, "joueur masqué pendant la conduite")
+	var start: Vector3 = van.global_position
+	van.forced_input = {"move": Vector2(0, -1), "jump": false}
+	await frames(150)
+	var moved: float = van.global_position.distance_to(start)
+	check(van.speed > 8.0, "accélération : %.1f m/s" % van.speed)
+	check(moved > 15.0, "la camionnette avance (%.0f m)" % moved)
+	check(van.speed <= van.MAX_SPEED + 0.01, "vitesse plafonnée")
+	check(van.is_on_floor(), "reste collée au sol")
+	check(player.global_position.distance_to(van.global_position) < 1.5, "le joueur suit la camionnette")
+	var yaw0: float = van.rotation.y
+	van.forced_input = {"move": Vector2(1, -1), "jump": false}
+	await frames(60)
+	check(van.rotation.y < yaw0 - 0.05, "braquage à droite : le lacet diminue")
+	van.forced_input = {"move": Vector2(0, 0), "jump": true}
+	await frames(120)
+	check(absf(van.speed) < 0.5, "frein à main : arrêt")
+
+	# --- Descendre / remonter ---------------------------------------------------------
+	check(mission.resolve(1, player.global_position).get("kind") == "exit", "descendre possible")
+	mission.interact(1)
+	await frames(5)
+	check(van.driver == 0 and not player.is_driving(), "joueur à pied")
+	check(player.global_position.distance_to(van.global_position) > 1.8 and player.global_position.distance_to(van.global_position) < 6.0, "descendu à côté")
+	mission.interact(1)
+	await frames(3)
+	check(van.driver == 1, "remonté au volant")
+
+	# --- Choc : cargaison fragile ----------------------------------------------------------
+	var space = van.get_world_3d().direct_space_state
+	var found := false
+	var base: Vector3 = van.global_position
+	for k in 72:
+		var yaw := TAU * k / 72.0
+		var dir := Vector3(-sin(yaw), 0, -cos(yaw))
+		var q = PhysicsRayQueryParameters3D.create(base + Vector3(0, 1.2, 0), base + Vector3(0, 1.2, 0) + dir * 400.0)
+		q.exclude = [van.get_rid(), player.get_rid()]
+		var hit = space.intersect_ray(q)
+		if hit and hit.normal.y < 0.3 and hit.normal.dot(-dir) > 0.93 and base.distance_to(hit.position) > 32.0:
+			# 28 m avant le mur, cap dessus : la camionnette a le temps de monter en vitesse.
+			van.rotation.y = yaw
+			place(van, hit.position - dir * 30.0 + Vector3(0, 0.6, 0))
+			van.speed = 0.0
+			found = true
+			break
+	if check(found, "un mur à percuter a été trouvé"):
+		await frames(10)
+		var bottles_before: int = mission.cargo
+		var broken_before: int = mission.broken
+		van.forced_input = {"move": Vector2(0, -1), "jump": false}
+		await frames(240)
+		check(mission.broken > broken_before and mission.cargo < bottles_before, "choc frontal : %d bouteille(s) cassée(s) en plus, %d intacte(s)" % [mission.broken - broken_before, mission.cargo])
+		check(mission.messages.size() > 0, "événement consigné pour le HUD")
+	van.forced_input = {"move": Vector2.ZERO, "jump": true}
+	await frames(60)
+
+	# --- Barrage puis stand ------------------------------------------------------------------
+	place(van, mission.zones.barrage + Vector3(0, 0.6, 0))
+	van.speed = 0.0
+	await frames(10)
+	check(mission.step == "fair" and mission.barrage_passed, "barrage franchi, étape foire")
+	place(van, mission.zones.stand + Vector3(0, 0.6, 0))
+	van.speed = 0.0
+	await frames(10)
+	var intact: int = mission.cargo
+	if intact < mission.min_delivered:
+		check(mission.step == "failed" and mission.medal == "", "moins de %d bouteilles (%d) : mission échouée" % [mission.min_delivered, intact])
+	else:
+		check(mission.step == "done" and mission.medal == mission.medal_for(intact), "livraison au stand, médaille %s" % mission.medal)
+	# Seconde issue : on remet 20 bouteilles intactes (hook de test) et on relivre.
+	mission.step = "fair"
+	mission.cargo = 20
+	mission.medal = ""
+	mission.money = 0
+	place(van, mission.zones.barrage + Vector3(0, 0.6, 0))
+	await frames(5)
+	place(van, mission.zones.stand + Vector3(0, 0.6, 0))
+	van.speed = 0.0
+	await frames(10)
+	check(mission.step == "done", "livraison réussie avec 20 bouteilles")
+	check(mission.medal == "silver", "médaille d'argent (16 à 21)")
+	check(mission.money == 20 * mission.money_per_bottle, "récompense %d €" % mission.money)
+
+	# --- Barème des médailles (fonction pure) ---------------------------------------------------
+	check(mission.medal_for(24) == "gold" and mission.medal_for(22) == "gold", "or à partir de 22")
+	check(mission.medal_for(16) == "silver" and mission.medal_for(21) == "silver", "argent de 16 à 21")
+	check(mission.medal_for(12) == "bronze" and mission.medal_for(15) == "bronze", "bronze de 12 à 15")
+	check(mission.medal_for(11) == "", "rien sous 12")
+
+	print("[m01] %s" % ("ÉCHEC : %d vérification(s)" % fails if fails > 0 else "toutes les vérifications passent"))
+	quit(1 if fails > 0 else 0)
