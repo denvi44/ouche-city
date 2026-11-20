@@ -18,4 +18,4 @@ echelle = 0.5
 # Premier ticket M0 : la rue Sainte-Foy et ses abords.
 [poc]
 rue = "Rue Sainte-Foy"
-rayon_m = 200
+rayon_m = 560

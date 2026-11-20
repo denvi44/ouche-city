@@ -37,6 +37,11 @@ ENSEIGNES = {
     "opticien": ["Optique Yeux de Lynx"],
 }
 
+# Qualificatifs pour décliner une enseigne déjà prise (la ville compte plus de commerces que de noms).
+QUALIFICATIFS = ["& Fils", "Père et Fille", "depuis 1962", "Express", "du Marché", "du Centre", "de la Gare",
+                 "Bis", "Le Retour", "du Haut", "du Bas", "des Halles", "de la Mare", "du Lavoir",
+                 "Saint-Michel", "des Vergers", "de l'Église", "du Pont", "de la Place", "Chez Nous"]
+
 # Lieux de mission rattachés à des bâtiments réels de la zone (identifiants des missions/*.json).
 LIEUX_MISSION = [
     ("auto_bling_27", "shop", "Auto Bling 27", ["m02_tuning_samedi"]),
@@ -119,7 +124,14 @@ def lieux_fictifs(tuiles: dict, taille: float) -> list[dict]:
                 label = libres[(start + k) % len(libres)]
                 break
         if label is None:
-            label = f"{noms[start]} (annexe {len(deja)})"
+            # Toutes les enseignes de base sont prises : on décline avec un qualificatif de quartier.
+            for k in range(len(QUALIFICATIFS)):
+                essai = f"{noms[start]} {QUALIFICATIFS[(_h('q', b['id']) + k) % len(QUALIFICATIFS)]}"
+                if essai not in deja:
+                    label = essai
+                    break
+            if label is None:
+                label = f"{noms[start]} {len(deja)}"
         deja.add(label)
         ajout(b, f"commerce_{b['id'][2:]}", "shop", label)
 
@@ -129,6 +141,108 @@ def lieux_fictifs(tuiles: dict, taille: float) -> list[dict]:
             b = max(candidats, key=lambda b: Polygon(b["footprint"]).area)
             ajout(b, {"eglise": "eglise", "public": "salle_des_fetes"}[typo], "landmark", label)
     return pois
+
+
+# --- Mission 01 « Le Calva de Tonton Gégé » : lieux de blockout -------------------------------------
+M01 = "m01_calva_gege"
+LABELS_M01 = {
+    "cave_gege": "Cave de Tonton Gégé",
+    "grange_pommiers": "Grange des Pommiers",
+    "poulailler_ginette": "Poulailler de Mémère Ginette",
+    "fumier_tas": "Tas de fumier du père Lepommier",
+    "van_gege": "Camionnette de Gégé",
+    "barrage_bosc_tenney": "Barrage de l'avenue du Bosc-Tenney",
+    "stand_comite": "Stand du Comité des fêtes",
+}
+
+
+def _poi(pid, kind, label, x, z, facing, taille, step, prop=None, building=None, radius=4.0):
+    p = {"id": pid, "kind": kind, "label": label, "position": [_r(x), _r(z)],
+         "tile": f"{int(x // taille)}_{int(z // taille)}", "radius": radius, "source": "design",
+         "missions": [M01], "step": step, "facing": _r(facing)}
+    if prop:
+        p["prop"] = prop
+    if building:
+        p["building"] = building
+    return p
+
+
+def _point_sur_route(tuiles, nom_normalise, normaliser, fraction=0.5):
+    """Point au milieu de la plus longue route portant ce nom, et direction (rad) de la route."""
+    best = []
+    for t in tuiles.values():
+        for r in t["roads"]:
+            if normaliser(r.get("name")) == nom_normalise and len(r["points"]) > len(best):
+                best = r["points"]
+    if len(best) < 2:
+        return None
+    line = LineString(best)
+    pt = line.interpolate(fraction, normalized=True)
+    a = line.interpolate(max(fraction - 0.05, 0), normalized=True)
+    b = line.interpolate(min(fraction + 0.05, 1), normalized=True)
+    return (pt.x, pt.y), math.atan2(b.x - a.x, b.y - a.y)
+
+
+def lieux_mission01(tuiles: dict, taille: float, normaliser, spawn) -> list[dict]:
+    """Lieux jouables de la mission 01, posés sur la vraie carte (sans retouche manuelle).
+
+    - cave : colombages le plus proche de l'apparition, hors commerce ;
+    - grange / poulailler : plus grande / plus petite annexe de la zone, loin du centre ;
+    - fumier : 7 m derrière la grange, côté opposé à la rue ;
+    - camionnette : sur la rue Sainte-Foy, près de l'apparition ;
+    - barrage : milieu de l'avenue du Bosc-Tenney ; stand : place Carnot (foire).
+    """
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"]
+              if r["kind"] not in ("footway", "track")]
+    batiments = sorted((b for t in tuiles.values() for b in t["buildings"]), key=lambda b: b["id"])
+    out: list[dict] = []
+    sx, sz = spawn
+
+    def dist(b):
+        c = Polygon(b["footprint"]).centroid
+        return math.hypot(c.x - sx, c.y - sz)
+
+    col = sorted((b for b in batiments if b["typology"] == "colombages" and 25 < dist(b) < 120), key=dist)
+    if col:
+        (x, z), f = emplacement_enseigne(col[0]["footprint"], routes)
+        out.append(_poi("cave_gege", "mission_target", LABELS_M01["cave_gege"], x, z, f, taille, "crates", building=col[0]["id"]))
+    annexes = [b for b in batiments if b["typology"] == "annexe" and dist(b) > 60]
+    annexes.sort(key=lambda b: Polygon(b["footprint"]).area)
+    if annexes:
+        petit, grand = annexes[0], annexes[-1]
+        (x, z), f = emplacement_enseigne(grand["footprint"], routes)
+        out.append(_poi("grange_pommiers", "mission_target", LABELS_M01["grange_pommiers"], x, z, f, taille, "crates", building=grand["id"]))
+        # Le tas de fumier va derrière la grange, hors de tout bâtiment (marge de 3 m).
+        polys = [Polygon(b["footprint"]) for b in batiments]
+        c = Polygon(grand["footprint"]).centroid
+        fx, fz = c.x, c.y
+        for d in range(6, 60, 2):
+            for da in (0.0, 0.5, -0.5, 1.0, -1.0):
+                a = f + math.pi + da
+                x, z = c.x + math.sin(a) * d, c.y + math.cos(a) * d
+                pt = Point(x, z)
+                if not any(p_.distance(pt) < 3.0 for p_ in polys):
+                    fx, fz = x, z
+                    break
+            else:
+                continue
+            break
+        out.append(_poi("fumier_tas", "mission_target", LABELS_M01["fumier_tas"], fx, fz, f + math.pi, taille, "crates", prop="fumier"))
+        (x, z), f = emplacement_enseigne(petit["footprint"], routes)
+        out.append(_poi("poulailler_ginette", "mission_target", LABELS_M01["poulailler_ginette"], x, z, f, taille, "crates", building=petit["id"]))
+    rue = _point_sur_route(tuiles, normaliser("Rue Sainte-Foy"), normaliser, 0.35)
+    if rue:
+        (x, z), f = rue
+        out.append(_poi("van_gege", "spawn", LABELS_M01["van_gege"], x + math.cos(f) * 2.6, z - math.sin(f) * 2.6, f, taille, "vehicle", prop="van"))
+    bosc = _point_sur_route(tuiles, normaliser("Avenue du Bosc Tenney"), normaliser, 0.5)
+    if bosc:
+        (x, z), f = bosc
+        out.append(_poi("barrage_bosc_tenney", "mission_target", LABELS_M01["barrage_bosc_tenney"], x, z, f, taille, "checkpoint", prop="barrier", radius=8.0))
+    carnot = _point_sur_route(tuiles, normaliser("Place Carnot"), normaliser, 0.5)
+    if carnot:
+        (x, z), f = carnot
+        out.append(_poi("stand_comite", "mission_target", LABELS_M01["stand_comite"], x, z, f, taille, "fair", prop="stand", radius=5.0))
+    return out
 
 
 def nom_commerce_generique(osm_id) -> str:

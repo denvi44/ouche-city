@@ -455,7 +455,7 @@ def points_interet(rep: Repere, ways, points, poc_centre, emp, origine: str = "o
         if cat in LIBELLE_COMMERCE:
             x, z = rep.local(p["lat"], p["lon"])
             ajout(f"commerce_osm_{p['id']}", "shop", fiction.nom_commerce_generique(p["id"]), x, z, source="design")
-    return {"schemaVersion": 2, "pois": pois}
+    return {"schemaVersion": 3, "pois": pois}
 
 
 def ecrire(path: Path, data) -> None:
@@ -489,6 +489,7 @@ def main(argv=None) -> int:
     ecrire(args.out / "road_graph.json", graphe_routier(src.ways, src.nodes, src.attribution))
     poi = points_interet(rep, src.ways, src.points, poc_centre, emp, "ign" if args.ign.exists() else "osm")
     fictifs = fiction.lieux_fictifs(tuiles, emp.taille_tuile_m)
+    fictifs += fiction.lieux_mission01(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y))
     ids_fictifs = {p["id"] for p in fictifs}
     # Les monuments trouvés dans la zone remplacent leurs homologues lointains.
     poi["pois"] = [p for p in poi["pois"] if not (p["id"] == "eglise_lointaine" and "eglise" in ids_fictifs)] + fictifs

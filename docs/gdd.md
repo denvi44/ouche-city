@@ -20,7 +20,7 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 
 | Système | Agent | État M0 |
 | --- | --- | --- |
-| Ville générée (tuiles 250 m, relief, bâti) | 01, 02 | rue Sainte-Foy (6 tuiles) importée sans retouche |
+| Ville générée (tuiles 250 m, relief, bâti) | 01, 02 | rue Sainte-Foy (26 tuiles, rayon 560 m) importée sans retouche |
 | Rendu toon, contours, jour/nuit | 03 | shaders et matériaux de base |
 | Joueur à pied, caméra | 05 | marche, sprint, saut, caméra 3ᵉ personne |
 | Réseau autoritaire, solo local | 12 | poignée de main versionnée, prédiction et réconciliation |
