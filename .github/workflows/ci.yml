@@ -53,7 +53,7 @@ jobs:
         shell: bash
         run: |
           curl -fsSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_win64.exe.zip"
-          unzip -q godot.zip && mv Godot_v${GODOT_VERSION}_win64_console.exe godot.exe
+          unzip -q godot.zip
           curl -fsSL -o tpl.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
           mkdir -p "$APPDATA/Godot/export_templates/${GODOT_TEMPLATES_DIR_NAME}"
           unzip -q tpl.tpz -d tpl && mv tpl/templates/* "$APPDATA/Godot/export_templates/${GODOT_TEMPLATES_DIR_NAME}/"
@@ -61,12 +61,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p build/windows
-          ./godot.exe --headless --path game --import || true
-          ./godot.exe --headless --path game --export-release "Windows Desktop"
+          ./Godot_v${GODOT_VERSION}_win64_console.exe --headless --path game --import || true
+          ./Godot_v${GODOT_VERSION}_win64_console.exe --headless --path game --export-release "Windows Desktop"
           test -f build/windows/OucheCity.exe
       - name: Démarrage à vide (solo, 5 s)
         shell: bash
-        run: ./godot.exe --headless --path game -- --solo --quit-after=5 | tee run.log && grep -q "mode=SOLO" run.log
+        run: ./Godot_v${GODOT_VERSION}_win64_console.exe --headless --path game -- --solo --quit-after=5 | tee run.log && grep -q "mode=SOLO" run.log
       - uses: actions/upload-artifact@v4
         with: { name: ouche-city-windows, path: build/windows }
 
