@@ -22,6 +22,8 @@ const SURFACE_MAT := {"asphalt": "route", "pavers": "paves", "gravel": "gravier"
 
 var _materials := {}
 var _tools := {}   # nom de matériau -> SurfaceTool
+var _collect_hull := false
+var _hull_tris: Array = []   # triangles du bâti en cours : [a, b, c] (Vector3) pour le contour
 ## Grilles de relief des tuiles chargées : "x_y" -> { origin, size, res, heights }
 var grids := {}
 var bounds := Rect2()   # emprise couverte par les tuiles (repère local x, z)
@@ -120,6 +122,8 @@ func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, n: Vector3, ua: V
 	if (b - a).cross(c - a).dot(n) > 0.0:
 		var t := b; b = c; c = t
 		var tu := ub; ub = uc; uc = tu
+	if _collect_hull:
+		_hull_tris.append([a, b, c])
 	st.set_normal(n); st.set_uv(ua); st.add_vertex(a)
 	st.set_normal(n); st.set_uv(ub); st.add_vertex(b)
 	st.set_normal(n); st.set_uv(uc); st.add_vertex(c)
@@ -382,8 +386,13 @@ func build_tile(data: Dictionary) -> Node3D:
 	var body := StaticBody3D.new()
 	body.name = "Collisions"
 	root.add_child(body)
+	_collect_hull = true
+	_hull_tris.clear()
 	for b in data.buildings:
 		add_building(b)
+	_collect_hull = false
+	var hull_mesh := _build_hull(_hull_tris)
+	_hull_tris.clear()
 	var buildings_mesh := _commit()
 	if buildings_mesh.get_surface_count() > 0:
 		var mi := MeshInstance3D.new()
@@ -391,6 +400,11 @@ func build_tile(data: Dictionary) -> Node3D:
 		mi.mesh = buildings_mesh
 		root.add_child(mi)
 		_add_collision(body, buildings_mesh)
+		var hi := MeshInstance3D.new()
+		hi.name = "Contours"
+		hi.mesh = hull_mesh
+		hi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(hi)
 	var size := float(data.size)
 	add_ground_grid(Vector2(float(data.origin[0]), float(data.origin[1])), Vector2(size, size), size / 20.0, "sol")
 	var terrain := _commit()
@@ -414,6 +428,33 @@ func build_tile(data: Dictionary) -> Node3D:
 	if data.get("trees", []).size() > 0:
 		root.add_child(_build_trees(data.trees))
 	return root
+
+
+## Maillage de contour « inverted hull » : mêmes triangles que le bâti, avec en COLOR la normale
+## lissée du sommet (moyenne des faces qui partagent sa position), encodée de 0 à 1.
+func _build_hull(tris: Array) -> ArrayMesh:
+	var sums := {}
+	for t in tris:
+		var n: Vector3 = (t[1] - t[0]).cross(t[2] - t[0])
+		for v in t:
+			var key := Vector3i(roundi(v.x * 50.0), roundi(v.y * 50.0), roundi(v.z * 50.0))
+			sums[key] = sums.get(key, Vector3.ZERO) + n
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for t in tris:
+		for v in t:
+			var key := Vector3i(roundi(v.x * 50.0), roundi(v.y * 50.0), roundi(v.z * 50.0))
+			var sn: Vector3 = (sums[key] as Vector3).normalized()
+			# Le triangle est dans le sens horaire vu de l'extérieur : sa normale géométrique
+			# (produit vectoriel) pointe vers l'intérieur, on l'inverse pour gonfler vers l'extérieur.
+			sn = -sn
+			st.set_color(Color(sn.x * 0.5 + 0.5, sn.y * 0.5 + 0.5, sn.z * 0.5 + 0.5))
+			st.add_vertex(v)
+	var mesh := ArrayMesh.new()
+	if not tris.is_empty():
+		st.set_material(material("contour_decor"))
+		st.commit(mesh)
+	return mesh
 
 
 func _add_collision(body: StaticBody3D, mesh: ArrayMesh) -> void:

@@ -25,7 +25,7 @@ Les matériaux de base sont dans `game/assets/materials/` (un `.tres` par rôle)
 
 ## Lumière
 
-- **3 paliers** (`game/shaders/toon.gdshader`) : ombre (teintée bleu `#8C94BF`, jamais noire), mi-teinte (60 %), plein jour. Seuils par défaut : 0,05 et 0,45 sur N·L.
+- **3 paliers nets** (`toon.gdshader` + `toon_bandes.gdshaderinc`) : ombre = lumière ambiante seule (teintée par le ciel, jamais noire), mi-teinte, plein jour. Seuils par défaut : 0,02 et 0,5 sur N·L, bords anti-crénelés. Cibles de lisibilité à midi : ombre ≈ 50 %, mi-teinte ≈ 78 %, plein jour 100 % de l'aplat.
 - **Ombres portées dures** : atténuation seuillée, `shadow_blur = 0`.
 - **Rim light** discret (force 0,25) pour détacher personnages et véhicules.
 - **Cycle jour/nuit** (`day_night.gd`) : rampes peintes ; aube rose, midi bleu franc, 20 h 30 orangé, nuit bleu nuit (jamais noir pur). Soleil : est à 6 h, sud à midi, ouest à 18 h.
@@ -33,7 +33,7 @@ Les matériaux de base sont dans `game/assets/materials/` (un `.tres` par rôle)
 ## Contours
 
 - Personnages et véhicules : **inverted hull** (`contour_coque.gdshader`), 2,5 cm pour un personnage, 4 cm pour un véhicule.
-- Décor : **post-process par profondeur** (`contour_ecran.gdshader`), 1,2 px à 1080p, estompé au-delà de 220 m. Budget : < 1,5 ms à 1080p sur M1.
+- Décor : **inverted hull aussi** (`contour_decor.gdshader`) : un maillage de contour par tuile dont les sommets portent une normale lissée (pas de fissure aux angles). Épaisseur ≈ 2 px à toute distance (0,035 m + 0,28 % de la distance). Pas de post-process par profondeur : la texture de profondeur n'est pas fiable entre moteurs de rendu (voir décision 0005), et la géométrie garantit un rendu identique Windows / macOS.
 
 ## Proportions et lisibilité
 

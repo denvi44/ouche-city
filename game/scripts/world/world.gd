@@ -69,7 +69,7 @@ func _build_environment() -> void:
 	sky.radiance_size = Sky.RADIANCE_SIZE_32
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_energy = 0.35
+	env.ambient_light_energy = 0.8
 	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.78, 0.86, 0.92)
@@ -82,6 +82,9 @@ func _build_environment() -> void:
 	sun.name = "Soleil"
 	sun.shadow_enabled = true
 	sun.shadow_blur = 0.0
+	sun.shadow_bias = 0.08
+	sun.shadow_normal_bias = 2.5
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
 	sun.directional_shadow_max_distance = 160.0
 	add_child(sun)
 	day_night = DayNight.new()

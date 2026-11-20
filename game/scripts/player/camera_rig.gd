@@ -19,30 +19,8 @@ func _ready() -> void:
 	camera.fov = 70.0
 	camera.far = 1500.0
 	_arm.add_child(camera)
-	camera.add_child(make_outline_quad())
 	camera.make_current()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-
-
-## Quad plein écran portant le post-process de contours du décor.
-## Forward+ uniquement (Vulkan/Metal) : le rendu Compatibility de Godot 4.4 n'expose pas
-## la texture de profondeur ; les captures « _compat » de la CI sont donc sans contours de décor.
-static func make_outline_quad() -> Node3D:
-	if RenderingServer.get_current_rendering_method() != "forward_plus":
-		var none := Node3D.new()
-		none.name = "ContoursEcran_Indisponible"
-		return none
-	var quad := QuadMesh.new()
-	quad.size = Vector2(2, 2)
-	var mat := ShaderMaterial.new()
-	mat.shader = preload("res://shaders/contour_ecran.gdshader")
-	quad.material = mat
-	var mi := MeshInstance3D.new()
-	mi.name = "ContoursEcran"
-	mi.mesh = quad
-	mi.extra_cull_margin = 16384.0
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return mi
 
 
 func _unhandled_input(event: InputEvent) -> void:

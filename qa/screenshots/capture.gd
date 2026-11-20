@@ -42,7 +42,6 @@ func _run() -> void:
 	_cam = Camera3D.new()
 	_cam.fov = 65.0
 	_cam.far = 2000.0
-	_cam.add_child(load("res://scripts/player/camera_rig.gd").make_outline_quad())
 	_world.add_child(_cam)
 	_cam.make_current()
 

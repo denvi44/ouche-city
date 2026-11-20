@@ -2,18 +2,19 @@
 // Motif peint procédural : poutres brun foncé sur torchis crème. UV des murs en mètres
 // (u = longueur le long du mur, v = hauteur depuis le sol), fournis par tile_loader.gd.
 shader_type spatial;
-render_mode diffuse_toon, specular_disabled;
+render_mode diffuse_lambert, specular_disabled;
+
+#include "res://shaders/toon_bandes.gdshaderinc"
 
 uniform vec4 torchis : source_color = vec4(0.93, 0.85, 0.68, 1.0);
 uniform vec4 poutre : source_color = vec4(0.27, 0.18, 0.12, 1.0);
-uniform vec4 teinte_ombre : source_color = vec4(0.55, 0.58, 0.75, 1.0);
 // Espacement des poteaux verticaux (m) et hauteur d'étage (m).
 uniform float pas_poteaux = 1.25;
 uniform float hauteur_etage = 3.0;
 // Épaisseur des poutres (m).
 uniform float epaisseur = 0.14;
-uniform float seuil_mi_teinte : hint_range(-1.0, 1.0) = 0.05;
-uniform float seuil_plein : hint_range(-1.0, 1.0) = 0.45;
+uniform float seuil_mi_teinte : hint_range(-1.0, 1.0) = 0.02;
+uniform float seuil_plein : hint_range(-1.0, 1.0) = 0.5;
 
 float bande(float x, float largeur) {
 	float d = abs(fract(x) - 0.5) * 2.0;
@@ -44,8 +45,5 @@ void fragment() {
 
 void light() {
 	float ndl = dot(NORMAL, LIGHT);
-	float palier = ndl > seuil_plein ? 1.0 : (ndl > seuil_mi_teinte ? 0.6 : 0.0);
-	palier *= step(0.5, ATTENUATION);
-	vec3 c = mix(ALBEDO * teinte_ombre.rgb, ALBEDO, palier);
-	DIFFUSE_LIGHT += c / max(ALBEDO, vec3(0.001)) * LIGHT_COLOR / PI;
+	DIFFUSE_LIGHT += LIGHT_COLOR * 0.6 * toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, 0.56);
 }
