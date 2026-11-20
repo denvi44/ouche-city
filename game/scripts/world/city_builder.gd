@@ -524,6 +524,114 @@ func build_signs(pois: Array) -> Node3D:
 	return root
 
 
+## Blockout des lieux de mission (POI v3 portant `step`) : balise lumineuse, libellé,
+## et accessoire simple (`prop`). Aplats toon, aucun asset externe.
+const STEP_COLOR := {"crates": Color(0.95, 0.75, 0.2), "vehicle": Color(0.3, 0.6, 0.9), "checkpoint": Color(0.85, 0.25, 0.2), "fair": Color(0.4, 0.75, 0.35)}
+
+
+func _toon(color: Color) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://shaders/toon.gdshader")
+	m.set_shader_parameter("couleur", color)
+	return m
+
+
+func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, rot_y: float = 0.0) -> void:
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	mesh.material = _toon(color)
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.position = pos
+	mi.rotation.y = rot_y
+	parent.add_child(mi)
+
+
+func _add_prop(root: Node3D, prop: String) -> void:
+	match prop:
+		"van":
+			_box(root, Vector3(2.0, 1.5, 4.6), Vector3(0, 1.0, 0), Color(0.93, 0.9, 0.82))
+			_box(root, Vector3(1.9, 0.9, 1.5), Vector3(0, 1.0, -1.7), Color(0.55, 0.7, 0.85))
+			for sx in [-1.0, 1.0]:
+				for sz in [-1.4, 1.5]:
+					var w := CylinderMesh.new()
+					w.top_radius = 0.38; w.bottom_radius = 0.38; w.height = 0.3
+					w.material = _toon(Color(0.15, 0.13, 0.12))
+					var wi := MeshInstance3D.new()
+					wi.mesh = w
+					wi.rotation.z = PI / 2.0
+					wi.position = Vector3(sx * 1.0, 0.38, sz)
+					root.add_child(wi)
+		"barrier":
+			# Barrage de gendarmerie : deux plots rayés et une barre en travers de la route.
+			for sx in [-3.0, 3.0]:
+				_box(root, Vector3(0.3, 1.1, 0.3), Vector3(sx, 0.55, 0), Color(0.95, 0.95, 0.95))
+				_box(root, Vector3(0.32, 0.3, 0.32), Vector3(sx, 0.9, 0), Color(0.85, 0.2, 0.18))
+			_box(root, Vector3(6.2, 0.25, 0.12), Vector3(0, 1.0, 0), Color(0.85, 0.2, 0.18))
+			_box(root, Vector3(1.0, 0.25, 0.14), Vector3(-1.5, 1.0, 0), Color(0.97, 0.97, 0.97))
+			_box(root, Vector3(1.0, 0.25, 0.14), Vector3(1.5, 1.0, 0), Color(0.97, 0.97, 0.97))
+		"stand":
+			# Stand de foire : comptoir, quatre poteaux, toit rayé.
+			_box(root, Vector3(3.6, 1.0, 1.2), Vector3(0, 0.5, 0), Color(0.62, 0.42, 0.28))
+			for sx in [-1.7, 1.7]:
+				_box(root, Vector3(0.12, 2.6, 0.12), Vector3(sx, 1.3, -0.5), Color(0.38, 0.26, 0.18))
+				_box(root, Vector3(0.12, 2.6, 0.12), Vector3(sx, 1.3, 0.5), Color(0.38, 0.26, 0.18))
+			for i in 6:
+				_box(root, Vector3(0.62, 0.1, 1.5), Vector3(-1.55 + i * 0.62, 2.65, 0), Color(0.85, 0.22, 0.2) if i % 2 == 0 else Color(0.97, 0.95, 0.88))
+		"fumier":
+			var heap := SphereMesh.new()
+			heap.radius = 1.6; heap.height = 1.8; heap.radial_segments = 8; heap.rings = 4
+			heap.material = _toon(Color(0.4, 0.3, 0.18))
+			var hi := MeshInstance3D.new()
+			hi.mesh = heap
+			hi.position.y = 0.2
+			root.add_child(hi)
+
+
+func build_mission_markers(pois: Array) -> Node3D:
+	var root := Node3D.new()
+	root.name = "LieuxDeMission"
+	for p in pois:
+		if not p.has("step"):
+			continue
+		var x := float(p.position[0])
+		var z := float(p.position[1])
+		var n := Node3D.new()
+		n.name = "Lieu_" + str(p.id)
+		n.position = Vector3(x, height_at(x, z), z)
+		n.rotation.y = float(p.get("facing", 0.0))
+		if p.has("prop"):
+			_add_prop(n, p.prop)
+		var color: Color = STEP_COLOR.get(p.step, Color.WHITE)
+		# Balise : cylindre translucide visible de loin.
+		var beam := CylinderMesh.new()
+		beam.top_radius = 0.6; beam.bottom_radius = 0.6; beam.height = 30.0; beam.radial_segments = 12
+		var bm := StandardMaterial3D.new()
+		bm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		bm.albedo_color = Color(color, 0.35)
+		bm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		bm.cull_mode = BaseMaterial3D.CULL_DISABLED
+		beam.material = bm
+		var bi := MeshInstance3D.new()
+		bi.mesh = beam
+		bi.position.y = 15.0
+		bi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		n.add_child(bi)
+		var label := Label3D.new()
+		label.text = "%s\n(%s)" % [p.label, p.step]
+		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label.font_size = 56
+		label.pixel_size = 0.012
+		label.outline_size = 16
+		label.modulate = color.lightened(0.5)
+		label.outline_modulate = Color(0.12, 0.09, 0.08)
+		label.no_depth_test = true
+		label.position.y = 8.0
+		n.add_child(label)
+		root.add_child(n)
+	return root
+
+
 ## Construit toute la ville listée dans le manifeste. Renvoie le nœud racine.
 func build_city(dir: String = CITY_DIR) -> Node3D:
 	var root := Node3D.new()
@@ -542,4 +650,5 @@ func build_city(dir: String = CITY_DIR) -> Node3D:
 	var poi = read_json(dir.path_join("poi.json"))
 	if poi is Dictionary:
 		root.add_child(build_signs(poi.get("pois", [])))
+		root.add_child(build_mission_markers(poi.get("pois", [])))
 	return root
