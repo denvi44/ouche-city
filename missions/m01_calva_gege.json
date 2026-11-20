@@ -3,7 +3,7 @@
   "title": "Le Calva de Tonton Gégé",
   "players": { "min": 1, "max": 4 },
   "timeLimit": { "solo": "18:30", "coop": "18:00" },
-  "companions": { "arrimeur": "gege", "guetteur": "kevin_radio", "diversion": "kevin" },
+  "companions": { "negociateur": "ginette", "arrimeur": "gege", "guetteur": "kevin_radio", "diversion": "kevin" },
   "cargo": { "item": "bouteille_calva", "total": 24, "crates": 4, "minDelivered": 12 },
   "medals": { "gold": 22, "silver": 16, "bronze": 12 },
   "roles": ["conducteur", "arrimeur", "guetteur", "negociateur"],
