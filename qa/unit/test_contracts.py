@@ -74,3 +74,18 @@ def test_attributions_declarees():
     manifest = json.loads((ROOT / "gis/out/manifest.json").read_text(encoding="utf-8"))
     for m in manifest["sources"]:
         assert m["extrait_le"] in txt, f"source {m['source']} non datée dans ATTRIBUTIONS.md"
+
+
+def test_noms_de_lieux_fictifs():
+    """Tous les lieux nommés (hors rues et point d'apparition) viennent de gis/fiction.py."""
+    import sys
+    sys.path.insert(0, str(ROOT))
+    from gis import fiction
+    autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | {"Donjon"}
+    pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
+    for p in pois:
+        if p["kind"] in ("spawn", "viewpoint"):
+            continue
+        base = p["label"].split(" (annexe")[0]
+        assert base in autorises, f"nom non fictif ou non répertorié : {p['label']}"

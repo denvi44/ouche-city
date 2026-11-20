@@ -47,10 +47,13 @@ func _run() -> void:
 	_cam.make_current()
 
 	var pois := {}
+	var facings := {}
 	var poi_data = CityBuilder.read_json("res://assets/city/poi.json")
 	if poi_data is Dictionary:
 		for p in poi_data.pois:
 			pois[p.id] = Vector2(p.position[0], p.position[1])
+			if p.has("facing"):
+				facings[p.id] = float(p.facing)
 	var builder: CityBuilder = _world.builder
 	# Deux figurants dans la rue Sainte-Foy (contours des personnages, échelle).
 	var street := _road_points("Rue Sainte-Foy")
@@ -63,7 +66,7 @@ func _run() -> void:
 	await _frames(3)
 	var done := 0
 	for vp in cfg.viewpoints:
-		var pose = _pose(vp, pois, builder)
+		var pose = _pose(vp, pois, builder, facings)
 		if pose == null:
 			print("[captures] %s ignoré : hors des tuiles chargées" % vp.id)
 			continue
@@ -82,7 +85,15 @@ func _run() -> void:
 	quit(0 if done > 0 else 1)
 
 
-func _pose(vp: Dictionary, pois: Dictionary, b: CityBuilder):
+func _pose(vp: Dictionary, pois: Dictionary, b: CityBuilder, facings: Dictionary = {}):
+	if vp.type == "sign":
+		if not pois.has(vp.anchor) or not facings.has(vp.anchor):
+			return null
+		var s: Vector2 = pois[vp.anchor]
+		var f: float = facings[vp.anchor]
+		var dir := Vector2(sin(f), cos(f))
+		var eye: Vector2 = s + dir * float(vp.distance)
+		return [Vector3(eye.x, b.height_at(eye.x, eye.y) + float(vp.eyeHeight), eye.y), Vector3(s.x, b.height_at(s.x, s.y) + 3.0, s.y)]
 	if vp.type == "anchor":
 		if not pois.has(vp.anchor) or not b.bounds.grow(-1.0).has_point(pois[vp.anchor]):
 			return null

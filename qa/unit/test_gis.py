@@ -46,7 +46,9 @@ def test_noms_de_commerces_supprimes(tmp_path):
     texte = "".join(p.read_text() for p in out.rglob("*.json"))
     assert "Nom réel à supprimer" not in texte
     pois = json.loads((out / "poi.json").read_text())["pois"]
-    assert any(p["kind"] == "shop" and p["label"] == "Boulangerie" for p in pois)
+    from gis import fiction
+    tous = {n for noms in fiction.ENSEIGNES.values() for n in noms}
+    assert any(p["kind"] == "shop" and p["label"] in tous for p in pois)
 
 
 def test_normalisation_des_noms():
@@ -61,3 +63,16 @@ def test_anneaux_antihoraires_vus_du_dessus(tmp_path):
             ring = b["footprint"]
             area = sum(a[0] * c[1] - c[0] * a[1] for a, c in zip(ring, ring[1:] + ring[:1])) / 2
             assert area < 0  # négative en (x, z) car z pointe au sud
+
+
+def test_lieux_fictifs_uniques_et_rattaches(tmp_path):
+    """Chaque commerce de la zone reçoit une enseigne inventée, unique, posée sur sa façade."""
+    from gis import fiction
+    out = _run(tmp_path, "o")
+    pois = json.loads((out / "poi.json").read_text())["pois"]
+    lieux = [p for p in pois if p.get("building")]
+    assert lieux, "aucun lieu fictif"
+    labels = [p["label"] for p in lieux]
+    assert len(labels) == len(set(labels))
+    assert all(p["source"] == "design" and isinstance(p["facing"], float) for p in lieux)
+    assert any(p["id"] == "eglise" and p["label"] == fiction.MONUMENTS["eglise"] for p in pois)
