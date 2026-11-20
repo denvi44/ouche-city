@@ -40,7 +40,7 @@ func _handle_cmdline() -> bool:
 	var j = Net.arg("join")
 	if j != null:
 		_build()
-		_join(str(j))
+		_join(str(j), false)   # une adresse passée en ligne de commande ne doit pas écraser les réglages
 		return true
 	return false
 
@@ -123,8 +123,9 @@ func _host() -> void:
 		_set_status("Port %d occupé : impossible d'héberger." % Net.port)
 
 
-func _join(address: String) -> void:
-	_save_name()
+func _join(address: String, persist := true) -> void:
+	if persist:
+		_save_name()
 	var host := address.strip_edges()
 	var p := -1
 	if ":" in host:

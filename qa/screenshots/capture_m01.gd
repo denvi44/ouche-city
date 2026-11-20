@@ -56,40 +56,42 @@ func _run() -> void:
 	player = world.players_root.get_node("1")
 	await frames(20)
 
-	# 1. À la cave : la caisse est prête.
+	# 1. À la cave : la caisse est prête, à portée de main (rayon de prise 2,8 m).
 	var crate: Dictionary = mission.crates["cave_gege"]
 	var f: Vector3 = (crate.pos as Vector3)
-	var from: Vector3 = f + Vector3(0, 0, 3.2)
-	place(player, from)
+	place(player, f + Vector3(0, 0.1, 1.7))
 	player.facing = PI
 	await frames(10)
 	look_at_point(f)
 	await shot("m01_1_caisse_cave")
 
-	# 2. Prise et portage.
+	# 2. Prise et portage : la caisse flotte au-dessus de la tête, le joueur est ralenti.
 	mission.interact(1)
 	await frames(6)
-	player.camera_rig.yaw += 0.6
+	player.camera_rig.yaw += 0.9
 	await shot("m01_2_portage")
 
-	# 3. Chargement dans la camionnette.
+	# 3. Chargement dans la camionnette (la consigne « Charger » apparaît).
 	place(player, van.global_position + van.global_transform.basis.x * 3.0)
 	await frames(8)
 	look_at_point(van.global_position)
 	await shot("m01_3_chargement")
 	mission.interact(1)
+	# Les trois autres caisses sont chargées d'office pour gagner du temps de rendu.
 	for id in mission.crates.keys():
 		if mission.crates[id].state == "ground":
 			mission.crates[id].state = "loaded"
 			mission.cargo += mission.crates[id].bottles
-	mission._mark()
 	mission.step = "road"
+	mission._mark()
+	await frames(4)
 
-	# 4. Au volant.
+	# 4. Au volant : UN SEUL appel à interact (monter), puis on roule.
 	place(player, van.global_position + van.global_transform.basis.x * 2.8)
 	await frames(6)
 	mission.interact(1)
 	await frames(30)
+	print("[m01-captures] conducteur : ", van.driver)
 	van.forced_input = {"move": Vector2(0, -1), "jump": false}
 	await frames(110)
 	await shot("m01_4_conduite")
@@ -117,17 +119,22 @@ func _run() -> void:
 	await frames(120)
 	await shot("m01_7_apres_choc")
 
-	# 6. Barrage, puis stand : médaille (cargaison remise à 21 pour une médaille d'argent).
+	# 6. Barrage, puis stand : médaille d'argent (cargaison remise à 21).
 	van.forced_input = {"move": Vector2.ZERO, "jump": true}
 	await frames(30)
-	place(van, mission.zones.barrage + van.global_transform.basis.z * 14.0 + Vector3(0, 0.6, 0))
+	place(van, mission.zones.barrage + Vector3(0, 0.6, 22.0))
 	van.rotation.y = 0.0
+	van.speed = 0.0
 	await frames(30)
 	await shot("m01_8_barrage")
+	place(van, mission.zones.barrage + Vector3(0, 0.6, 3.0))
+	await frames(20)
+	await shot("m01_9_barrage_franchi")
 	mission.cargo = 21
-	place(van, mission.zones.stand + Vector3(0, 0.6, 6.0))
+	van.forced_input = {"move": Vector2.ZERO, "jump": true}
+	place(van, mission.zones.stand + Vector3(0, 0.6, 7.0))
 	van.speed = 0.0
 	await frames(40)
-	await shot("m01_9_livraison_medaille")
+	await shot("m01_10_livraison_medaille")
 	print("[m01-captures] terminé, étape finale : ", mission.step, " médaille : ", mission.medal)
 	quit(0)
