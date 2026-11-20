@@ -476,6 +476,54 @@ func _build_trees(points: Array) -> Node3D:
 	return root
 
 
+## Enseignes des lieux fictifs (POI v2 portant `building` et `facing`) : panneau crème bordé
+## de bois, posé sur la façade côté rue, à 3 m du sol.
+func build_signs(pois: Array) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Enseignes"
+	var board_mat := ShaderMaterial.new()
+	board_mat.shader = preload("res://shaders/toon.gdshader")
+	board_mat.set_shader_parameter("couleur", Color(0.96, 0.91, 0.78))
+	for p in pois:
+		if not p.has("building") or not p.has("facing"):
+			continue
+		var label_text: String = p.label
+		var x := float(p.position[0])
+		var z := float(p.position[1])
+		var sign := Node3D.new()
+		sign.name = "Enseigne_" + str(p.id)
+		sign.position = Vector3(x, height_at(x, z) + 3.0, z)
+		sign.rotation.y = float(p.facing)
+		var width := clampf(label_text.length() * 0.16 + 0.4, 1.4, 5.5)
+		var frame := BoxMesh.new()
+		frame.size = Vector3(width + 0.12, 0.62, 0.06)
+		frame.material = material("tronc")
+		var fi := MeshInstance3D.new()
+		fi.mesh = frame
+		sign.add_child(fi)
+		var board := BoxMesh.new()
+		board.size = Vector3(width, 0.5, 0.08)
+		board.material = board_mat
+		var bi := MeshInstance3D.new()
+		bi.mesh = board
+		bi.position.z = 0.01
+		sign.add_child(bi)
+		var label := Label3D.new()
+		label.text = label_text
+		label.font_size = 64
+		label.pixel_size = 0.0045
+		label.modulate = Color(0.27, 0.18, 0.12)
+		label.outline_size = 0
+		label.position.z = 0.06
+		label.width = width / label.pixel_size
+		label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		if label_text.length() * 0.16 + 0.4 > width:
+			label.pixel_size = 0.0045 * width / (label_text.length() * 0.16 + 0.4)
+		sign.add_child(label)
+		root.add_child(sign)
+	return root
+
+
 ## Construit toute la ville listée dans le manifeste. Renvoie le nœud racine.
 func build_city(dir: String = CITY_DIR) -> Node3D:
 	var root := Node3D.new()
@@ -491,4 +539,7 @@ func build_city(dir: String = CITY_DIR) -> Node3D:
 		root.add_child(build_tile(data))
 	if not tiles.is_empty():
 		root.add_child(build_apron())
+	var poi = read_json(dir.path_join("poi.json"))
+	if poi is Dictionary:
+		root.add_child(build_signs(poi.get("pois", [])))
 	return root
