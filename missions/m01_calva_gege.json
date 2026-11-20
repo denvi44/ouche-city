@@ -1,0 +1,21 @@
+{
+  "id": "m01_calva_gege",
+  "title": "Le Calva de Tonton Gégé",
+  "players": { "min": 1, "max": 4 },
+  "timeLimit": { "solo": "18:30", "coop": "18:00" },
+  "companions": { "arrimeur": "gege", "guetteur": "kevin_radio", "diversion": "kevin" },
+  "cargo": { "item": "bouteille_calva", "total": 24, "crates": 4, "minDelivered": 12 },
+  "medals": { "gold": 22, "silver": 16, "bronze": 12 },
+  "roles": ["conducteur", "arrimeur", "guetteur", "negociateur"],
+  "steps": [
+    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
+    { "id": "crates", "type": "collect", "spawns": ["cave", "grange", "poulailler", "fumier"] },
+    { "id": "vehicle", "type": "team_choice", "options": ["repair_break", "borrow_van"] },
+    { "id": "road", "type": "convoy", "fragileCargo": true, "events": ["potholes", "slow_tractor", "cows"] },
+    { "id": "checkpoint", "type": "team_choice", "options": ["bluff", "detour", "diversion"], "location": "av_bosc_tenney" },
+    { "id": "fair", "type": "deliver_on_foot", "target": "stand_comite" },
+    { "id": "outro", "type": "cutscene", "variants": ["gold", "default"] }
+  ],
+  "checkpoints": ["crates", "road", "checkpoint"],
+  "rewards": { "moneyPerBottle": 20, "reputation": { "comite_fetes": 1 }, "unlocks": ["m02_tuning_samedi"] }
+}
