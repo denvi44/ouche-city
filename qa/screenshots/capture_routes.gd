@@ -2,7 +2,7 @@ extends SceneTree
 ## Vues de dessus des routes (herbe qui coupe la chaussée ?) : quatre points du village, caméra à 70 m de haut.
 ## Usage : godot --path game -s ../qa/screenshots/capture_routes.gd -- --out=DIR   (Vulkan requis)
 const WORLD := "res://scenes/temoin_rue_sainte_foy.tscn"
-const POINTS := [Vector2(1296, 1358), Vector2(1210, 1856), Vector2(1190, 1460), Vector2(1034, 1212)]
+const POINTS := [Vector2(1399, 1450)]
 
 
 func frames(n: int) -> void:
@@ -43,7 +43,7 @@ func _run() -> void:
 	var i := 0
 	for p in POINTS:
 		var y: float = world.builder.height_at(p.x, p.y)
-		cam.global_position = Vector3(p.x, y + 70.0, p.y + 30.0)
+		cam.global_position = Vector3(p.x - 3.0, y + 4.5, p.y + 14.0)
 		cam.look_at(Vector3(p.x, y, p.y), Vector3.UP)
 		await frames(6)
 		root.get_texture().get_image().save_png(out_dir.path_join("routes_%d.png" % i))

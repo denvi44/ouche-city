@@ -1117,6 +1117,8 @@ static func traffic_car(color: Color, kind := 0) -> PropKit:
 	k.add_box(Vector3(1.84, 0.16, 0.2), Vector3(0, 0.38, long * 0.5), Color(0.82, 0.82, 0.84))
 	k.add_box(Vector3(1.84, 0.16, 0.2), Vector3(0, 0.38, -long * 0.5), Color(0.82, 0.82, 0.84))
 	for sx in [-1.0, 1.0]:
+		k.add_box(Vector3(0.04, 0.1, long * 0.8), Vector3(sx * 0.9, 0.78, 0.0), color.lightened(0.45))                   # filet de carrosserie
 		for sz in [-1.0, 1.0]:
 			k.add_cyl(0.34, 0.34, 0.24, Vector3(sx * 0.88, 0.34, sz * long * 0.32), Color(0.12, 0.11, 0.1), Vector3(0, 0, PI / 2.0), 10)
+			k.add_cyl(0.18, 0.18, 0.06, Vector3(sx * 1.0, 0.34, sz * long * 0.32), Color(0.88, 0.88, 0.9), Vector3(0, 0, PI / 2.0), 8)   # enjoliveur
 	return k

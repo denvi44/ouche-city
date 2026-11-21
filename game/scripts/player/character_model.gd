@@ -177,8 +177,10 @@ func _leg(parent: Node3D, pivot: Vector3, color: Color, shoe: Color, cuff: Color
 	foot.height = 0.252
 	foot.radial_segments = 8
 	foot.rings = 4
-	_mesh(ankle, foot, shoe, Vector3(0, -0.01, -0.06), Vector3(1.0, 0.7, 1.6))
-	_d(ankle, "box", Vector3(0.23, 0.035, 0.42), Color(0.1, 0.08, 0.07), Vector3(0, -0.09, -0.07))
+	_mesh(ankle, foot, shoe, Vector3(0, -0.01, -0.06), Vector3(1.1, 0.78, 1.75))                 # basket épaisse (style « street »)
+	_d(ankle, "box", Vector3(0.27, 0.06, 0.46), Color(0.96, 0.94, 0.88), Vector3(0, -0.095, -0.075), Vector3.ZERO, true)   # semelle blanche
+	_d(ankle, "sphere", Vector3(0.1, 0.07, 0.1), shoe.lightened(0.35), Vector3(0, 0.02, -0.19))  # bout renforcé
+	_d(ankle, "box", Vector3(0.235, 0.02, 0.07), shoe.lightened(0.45), Vector3(0, 0.01, -0.01))   # lacets
 	return [hip, knee, ankle]
 
 

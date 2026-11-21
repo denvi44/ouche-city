@@ -6,3 +6,4 @@
 shader = ExtResource("1")
 shader_parameter/couleur = Color(0.82, 0.78, 0.68, 1)
 shader_parameter/style = 0
+shader_parameter/motif_mur = 2

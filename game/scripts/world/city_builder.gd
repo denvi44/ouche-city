@@ -40,6 +40,8 @@ var bounds := Rect2()   # emprise couverte par les tuiles (repère local x, z)
 var road_lines: Array = []
 ## Contours des bâtiments (PackedVector2Array) : la vie ambiante n'y place personne.
 var building_rings: Array = []
+## Index spatial des bâtiments (cellules de 12 m -> contours) : sert aux trottoirs « jusqu'au mur ».
+var _ring_grid := {}
 
 
 static func read_json(path: String) -> Variant:
@@ -451,6 +453,7 @@ func add_ribbon(points_in: PackedVector2Array, width: float, y: float, mat: Stri
 		left.append(points[i] + perp * half * scale)
 		right.append(points[i] - perp * half * scale)
 		base.append(rung_height(points[i], perp, cross_half))
+	_cur_color = Color(clampf(width / 16.0, 0.0, 1.0), 0.0, 0.0, 1.0)     # largeur de la route : le shader en déduit marquages et lignes de rive
 	var v := 0.0
 	for i in points.size() - 1:
 		var seg_len := points[i].distance_to(points[i + 1])
@@ -461,6 +464,7 @@ func add_ribbon(points_in: PackedVector2Array, width: float, y: float, mat: Stri
 		_quad(st, l0, r0, r1, l1, Vector3.UP,
 			Vector2(0, v), Vector2(width, v), Vector2(width, v + seg_len), Vector2(0, v + seg_len))
 		v += seg_len
+	_cur_color = Color.WHITE
 	# Pastilles aux extrémités pour masquer les jonctions.
 	for p in [points[0], points[points.size() - 1]]:
 		_add_disc(st, p, half, y)
@@ -476,12 +480,90 @@ func _add_disc(st: SurfaceTool, c: Vector2, r: float, y: float, segments: int = 
 			Vector3(p1.x, height_at(p1.x, p1.y) + y, p1.y), Vector3.UP, c, p0, p1)
 
 
+func _index_rings(tiles: Array) -> void:
+	_ring_grid.clear()
+	for data in tiles:
+		for bd in data.buildings:
+			var rg := PackedVector2Array()
+			var lo := Vector2(INF, INF)
+			var hi := Vector2(-INF, -INF)
+			for v in bd.footprint:
+				var q := Vector2(float(v[0]), float(v[1]))
+				rg.append(q)
+				lo = lo.min(q)
+				hi = hi.max(q)
+			for cx in range(int(floor(lo.x / 12.0)), int(floor(hi.x / 12.0)) + 1):
+				for cz in range(int(floor(lo.y / 12.0)), int(floor(hi.y / 12.0)) + 1):
+					var key := Vector2i(cx, cz)
+					if not _ring_grid.has(key):
+						_ring_grid[key] = []
+					_ring_grid[key].append(rg)
+
+
+func _in_building(p: Vector2) -> bool:
+	var key := Vector2i(int(floor(p.x / 12.0)), int(floor(p.y / 12.0)))
+	if not _ring_grid.has(key):
+		return false
+	for rg: PackedVector2Array in _ring_grid[key]:
+		if Geometry2D.is_point_in_polygon(p, rg):
+			return true
+	return false
+
+
+## Distance (m, ≤ max_gap) entre le bord du trottoir `edge` et le premier bâtiment dans la direction `dir` ; -1 s'il n'y en a pas.
+func _gap_to_building(edge: Vector2, dir: Vector2, max_gap: float) -> float:
+	var t := 0.0
+	while t <= max_gap:
+		if _in_building(edge + dir * t):
+			return t
+		t += 0.4
+	return -1.0
+
+
+## Dallage entre le trottoir et la façade quand un bâtiment borde la rue à moins de 4 m : plus de bande d'herbe entre la chaussée et les murs.
+func _add_verge(pts_in: PackedVector2Array, half_total: float) -> void:
+	if _ring_grid.is_empty() or pts_in.size() < 2:
+		return
+	var pts := densify(pts_in, 3.0)
+	var st := _tool("trottoir")
+	for side in [1.0, -1.0]:
+		var inner := PackedVector2Array()
+		var outer := PackedVector2Array()
+		for i in pts.size() + 1:
+			var ok := false
+			if i < pts.size():
+				var dir := Vector2.ZERO
+				if i > 0:
+					dir += (pts[i] - pts[i - 1]).normalized()
+				if i < pts.size() - 1:
+					dir += (pts[i + 1] - pts[i]).normalized()
+				dir = dir.normalized()
+				var perp := Vector2(-dir.y, dir.x) * float(side)
+				var edge: Vector2 = pts[i] + perp * (half_total - 0.1)
+				var gap := _gap_to_building(edge, perp, 4.0)
+				if gap > 0.25:
+					inner.append(edge)
+					outer.append(edge + perp * (gap + 0.05))
+					ok = true
+			if not ok:
+				for k in range(inner.size() - 1):
+					var a0 := Vector3(inner[k].x, maxf(height_at(inner[k].x, inner[k].y), height_at(outer[k].x, outer[k].y)) + 0.05, inner[k].y)
+					var b0 := Vector3(outer[k].x, a0.y, outer[k].y)
+					var b1 := Vector3(outer[k + 1].x, maxf(height_at(inner[k + 1].x, inner[k + 1].y), height_at(outer[k + 1].x, outer[k + 1].y)) + 0.05, outer[k + 1].y)
+					var a1 := Vector3(inner[k + 1].x, b1.y, inner[k + 1].y)
+					_quad(st, a0, b0, b1, a1, Vector3.UP, Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1))
+				inner.clear()
+				outer.clear()
+
+
 func add_road(r: Dictionary) -> void:
 	var pts := to_ring(r.points)
 	var w := float(r.width)
 	var sw := float(r.get("sidewalk", 0.0))
 	if sw > 0.0:
 		add_ribbon(pts, w + 2.0 * sw, Y_TROTTOIR, "trottoir")
+		if r.kind in ["residential", "secondary", "tertiary", "primary", "unclassified", "living_street"]:
+			_add_verge(pts, w * 0.5 + sw)
 	var mat: String = SURFACE_MAT.get(r.get("surface", "asphalt"), "route")
 	if r.kind in ["footway", "pedestrian"] and mat == "route":
 		mat = "paves"
@@ -1257,6 +1339,7 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 		if data is Dictionary:
 			register_tile(data)
 			tiles.append(data)
+	_index_rings(tiles)
 	for data in tiles:
 		root.add_child(build_tile(data))
 	if not tiles.is_empty():

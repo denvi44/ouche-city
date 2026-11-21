@@ -273,6 +273,19 @@ func _build_visual() -> void:
 	hull.mesh = HullOutline.build(tris)
 	hull.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_body_visual.add_child(hull)
+	# Livrée « street » : bandeau crème sur le soubassement, disque rouge à cercle crème sur la caisse, rétroviseurs, galerie de toit.
+	var livery := PropKit.new()
+	for side in [-1.0, 1.0]:
+		livery.add_box(Vector3(0.05, 0.16, 4.0), Vector3(side * 1.012, 0.86, 0.05), Color(0.97, 0.93, 0.8))
+		livery.add_box(Vector3(0.05, 0.07, 4.0), Vector3(side * 1.012, 1.04, 0.05), Color(0.82, 0.2, 0.16))
+		livery.add_cyl(0.5, 0.5, 0.04, Vector3(side * 1.02, 1.82, -0.55), Color(0.97, 0.93, 0.8), Vector3(0, 0, PI / 2.0), 16)
+		livery.add_cyl(0.4, 0.4, 0.05, Vector3(side * 1.025, 1.82, -0.55), Color(0.82, 0.2, 0.16), Vector3(0, 0, PI / 2.0), 16)
+		livery.add_box(Vector3(0.12, 0.2, 0.28), Vector3(side * 1.1, 1.72, -1.75), Color(0.15, 0.15, 0.17))          # rétroviseur
+	for z in [-0.4, 0.5, 1.4]:
+		livery.add_box(Vector3(2.0, 0.06, 0.07), Vector3(0, 2.46, z), Color(0.2, 0.2, 0.23))                           # galerie de toit
+	for side in [-1.0, 1.0]:
+		livery.add_box(Vector3(0.06, 0.06, 2.0), Vector3(side * 0.95, 2.46, 0.5), Color(0.2, 0.2, 0.23))
+	_body_visual.add_child(livery.build())
 	# Enseigne peinte sur les flancs de la caisse arrière.
 	for side in [-1.0, 1.0]:
 		var l := Label3D.new()
