@@ -104,6 +104,14 @@ def test_lieux_de_mission01_couvrent_les_etapes():
     assert len(ids) == len(next(s for s in m["steps"] if s["id"] == "crates")["spawns"])
 
 
+def test_poulailler_a_son_accessoire():
+    """Le poulailler de la mission 1 porte l'accessoire « coop » (abri, enclos, poules), sinon c'est une maison comme une autre."""
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    assert pois["poulailler_ginette"]["prop"] == "coop"
+    copie = json.loads((ROOT / "game/assets/city/poi.json").read_text(encoding="utf-8"))["pois"]
+    assert {p["id"]: p for p in copie}["poulailler_ginette"]["prop"] == "coop", "lancer make city"
+
+
 def test_missions_importees_dans_godot():
     """game/assets/missions doit être une copie exacte de missions/ (make city)."""
     for src in (ROOT / "missions").glob("m*.json"):

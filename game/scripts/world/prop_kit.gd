@@ -216,6 +216,75 @@ static func planter() -> PropKit:
 	return k
 
 
+## Poulailler de campagne (+Z = vers la rue) : abri sur pilotis à toit de zinc, rampe à tasseaux, pondoir latéral,
+## enclos grillagé avec abreuvoir, mangeoire, paille et quatre poules. Largeur 3 m, profondeur 3,4 m.
+static func coop() -> PropKit:
+	var k := PropKit.new()
+	var zinc := Color(0.55, 0.58, 0.6)
+	# Abri : caisse en planches sur quatre pieds.
+	for sx in [-0.7, 0.7]:
+		for sz in [-0.45, 0.45]:
+			k.add_box(Vector3(0.1, 0.5, 0.1), Vector3(sx, 0.25, 0.9 + sz), WOOD_DARK)
+	k.add_box(Vector3(1.7, 1.0, 1.3), Vector3(0, 1.0, 0.9), WOOD)
+	for i in 6:
+		k.add_box(Vector3(0.03, 1.02, 1.32), Vector3(-0.7 + i * 0.28, 1.0, 0.9), WOOD_DARK)
+	# Toit à deux pans (zinc) avec débord.
+	k.add_box(Vector3(1.0, 0.07, 1.55), Vector3(-0.42, 1.72, 0.9), zinc, Vector3(0, 0, 0.42))
+	k.add_box(Vector3(1.0, 0.07, 1.55), Vector3(0.42, 1.72, 0.9), zinc, Vector3(0, 0, -0.42))
+	k.add_box(Vector3(0.12, 0.08, 1.58), Vector3(0, 1.95, 0.9), IRON)
+	# Trappe d'accès côté enclos et rampe à tasseaux.
+	k.add_box(Vector3(0.36, 0.46, 0.04), Vector3(0.0, 0.88, 1.56), Color(0.1, 0.08, 0.06))
+	k.add_box(Vector3(0.42, 0.04, 1.0), Vector3(0.0, 0.3, 2.0), WOOD, Vector3(0.55, 0, 0))
+	for i in 5:
+		k.add_box(Vector3(0.42, 0.03, 0.04), Vector3(0.0, 0.18 + i * 0.1, 1.72 + i * 0.12), WOOD_DARK, Vector3(0.55, 0, 0))
+	# Pondoir sur le flanc : petite boîte à couvercle incliné.
+	k.add_box(Vector3(0.5, 0.5, 0.6), Vector3(1.1, 1.0, 0.9), WOOD)
+	k.add_box(Vector3(0.58, 0.05, 0.68), Vector3(1.1, 1.3, 0.9), zinc, Vector3(0, 0, -0.25))
+	k.add_box(Vector3(0.02, 0.24, 0.3), Vector3(1.36, 0.95, 0.9), Color(0.1, 0.08, 0.06))
+	# Enclos grillagé : poteaux, deux lisses et grillage à fines tiges.
+	var x0 := -1.4
+	var x1 := 1.4
+	var z0 := 1.6
+	var z1 := 3.3
+	for px in [x0, 0.0, x1]:
+		k.add_box(Vector3(0.08, 1.1, 0.08), Vector3(px, 0.55, z1), WOOD_DARK)
+	for pz in [z0, 2.45]:
+		k.add_box(Vector3(0.08, 1.1, 0.08), Vector3(x0, 0.55, pz), WOOD_DARK)
+		k.add_box(Vector3(0.08, 1.1, 0.08), Vector3(x1, 0.55, pz), WOOD_DARK)
+	var mesh_col := Color(0.7, 0.72, 0.7)
+	for y in [0.35, 1.05]:
+		k.add_box(Vector3(x1 - x0, 0.04, 0.04), Vector3(0, y, z1), WOOD)
+		k.add_box(Vector3(0.04, 0.04, z1 - z0), Vector3(x0, y, (z0 + z1) / 2.0), WOOD)
+		k.add_box(Vector3(0.04, 0.04, z1 - z0), Vector3(x1, y, (z0 + z1) / 2.0), WOOD)
+	for i in 12:
+		var gx := x0 + 0.2 + i * 0.2
+		k.add_box(Vector3(0.012, 0.95, 0.012), Vector3(gx, 0.58, z1), mesh_col)
+	for i in 8:
+		var gz := z0 + 0.1 + i * 0.2
+		k.add_box(Vector3(0.012, 0.95, 0.012), Vector3(x0, 0.58, gz), mesh_col)
+		k.add_box(Vector3(0.012, 0.95, 0.012), Vector3(x1, 0.58, gz), mesh_col)
+	# Sol : paille, mangeoire (auge + pieds) et abreuvoir (seau).
+	k.add_box(Vector3(2.7, 0.03, 1.6), Vector3(0, 0.02, 2.45), STRAW)
+	k.add_box(Vector3(0.7, 0.12, 0.2), Vector3(-0.7, 0.1, 2.9), WOOD)
+	k.add_cyl(0.16, 0.12, 0.22, Vector3(0.8, 0.11, 2.9), zinc, Vector3.ZERO, 8)
+	# Poules : corps, queue relevée, tête, crête rouge, bec orange, pattes.
+	var hens := [[Vector3(-0.5, 0, 2.2), 0.4, Color(0.96, 0.94, 0.88)], [Vector3(0.45, 0, 2.5), -0.8, Color(0.7, 0.4, 0.2)],
+		[Vector3(-0.1, 0, 3.0), 2.4, Color(0.55, 0.33, 0.18)], [Vector3(0.9, 0, 2.1), 1.6, Color(0.96, 0.94, 0.88)]]
+	for h in hens:
+		var base: Vector3 = h[0]
+		var yaw: float = h[1]
+		var c: Color = h[2]
+		var b := Basis(Vector3.UP, yaw)
+		k.add_sphere(0.2, base + b * Vector3(0, 0.32, 0), c, Vector3(1.0, 0.85, 1.25), 8)
+		k.add_box(Vector3(0.05, 0.2, 0.18), base + b * Vector3(0, 0.46, 0.24), c, Vector3(0.5, yaw, 0))
+		k.add_sphere(0.085, base + b * Vector3(0, 0.5, -0.2), c, Vector3.ONE, 6)
+		k.add_box(Vector3(0.03, 0.06, 0.1), base + b * Vector3(0, 0.6, -0.2), RED)
+		k.add_box(Vector3(0.04, 0.03, 0.07), base + b * Vector3(0, 0.49, -0.29), Color(0.95, 0.65, 0.15))
+		for sx in [-0.05, 0.05]:
+			k.add_box(Vector3(0.02, 0.16, 0.02), base + b * Vector3(sx, 0.08, 0.0), Color(0.9, 0.65, 0.2))
+	return k
+
+
 ## Borne en pierre à tête arrondie et bague.
 static func bollard() -> PropKit:
 	var k := PropKit.new()

@@ -761,6 +761,19 @@ func _add_prop(root: Node3D, prop: String) -> void:
 				ti.position = Vector3(2.4, 0.14 + k * 0.3, 1.0)
 				root.add_child(ti)
 			_box(root, Vector3(0.9, 0.6, 0.5), Vector3(3.5, 0.3, 1.4), Color(0.75, 0.2, 0.18))
+		"coop":
+			var coop := PropKit.coop().build()
+			coop.position = Vector3(2.8, 0, 0.3)   # sur le côté de la façade : le point d'enlèvement des caisses reste dégagé
+			root.add_child(coop)
+			var cbody := StaticBody3D.new()
+			cbody.name = "Collision"
+			var cshape := CollisionShape3D.new()
+			var cbox := BoxShape3D.new()
+			cbox.size = Vector3(1.7, 1.9, 1.4)
+			cshape.shape = cbox
+			cshape.position = Vector3(2.8, 0.95, 1.2)
+			cbody.add_child(cshape)
+			root.add_child(cbody)
 		"fumier":
 			var heap := SphereMesh.new()
 			heap.radius = 1.6; heap.height = 1.8; heap.radial_segments = 8; heap.rings = 4
@@ -864,7 +877,7 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 	sign_spots = []
 	if poi0 is Dictionary:
 		for p in poi0.get("pois", []):
-			if p.has("building") and p.has("facing"):
+			if (p.has("building") and p.has("facing")) or p.has("prop"):
 				sign_spots.append(Vector2(float(p.position[0]), float(p.position[1])))
 	var tiles: Array[Dictionary] = []
 	for key in manifest.get("tiles", []):

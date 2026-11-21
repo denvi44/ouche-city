@@ -1446,6 +1446,7 @@
    ],
    "step": "crates",
    "facing": -1.39,
+   "prop": "coop",
    "building": "b_17292"
   },
   {

@@ -248,7 +248,7 @@ def lieux_mission01(tuiles: dict, taille: float, normaliser, spawn) -> list[dict
         fx, fz = best if best else (c.x, c.y)
         out.append(_poi("fumier_tas", "mission_target", LABELS_M01["fumier_tas"], fx, fz, f + math.pi, taille, "crates", prop="fumier"))
         (x, z), f = emplacement_enseigne(petit["footprint"], routes)
-        out.append(_poi("poulailler_ginette", "mission_target", LABELS_M01["poulailler_ginette"], x, z, f, taille, "crates", building=petit["id"]))
+        out.append(_poi("poulailler_ginette", "mission_target", LABELS_M01["poulailler_ginette"], x, z, f, taille, "crates", prop="coop", building=petit["id"]))
     rue = _point_sur_route(tuiles, normaliser("Rue Sainte-Foy"), normaliser, 0.35)
     if rue:
         (x, z), f = rue

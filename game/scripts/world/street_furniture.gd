@@ -131,6 +131,11 @@ static func _collisions(root: Node3D, xfs: Array, offset: Vector3, box: Variant,
 static func shop_spots(pois: Array, height_at: Callable) -> Dictionary:
 	var out := {"planter": [], "bench": [], "bollard": []}
 	var n := 0
+	# Rien sur l'emplacement des véhicules et accessoires de mission (camionnette, voiture, barrage…).
+	var clear: Array = []
+	for p in pois:
+		if p.has("prop"):
+			clear.append(Vector2(float(p.position[0]), float(p.position[1])))
 	for p in pois:
 		if p.get("kind", "") != "shop" or not p.has("facing") or p.has("prop"):
 			continue
@@ -142,14 +147,27 @@ static func shop_spots(pois: Array, height_at: Callable) -> Dictionary:
 		var yaw := Basis(Vector3.UP, f)
 		for s in [-1.0, 1.0]:
 			var q: Vector2 = Vector2(x, z) + fwd * 0.45 + side * s * 1.7
-			out.planter.append(Transform3D(yaw, Vector3(q.x, height_at.call(q.x, q.y), q.y)))
+			if not _near_any(q, clear):
+				out.planter.append(Transform3D(yaw, Vector3(q.x, height_at.call(q.x, q.y), q.y)))
 			var c: Vector2 = Vector2(x, z) + fwd * 1.0 + side * s * 3.4
-			out.bollard.append(Transform3D(yaw, Vector3(c.x, height_at.call(c.x, c.y), c.y)))
+			if not _near_any(c, clear):
+				out.bollard.append(Transform3D(yaw, Vector3(c.x, height_at.call(c.x, c.y), c.y)))
 		if n % 3 == 0:
 			var q2 := Vector2(x, z) + fwd * 1.1 + side * 4.6
-			out.bench.append(Transform3D(yaw, Vector3(q2.x, height_at.call(q2.x, q2.y), q2.y)))
+			if not _near_any(q2, clear):
+				out.bench.append(Transform3D(yaw, Vector3(q2.x, height_at.call(q2.x, q2.y), q2.y)))
 		n += 1
 	return out
+
+
+const CLEAR_RADIUS := 6.0                       # m : dégagement autour des accessoires de mission
+
+
+static func _near_any(p: Vector2, pts: Array) -> bool:
+	for c in pts:
+		if p.distance_to(c) < CLEAR_RADIUS:
+			return true
+	return false
 
 
 static func build_shops(pois: Array, height_at: Callable) -> Node3D:
