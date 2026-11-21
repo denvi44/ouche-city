@@ -602,6 +602,32 @@ func _run() -> void:
 	var CP = load("res://scripts/cinematic/cinematic_player.gd")
 	check(CP.load_def("m08_intro").get("shots", []).size() == 4, "m08 : cinématique d'introduction")
 
+	# Écran titre : plans de drone (purs) — tous les lieux, caméra toujours au-dessus du sol, mouvement continu.
+	var DS = load("res://scripts/cinematic/drone_shots.gd")
+	var lieux := {}
+	for p in (CityBuilder.read_json("res://assets/city/poi.json") as Dictionary).get("pois", []):
+		lieux[str(p.id)] = Vector2(float(p.position[0]), float(p.position[1]))
+	var plans: Array = DS.shots(lieux, Vector2(1400, 1400))
+	check(plans.size() >= 7, "drone : %d plans (clocher, rue, mairie, distillerie, gare, carrière, village)" % plans.size())
+	var vallonne := func(x: float, z: float) -> float: return 100.0 + 30.0 * sin(x * 0.02) * cos(z * 0.02)
+	var drone_ok := true
+	var saut_max := 0.0
+	for plan in plans:
+		var prev: Dictionary = DS.pose(plan, 0.0, vallonne)
+		for i in range(1, 41):
+			var q: Dictionary = DS.pose(plan, i / 40.0, vallonne)
+			if q.pos.y < float(vallonne.call(q.pos.x, q.pos.z)) + DS.MIN_CLEARANCE - 0.01 or not is_finite(q.pos.x) or q.pos.distance_to(q.cible) < 5.0:
+				drone_ok = false
+			saut_max = maxf(saut_max, q.pos.distance_to(prev.pos))
+			prev = q
+		if float(plan.duree) < 6.0 or str(plan.nom) == "":
+			drone_ok = false
+	check(drone_ok, "drone : toujours à ≥ %.0f m du sol, cible à distance, durées et noms valides" % DS.MIN_CLEARANCE)
+	check(saut_max < 40.0, "drone : mouvement continu (saut max %.1f m entre deux pas)" % saut_max)
+	var sans: Array = DS.shots({}, Vector2(0, 0))
+	check(sans.size() == 2 and str(sans[1].nom) == "Le village", "drone : repli sans POI (clocher et vue d'ensemble au centre)")
+	check(DS.smooth(0.0) == 0.0 and DS.smooth(1.0) == 1.0 and is_equal_approx(DS.smooth(0.5), 0.5), "drone : lissage de grue")
+
 	print("%d tests, %d échec(s)" % [_count, _fails])
 	quit(1 if _fails > 0 else 0)
 

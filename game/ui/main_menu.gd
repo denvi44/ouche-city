@@ -12,7 +12,7 @@ var _address: LineEdit
 
 
 func _ready() -> void:
-	theme = ThemeUtil.make_theme()
+	theme = ThemeUtil.make_material_theme()
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	Net.joined.connect(_go_world)
 	Net.refused.connect(func(r): _set_status(r))
@@ -45,29 +45,60 @@ func _handle_cmdline() -> bool:
 	return false
 
 
+## Missions du solo : [clé, texte si disponible, texte si verrouillée]. La première est toujours disponible ;
+## chaque suivante s'ouvre quand la précédente (CHAIN) est terminée.
+const SOLO_MISSIONS := [
+	["m01", "Jouer en solo (mission 1 : le Calva de Tonton Gégé)", ""],
+	["m02", "Solo : Tuning du samedi soir (mission 2)", "Mission 2 : terminez d'abord le Calva de Tonton Gégé"],
+	["m03", "Solo : Battle de sono (mission 3)", "Mission 3 : terminez d'abord Tuning du samedi soir"],
+	["m04", "Solo : Le méchoui de la Saint-Jean (mission 4)", "Mission 4 : terminez d'abord la Battle de sono"],
+	["m05", "Solo : Les vaches sont de sortie (mission 5)", "Mission 5 : terminez d'abord le méchoui de la Saint-Jean"],
+	["m06", "Solo : Les courses de 8 h (mission 6)", "Mission 6 : terminez d'abord les vaches"],
+	["m07", "Solo : Le jus de pomme de Tonton Gégé (mission 7)", "Mission 7 : terminez d'abord les courses de 8 h"],
+	["m08", "Solo : Les oies font grève (mission 8)", "Mission 8 : terminez d'abord le jus de pomme"],
+]
+var _backdrop: TitleBackdrop
+
+
+## Écran titre « Material » : une carte translucide à gauche, le village filmé par un drone derrière.
 func _build() -> void:
+	theme = ThemeUtil.make_material_theme()
 	var bg := ColorRect.new()
 	bg.color = Color(0.62, 0.78, 0.9)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	if TitleBackdrop.available():
+		_backdrop = TitleBackdrop.new()
+		add_child(_backdrop)
+		_backdrop.start.call_deferred()
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	for side in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 40)
+	add_child(margin)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 24)
+	margin.add_child(row)
 	var panel := PanelContainer.new()
-	center.add_child(panel)
+	panel.theme_type_variation = &"Card"
+	panel.custom_minimum_size = Vector2(int(620 * Settings.text_scale), 0)
+	row.add_child(panel)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	panel.add_child(scroll)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 14)
-	box.custom_minimum_size = Vector2(560, 0)
-	panel.add_child(box)
+	box.add_theme_constant_override("separation", 12)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(box)
 	var title := Label.new()
 	title.text = "Frouch City"
-	title.add_theme_font_size_override("font_size", int(64 * Settings.text_scale))
-	title.add_theme_color_override("font_color", ThemeUtil.APPLE)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", int(68 * Settings.text_scale))
+	title.add_theme_color_override("font_color", ThemeUtil.MD_PRIMARY)
 	box.add_child(title)
 	var sub := Label.new()
 	sub.text = "Conches-en-Frouch, ses colombages, ses embrouilles."
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sub.add_theme_color_override("font_color", ThemeUtil.MD_OUTLINE)
 	box.add_child(sub)
 	_name = LineEdit.new()
 	_name.text = Settings.player_name
@@ -75,66 +106,28 @@ func _build() -> void:
 	_name.max_length = 24
 	box.add_child(_name)
 	_build_save_block(box)
-	_button(box, "Jouer en solo (mission 1 : le Calva de Tonton Gégé)", func():
-		Net.mission_id = "m01"
-		_solo())
-	# Mission 2 : disponible une fois la mission 1 terminée (ou débloquée par la sauvegarde).
-	var m2_ok: bool = Progress.is_available("m02_tuning_samedi", ["m01_calva_gege"])
-	var m2 := Button.new()
-	m2.text = "Solo : Tuning du samedi soir (mission 2)" if m2_ok else "Mission 2 : terminez d'abord le Calva de Tonton Gégé"
-	m2.disabled = not m2_ok
-	m2.pressed.connect(func():
-		Net.mission_id = "m02"
-		_solo())
-	box.add_child(m2)
-	var m3_ok: bool = Progress.is_available("m03_battle_sono", ["m02_tuning_samedi"])
-	var m3 := Button.new()
-	m3.text = "Solo : Battle de sono (mission 3)" if m3_ok else "Mission 3 : terminez d'abord Tuning du samedi soir"
-	m3.disabled = not m3_ok
-	m3.pressed.connect(func():
-		Net.mission_id = "m03"
-		_solo())
-	box.add_child(m3)
-	var m4_ok: bool = Progress.is_available("m04_mechoui_saint_jean", ["m03_battle_sono"])
-	var m4 := Button.new()
-	m4.text = "Solo : Le méchoui de la Saint-Jean (mission 4)" if m4_ok else "Mission 4 : terminez d'abord la Battle de sono"
-	m4.disabled = not m4_ok
-	m4.pressed.connect(func():
-		Net.mission_id = "m04"
-		_solo())
-	box.add_child(m4)
-	var m5_ok: bool = Progress.is_available("m05_vaches_en_goguette", ["m04_mechoui_saint_jean"])
-	var m5 := Button.new()
-	m5.text = "Solo : Les vaches sont de sortie (mission 5)" if m5_ok else "Mission 5 : terminez d'abord le méchoui de la Saint-Jean"
-	m5.disabled = not m5_ok
-	m5.pressed.connect(func():
-		Net.mission_id = "m05"
-		_solo())
-	box.add_child(m5)
-	var m6_ok: bool = Progress.is_available("m06_courses_de_8h", ["m05_vaches_en_goguette"])
-	var m6 := Button.new()
-	m6.text = "Solo : Les courses de 8 h (mission 6)" if m6_ok else "Mission 6 : terminez d'abord les vaches"
-	m6.disabled = not m6_ok
-	m6.pressed.connect(func():
-		Net.mission_id = "m06"
-		_solo())
-	box.add_child(m6)
-	var m7_ok: bool = Progress.is_available("m07_jus_de_pomme", ["m06_courses_de_8h"])
-	var m7 := Button.new()
-	m7.text = "Solo : Le jus de pomme de Tonton Gégé (mission 7)" if m7_ok else "Mission 7 : terminez d'abord les courses de 8 h"
-	m7.disabled = not m7_ok
-	m7.pressed.connect(func():
-		Net.mission_id = "m07"
-		_solo())
-	box.add_child(m7)
-	var m8_ok: bool = Progress.is_available("m08_oies_en_greve", ["m07_jus_de_pomme"])
-	var m8 := Button.new()
-	m8.text = "Solo : Les oies font grève (mission 8)" if m8_ok else "Mission 8 : terminez d'abord le jus de pomme"
-	m8.disabled = not m8_ok
-	m8.pressed.connect(func():
-		Net.mission_id = "m08"
-		_solo())
-	box.add_child(m8)
+	# Missions : repliées par défaut (la partie « Continuer » suffit à la plupart des joueurs).
+	var missions := VBoxContainer.new()
+	missions.add_theme_constant_override("separation", 8)
+	missions.visible = false
+	var toggle := Button.new()
+	toggle.text = "Choisir une mission  ▾"
+	toggle.pressed.connect(func():
+		missions.visible = not missions.visible
+		toggle.text = "Choisir une mission  " + ("▴" if missions.visible else "▾"))
+	box.add_child(toggle)
+	box.add_child(missions)
+	for i in SOLO_MISSIONS.size():
+		var m: Array = SOLO_MISSIONS[i]
+		var ok: bool = i == 0 or Progress.is_available(CHAIN[i], [CHAIN[i - 1]])
+		var btn := Button.new()
+		btn.text = m[1] if ok else m[2]
+		btn.disabled = not ok
+		var key: String = m[0]
+		btn.pressed.connect(func():
+			Net.mission_id = key
+			_solo())
+		missions.add_child(btn)
 	_button(box, "Touches et souris", func():
 		var cm = preload("res://ui/controls_menu.gd").new()
 		add_child(cm))
@@ -144,16 +137,36 @@ func _build() -> void:
 	_address.text = "127.0.0.1"
 	box.add_child(_address)
 	_button(box, "Rejoindre", func(): _join(_address.text))
-	_button(box, "Quitter", func(): get_tree().quit())
+	_button(box, "Quitter", func(): get_tree().quit(), &"TextButton")
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status.custom_minimum_size = Vector2(520, 0)
 	box.add_child(_status)
+	# Colonne de droite : on laisse voir le drone ; légende du plan et crédits en puces, en bas.
+	var right := VBoxContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(right)
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right.add_child(spacer)
+	if _backdrop:
+		var chip := PanelContainer.new()
+		chip.theme_type_variation = &"Chip"
+		chip.size_flags_horizontal = Control.SIZE_SHRINK_END
+		var cl := Label.new()
+		cl.theme_type_variation = &"ChipLabel"
+		cl.add_theme_font_size_override("font_size", int(20 * Settings.text_scale))
+		chip.add_child(cl)
+		_backdrop.bind_caption(cl)
+		right.add_child(chip)
+	var credit_chip := PanelContainer.new()
+	credit_chip.theme_type_variation = &"Chip"
+	credit_chip.size_flags_horizontal = Control.SIZE_SHRINK_END
 	var credit := Label.new()
+	credit.theme_type_variation = &"ChipLabel"
 	credit.text = preload("res://ui/hud.gd").map_credit(CityBuilder.load_manifest()) + " — personnages et commerces fictifs."
-	credit.add_theme_font_size_override("font_size", int(18 * Settings.text_scale))
-	credit.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(credit)
+	credit.add_theme_font_size_override("font_size", int(16 * Settings.text_scale))
+	credit_chip.add_child(credit)
+	right.add_child(credit_chip)
 	for c in box.get_children():
 		if c is Button and not (c as Button).disabled:
 			(c as Button).grab_focus()
@@ -191,6 +204,7 @@ func _build_save_block(box: VBoxContainer) -> void:
 	var key := next_mission_key()
 	var cont := Button.new()
 	cont.text = "Continuer (mission %d)" % int(key.substr(1)) if done > 0 else "Nouvelle partie (mission 1)"
+	cont.theme_type_variation = &"FilledButton"
 	cont.pressed.connect(func():
 		Net.mission_id = key
 		_solo())
@@ -206,13 +220,16 @@ func _build_save_block(box: VBoxContainer) -> void:
 		add_child(dlg)
 		var wipe := Button.new()
 		wipe.text = "Nouvelle partie (efface la sauvegarde)"
+		wipe.theme_type_variation = &"TextButton"
 		wipe.pressed.connect(func(): dlg.popup_centered())
 		box.add_child(wipe)
 
 
-func _button(parent: Node, text: String, cb: Callable) -> void:
+func _button(parent: Node, text: String, cb: Callable, variation := &"") -> void:
 	var b := Button.new()
 	b.text = text
+	if variation != &"":
+		b.theme_type_variation = variation
 	b.pressed.connect(cb)
 	parent.add_child(b)
 

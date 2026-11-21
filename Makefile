@@ -2,7 +2,7 @@
 GODOT ?= godot
 PY ?= python3
 
-.PHONY: gis gis-fetch city test test-py test-godot screenshots server
+.PHONY: gis gis-fetch city test test-py test-godot screenshots server capture-titre
 
 ## Télécharge les données ouvertes (réseau requis) : IGN puis OSM si joignable.
 gis-fetch:
@@ -70,3 +70,7 @@ screenshots:
 
 server:
 	docker build -f server/Dockerfile -t frouch-city-server .
+
+## Écran titre : un cadre par plan de drone (Vulkan requis ; sans écran : xvfb-run -a godot --rendering-driver vulkan …).
+capture-titre:
+	$(GODOT) --path game -s ../qa/screenshots/capture_titre.gd -- --out=qa/screenshots/out/titre

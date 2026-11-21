@@ -5,5 +5,6 @@
 **Ajouter un édifice** : fonction dans `landmarks.gd`, `facility` dans `LABELS_PUBLICS`, test de nombre de pièces (`run_gdscript_tests.gd`), capture `capture_edifices.gd`.
 **Ajouter un son** : `Synth` → `Sfx` → test.
 **Ajouter un dialogue** : `.yarn` dans `narrative/dialogues/`, nœud référencé par l'étape.
+**Ajouter un plan de drone à l'écran titre** : entrée dans `DroneShots.shots` (orbit / fly / crane, lieu pris dans `poi.json`), test déjà générique (`run_gdscript_tests.gd`), capture `qa/screenshots/capture_titre.gd`. Décision 0018.
 **Ajouter une cinématique** : JSON `narrative/cinematics/`, ancré sur un POI, `cinematic_audit`.
 **Avant de commit** : `make test`. Ne jamais lancer `make city`/`--import` pendant une régression en cours.

@@ -57,6 +57,10 @@ func _run() -> void:
 	check(buttons >= 10, "le menu construit ses boutons (%d)" % buttons)
 	check(texts.any(func(t): return t.begins_with("Continuer")), "bouton « Continuer »")
 	check(texts.any(func(t): return t.begins_with("Nouvelle partie (efface")), "bouton « Nouvelle partie » avec confirmation")
+	check(Menu.SOLO_MISSIONS.size() == Menu.CHAIN.size(), "menu : une entrée de mission par maillon de la chaîne")
+	var mth: Theme = load("res://ui/theme_util.gd").make_material_theme()
+	check(mth.has_stylebox("panel", "Card") and mth.has_stylebox("normal", "FilledButton") and mth.has_stylebox("focus", "TonalButton") and mth.has_stylebox("panel", "Chip"), "thème Material : carte, puce, boutons plein et tonal avec focus")
+	check(texts.any(func(t): return str(t).begins_with("Jouer en solo (mission 1")), "menu : la mission 1 est toujours proposée")
 	# Sauvegarde corrompue
 	if prog.persist:
 		var f := FileAccess.open(prog.path, FileAccess.WRITE)
