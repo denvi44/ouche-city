@@ -10,12 +10,14 @@ PORT="${PORT:-$((26000 + RANDOM % 1000))}"
 LOG="$(mktemp -d)"
 trap 'kill $(jobs -p) 2>/dev/null; rm -rf "$LOG"' EXIT
 
-"$GODOT" --headless --path game -- --server --port="$PORT" --spawn-at=van --qa-report=1 --quit-after=16 >"$LOG/server.log" 2>&1 &
+"$GODOT" --headless --path game -- --server --port="$PORT" --spawn-at=van --qa-report=1 --quit-after=41 >"$LOG/server.log" 2>&1 &
 SERVER=$!
+# Attend que le serveur écoute (le chargement du monde varie selon la machine), au plus 30 s.
+for _ in $(seq 1 60); do grep -q "serveur DEDICATED" "$LOG/server.log" && break; sleep 0.5; done
 sleep 3
-"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --bot --bot-drive --name=Chauffeur --qa-report=1 --quit-after=13 >"$LOG/driver.log" 2>&1 &
+"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --bot --bot-drive --name=Chauffeur --qa-report=1 --quit-after=38 >"$LOG/driver.log" 2>&1 &
 sleep 1
-"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Passant --qa-report=1 --quit-after=12 >"$LOG/watcher.log" 2>&1 &
+"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Passant --qa-report=1 --quit-after=37 >"$LOG/watcher.log" 2>&1 &
 wait $SERVER
 sleep 1
 
