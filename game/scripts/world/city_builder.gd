@@ -445,8 +445,14 @@ func add_vegetation(v: Dictionary) -> void:
 	_add_polygon(_tool(VEG_MAT.get(v.kind, "vert_bocage")), poly, func(p): return height_at(p.x, p.y) + Y_VEGETATION, Vector3.ZERO)
 
 
+## Centres des enseignes : les lampadaires s'en écartent (renseigné par `build_city`).
+var sign_spots: Array = []
+
+
 ## Construit une tuile : un MeshInstance3D par tuile (une surface par matériau),
 ## un StaticBody3D de collision pour les bâtiments, des arbres en MultiMesh.
+
+
 func build_tile(data: Dictionary) -> Node3D:
 	_tools.clear()
 	var root := Node3D.new()
@@ -501,7 +507,7 @@ func build_tile(data: Dictionary) -> Node3D:
 		root.add_child(gi)
 	if data.get("trees", []).size() > 0:
 		root.add_child(_build_trees(data.trees))
-	root.add_child(StreetFurniture.build_tile(data, height_at))
+	root.add_child(StreetFurniture.build_tile(data, height_at, sign_spots))
 	return root
 
 
@@ -854,6 +860,12 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 	var root := Node3D.new()
 	root.name = "Ville"
 	var manifest := load_manifest(dir)
+	var poi0 = read_json(dir.path_join("poi.json"))
+	sign_spots = []
+	if poi0 is Dictionary:
+		for p in poi0.get("pois", []):
+			if p.has("building") and p.has("facing"):
+				sign_spots.append(Vector2(float(p.position[0]), float(p.position[1])))
 	var tiles: Array[Dictionary] = []
 	for key in manifest.get("tiles", []):
 		var data = read_json(dir.path_join("tiles/%s.json" % key))

@@ -231,6 +231,13 @@ func _run() -> void:
 	var tile_json = load("res://scripts/world/city_builder.gd").read_json("res://assets/city/tiles/%s.json" % load("res://scripts/world/city_builder.gd").load_manifest().tiles[0])
 	var lamps: Array = SF.lamp_spots(tile_json, func(_x, _z): return 0.0)
 	check(lamps.size() > 0 and lamps == SF.lamp_spots(tile_json, func(_x, _z): return 0.0), "lampadaires : %d sur la première tuile, placement déterministe" % lamps.size())
+	var first: Vector3 = lamps[0].origin
+	var kept: Array = SF.lamp_spots(tile_json, func(_x, _z): return 0.0, [Vector2(first.x, first.z)])
+	var too_close := false
+	for l in kept:
+		if Vector2(l.origin.x, l.origin.z).distance_to(Vector2(first.x, first.z)) < SF.AVOID_RADIUS:
+			too_close = true
+	check(kept.size() < lamps.size() and not too_close, "lampadaires : aucun à moins de %.1f m d'une enseigne (%d → %d)" % [SF.AVOID_RADIUS, lamps.size(), kept.size()])
 	# Navigation : un passage qui traverse un bâtiment est désactivé, le chemin contourne.
 	var nv := RoadNav.new()
 	nv.build([{"points": [[0, 0], [40, 0]], "kind": "residential"}, {"points": [[0, 0], [0, 20], [40, 20], [40, 0]], "kind": "residential"}])

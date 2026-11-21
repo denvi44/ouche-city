@@ -10,6 +10,9 @@ const KINDS := ["secondary", "tertiary", "residential", "primary", "service"]
 static var _kits := {}
 
 
+const AVOID_RADIUS := 4.8                       # m : pas de lampadaire devant une enseigne
+
+
 static func kit(name: String) -> PropKit:
 	if not _kits.has(name):
 		_kits[name] = Callable(PropKit, name).call()
@@ -25,7 +28,8 @@ static func _inside_building(p: Vector2, rings: Array) -> bool:
 
 
 ## Points de pose des lampadaires d'une tuile : [Transform3D, ...] (cap vers la chaussée).
-static func lamp_spots(data: Dictionary, height_at: Callable) -> Array:
+## `avoid` : centres (Vector2) des enseignes à ne pas masquer ; aucun lampadaire à moins de AVOID_RADIUS.
+static func lamp_spots(data: Dictionary, height_at: Callable, avoid: Array = []) -> Array:
 	var rings := []
 	for b in data.buildings:
 		var ring := PackedVector2Array()
@@ -58,6 +62,10 @@ static func lamp_spots(data: Dictionary, height_at: Callable) -> Array:
 				for k in 4:
 					var probe := q + Vector2.from_angle(k * PI / 2.0) * 0.9
 					ok = ok and not _inside_building(probe, rings)
+				for sp in avoid:
+					if q.distance_to(sp) < AVOID_RADIUS:
+						ok = false
+						break
 				if ok:
 					var to_road := -off.normalized()
 					var yaw := atan2(to_road.x, to_road.y)
@@ -87,11 +95,35 @@ static func _multimesh(root: Node3D, name: String, k: PropKit, xfs: Array) -> vo
 
 
 ## Mobilier d'une tuile : lampadaires. (Les commerces ont le leur : `shop_furniture`.)
-static func build_tile(data: Dictionary, height_at: Callable) -> Node3D:
+static func build_tile(data: Dictionary, height_at: Callable, avoid: Array = []) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Mobilier"
-	_multimesh(root, "Lampadaires", kit("lamp"), lamp_spots(data, height_at))
+	var spots := lamp_spots(data, height_at, avoid)
+	_multimesh(root, "Lampadaires", kit("lamp"), spots)
+	_collisions(root, spots, Vector3(0.0, 2.0, 0.0), null, Vector2(0.14, 4.0))
 	return root
+
+
+## Collisions du mobilier : une seule StaticBody3D, une forme par objet (les MultiMesh n'en ont pas).
+static func _collisions(root: Node3D, xfs: Array, offset: Vector3, box: Variant, dims: Vector2) -> void:
+	if xfs.is_empty():
+		return
+	var body := StaticBody3D.new()
+	body.name = "Collisions"
+	for xf in xfs:
+		var cs := CollisionShape3D.new()
+		if box != null:
+			var bs := BoxShape3D.new()
+			bs.size = box
+			cs.shape = bs
+		else:
+			var c := CylinderShape3D.new()
+			c.radius = dims.x
+			c.height = dims.y
+			cs.shape = c
+		cs.transform = Transform3D(xf.basis, xf.origin + xf.basis * offset)
+		body.add_child(cs)
+	root.add_child(body)
 
 
 ## Devant chaque commerce (POI portant `building` et `facing`, genre « shop ») : deux jardinières de part et d'autre de
@@ -126,4 +158,8 @@ static func build_shops(pois: Array, height_at: Callable) -> Node3D:
 	var spots := shop_spots(pois, height_at)
 	for name in spots:
 		_multimesh(root, name.capitalize(), kit(name), spots[name])
+	# On ne traverse ni les jardinières, ni les bancs, ni les bornes.
+	_collisions(root, spots.planter, Vector3(0, 0.45, 0), Vector3(1.0, 0.9, 0.5), Vector2.ZERO)
+	_collisions(root, spots.bench, Vector3(0, 0.45, 0), Vector3(1.75, 0.9, 0.6), Vector2.ZERO)
+	_collisions(root, spots.bollard, Vector3(0, 0.42, 0), null, Vector2(0.18, 0.85))
 	return root

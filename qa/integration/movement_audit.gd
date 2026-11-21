@@ -171,5 +171,22 @@ func _run() -> void:
 	inp.yaw = -PI / 2.0
 	await frames(180)
 	check(player.global_position.y < base.y - 1.0, "tombe du bord de la plateforme (y = %.1f)" % (player.global_position.y - base.y))
+	# --- Mobilier de rue : jardinière en bois (vraie scène : aucune traversée) ---
+	var sf = load("res://scripts/world/street_furniture.gd")
+	var shops := Node3D.new()
+	world.add_child(shops)
+	var fake := [{"kind": "shop", "facing": 0.0, "position": [0.0, 20.0], "id": "t"}]
+	var built: Node3D = sf.build_shops(fake, func(_x, _z): return 0.0)
+	built.position = base + Vector3(0, 0, 0)
+	shops.add_child(built)
+	await frames(5)
+	# jardinière gauche à (-1.7, ·, 60.45) sur le sol d'essai : on la percute de face
+	place(base + Vector3(-1.7, 0.1, 24.0))
+	await frames(10)
+	inp.move = Vector2(0, -1)
+	inp.yaw = 0.0
+	inp.sprint = false
+	await frames(120)
+	check(player.global_position.z > 20.8, "jardinière : le joueur ne la traverse pas (z = %.2f)" % player.global_position.z)
 	print("--- movement_audit : ", "OK" if fails == 0 else "%d échec(s)" % fails)
 	quit(1 if fails > 0 else 0)
