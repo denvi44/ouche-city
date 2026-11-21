@@ -50,6 +50,7 @@ var _was_driving := false
 
 
 func _ready() -> void:
+	collision_mask = 1 | 2          # décor + mobilier de rue (couche 2) ; les véhicules ignorent le mobilier
 	peer_id = name.to_int()
 	is_ai = peer_id < 0
 	controller = 0 if is_ai else peer_id

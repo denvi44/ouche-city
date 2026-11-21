@@ -10,6 +10,7 @@ const KINDS := ["secondary", "tertiary", "residential", "primary", "service"]
 static var _kits := {}
 
 
+const LAYER_FURNITURE := 2
 const AVOID_RADIUS := 4.8                       # m : pas de lampadaire devant une enseigne
 
 
@@ -110,6 +111,8 @@ static func _collisions(root: Node3D, xfs: Array, offset: Vector3, box: Variant,
 		return
 	var body := StaticBody3D.new()
 	body.name = "Collisions"
+	body.collision_layer = LAYER_FURNITURE      # les piétons les heurtent, pas les véhicules (qui roulent parfois à côté)
+	body.collision_mask = 0
 	for xf in xfs:
 		var cs := CollisionShape3D.new()
 		if box != null:
