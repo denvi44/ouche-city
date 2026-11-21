@@ -41,6 +41,12 @@ jobs:
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/companion_flow.gd -- --sec=600 --need=4
       - name: Conduite en ligne (serveur + conducteur + spectateur)
         run: bash qa/integration/drive_online.sh
+      - name: Mission 02 de bout en bout (pièces, montage, essai, jury, drag)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m02_flow.gd -- --mission=m02 --no-companions
+      - name: Mission 02 avec compagnons (Ginette, Kévin, Gégé)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m02_companions.gd -- --mission=m02
+      - name: Mission 02 en ligne (le serveur impose la mission)
+        run: bash qa/integration/m02_online.sh
       - name: Captures (Compatibility, sans GPU)
         run: bash qa/screenshots/capture.sh "qa/screenshots/out/ci"
       - uses: actions/upload-artifact@v4

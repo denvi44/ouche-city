@@ -99,6 +99,11 @@ func send_full_state(_peer: int) -> void:
 	pass
 
 
+## Où regardent les compagnons à leur poste (Vector3.ZERO : nulle part en particulier).
+func look_target() -> Vector3:
+	return Vector3.ZERO
+
+
 ## Point d'attente d'un compagnon (HUD, IA) ; Vector3.ZERO si inconnu.
 func spot(_name: String) -> Vector3:
 	return Vector3.ZERO

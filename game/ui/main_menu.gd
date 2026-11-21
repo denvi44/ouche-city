@@ -74,7 +74,18 @@ func _build() -> void:
 	_name.placeholder_text = "Votre nom"
 	_name.max_length = 24
 	box.add_child(_name)
-	_button(box, "Jouer en solo", _solo)
+	_button(box, "Jouer en solo (mission 1 : le Calva de Tonton Gégé)", func():
+		Net.mission_id = "m01"
+		_solo())
+	# Mission 2 : disponible une fois la mission 1 terminée (ou débloquée par la sauvegarde).
+	var m2_ok: bool = Progress.is_available("m02_tuning_samedi", ["m01_calva_gege"])
+	var m2 := Button.new()
+	m2.text = "Solo : Tuning du samedi soir (mission 2)" if m2_ok else "Mission 2 : terminez d'abord le Calva de Tonton Gégé"
+	m2.disabled = not m2_ok
+	m2.pressed.connect(func():
+		Net.mission_id = "m02"
+		_solo())
+	box.add_child(m2)
 	_button(box, "Héberger une partie", _host)
 	_address = LineEdit.new()
 	_address.placeholder_text = "Adresse de l'hôte (ex. 192.168.1.20)"

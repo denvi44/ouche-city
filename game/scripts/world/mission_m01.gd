@@ -923,6 +923,10 @@ func companion_roles() -> Dictionary:
 	return {-1: "arrimeur", -2: "negociatrice", -3: "guetteur", -4: "diversion"}
 
 
+func look_target() -> Vector3:
+	return zones.get("barrage", Vector3.ZERO)
+
+
 func result_text() -> String:
 	if step == "done":
 		return "Médaille : %s" % {"gold": "OR", "silver": "ARGENT", "bronze": "BRONZE"}.get(medal, "aucune")

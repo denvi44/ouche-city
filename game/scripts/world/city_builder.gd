@@ -593,7 +593,8 @@ func build_signs(pois: Array) -> Node3D:
 
 ## Blockout des lieux de mission (POI v3 portant `step`) : balise lumineuse, libellé,
 ## et accessoire simple (`prop`). Aplats toon, aucun asset externe.
-const STEP_COLOR := {"crates": Color(0.95, 0.75, 0.2), "vehicle": Color(0.3, 0.6, 0.9), "checkpoint": Color(0.85, 0.25, 0.2), "fair": Color(0.4, 0.75, 0.35)}
+const STEP_COLOR := {"crates": Color(0.95, 0.75, 0.2), "vehicle": Color(0.3, 0.6, 0.9), "checkpoint": Color(0.85, 0.25, 0.2), "fair": Color(0.4, 0.75, 0.35),
+	"parts": Color(0.95, 0.75, 0.2), "assembly": Color(0.7, 0.5, 0.9), "test_drive": Color(0.3, 0.6, 0.9), "meet": Color(0.95, 0.5, 0.7), "drag": Color(0.85, 0.25, 0.2)}
 
 
 func _toon(color: Color) -> ShaderMaterial:
@@ -656,6 +657,36 @@ func _add_prop(root: Node3D, prop: String) -> void:
 				_box(root, Vector3(0.12, 2.6, 0.12), Vector3(sx, 1.3, 0.5), Color(0.38, 0.26, 0.18))
 			for i in 6:
 				_box(root, Vector3(0.62, 0.1, 1.5), Vector3(-1.55 + i * 0.62, 2.65, 0), Color(0.85, 0.22, 0.2) if i % 2 == 0 else Color(0.97, 0.95, 0.88))
+		"strip":
+			_add_strip(root)
+		"junkyard":
+			# Tas de ferraille : carcasses rouillées, pneus, une porte de frigo.
+			for spec in [[Vector3(3.2, 1.0, 1.8), Vector3(-2.5, 0.5, 1.5), Color(0.55, 0.3, 0.2), 0.3], [Vector3(2.6, 0.8, 1.6), Vector3(2.8, 0.4, 2.8), Color(0.45, 0.5, 0.55), -0.5],
+					[Vector3(1.8, 1.6, 0.4), Vector3(0.0, 0.8, 4.0), Color(0.85, 0.85, 0.82), 0.1], [Vector3(2.0, 0.6, 2.0), Vector3(-1.0, 1.3, 1.8), Color(0.4, 0.28, 0.2), 0.8]]:
+				_box(root, spec[0], spec[1], spec[2], spec[3])
+			for k in 4:
+				var tire := CylinderMesh.new()
+				tire.top_radius = 0.45
+				tire.bottom_radius = 0.45
+				tire.height = 0.3
+				tire.material = _toon(Color(0.12, 0.11, 0.1))
+				var ti := MeshInstance3D.new()
+				ti.mesh = tire
+				ti.position = Vector3(4.5 + (k % 2) * 0.9, 0.15 + (k / 2) * 0.32, 0.8 + (k % 2) * 0.4)
+				root.add_child(ti)
+		"garage":
+			# Pile de pneus et caisse à outils devant le garage de Kévin.
+			for k in 3:
+				var tire := CylinderMesh.new()
+				tire.top_radius = 0.42
+				tire.bottom_radius = 0.42
+				tire.height = 0.28
+				tire.material = _toon(Color(0.12, 0.11, 0.1))
+				var ti := MeshInstance3D.new()
+				ti.mesh = tire
+				ti.position = Vector3(2.4, 0.14 + k * 0.3, 1.0)
+				root.add_child(ti)
+			_box(root, Vector3(0.9, 0.6, 0.5), Vector3(3.5, 0.3, 1.4), Color(0.75, 0.2, 0.18))
 		"fumier":
 			var heap := SphereMesh.new()
 			heap.radius = 1.6; heap.height = 1.8; heap.radial_segments = 8; heap.rings = 4
@@ -666,11 +697,50 @@ func _add_prop(root: Node3D, prop: String) -> void:
 			root.add_child(hi)
 
 
-func build_mission_markers(pois: Array) -> Node3D:
+## Piste de drag : bitume de 14 m de large sur 400 m (axe +Z local), bandes latérales, lignes de
+## départ et d'arrivée en damier. Le dessus s'aligne sur le point le plus haut du terrain (≤ 0,5 m d'écart).
+func _add_strip(root: Node3D) -> void:
+	var length := 400.0
+	var width := 14.0
+	var h0 := root.position.y
+	var top := h0
+	var f := root.rotation.y
+	for k in range(0, 21):
+		var d := length * k / 20.0
+		var x := root.position.x + sin(f) * d
+		var z := root.position.z + cos(f) * d
+		top = maxf(top, height_at(x, z))
+	var thick := 1.0
+	var cy := (top - h0) + 0.08 - thick * 0.5
+	var asphalt := _box(root, Vector3(width, thick, length), Vector3(0, cy, length * 0.5), Color(0.3, 0.3, 0.34))
+	asphalt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var body := StaticBody3D.new()
+	body.name = "Collision"
+	var shape := CollisionShape3D.new()
+	var bx := BoxShape3D.new()
+	bx.size = Vector3(width, thick, length)
+	shape.shape = bx
+	shape.position = Vector3(0, cy, length * 0.5)
+	body.add_child(shape)
+	root.add_child(body)
+	var y := cy + thick * 0.5 + 0.02
+	for sx in [-width * 0.5 + 0.3, width * 0.5 - 0.3]:
+		_box(root, Vector3(0.25, 0.04, length), Vector3(sx, y, length * 0.5), Color(0.95, 0.95, 0.92))
+	for z in [0.0, length]:
+		for i in 7:
+			for j in 2:
+				var c := Color(0.97, 0.97, 0.95) if (i + j) % 2 == 0 else Color(0.1, 0.1, 0.1)
+				_box(root, Vector3(width / 7.0, 0.05, 0.8), Vector3(-width * 0.5 + (i + 0.5) * width / 7.0, y + 0.01, z + (j - 0.5) * 0.8), c)
+
+
+func build_mission_markers(pois: Array, mission_id := "") -> Node3D:
 	var root := Node3D.new()
 	root.name = "LieuxDeMission"
 	for p in pois:
 		if not p.has("step"):
+			continue
+		# Seuls les lieux de la mission active sont affichés (les lieux de l'autre n'ont pas de sens ici).
+		if mission_id != "" and not (mission_id in p.get("missions", [])):
 			continue
 		var x := float(p.position[0])
 		var z := float(p.position[1])
@@ -678,8 +748,8 @@ func build_mission_markers(pois: Array) -> Node3D:
 		n.name = "Lieu_" + str(p.id)
 		n.position = Vector3(x, height_at(x, z), z)
 		n.rotation.y = float(p.get("facing", 0.0))
-		if p.has("prop") and p.prop != "van":
-			_add_prop(n, p.prop)   # la camionnette est un vrai véhicule (Vehicle), pas un accessoire
+		if p.has("prop") and p.prop != "van" and p.prop != "car":
+			_add_prop(n, p.prop)   # camionnette et voiture sont de vrais véhicules, pas des accessoires
 		var color: Color = STEP_COLOR.get(p.step, Color.WHITE)
 		# Balise : cylindre translucide visible de loin.
 		var beam := CylinderMesh.new()
@@ -711,7 +781,7 @@ func build_mission_markers(pois: Array) -> Node3D:
 
 
 ## Construit toute la ville listée dans le manifeste. Renvoie le nœud racine.
-func build_city(dir: String = CITY_DIR) -> Node3D:
+func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 	var root := Node3D.new()
 	root.name = "Ville"
 	var manifest := load_manifest(dir)
@@ -728,5 +798,5 @@ func build_city(dir: String = CITY_DIR) -> Node3D:
 	var poi = read_json(dir.path_join("poi.json"))
 	if poi is Dictionary:
 		root.add_child(build_signs(poi.get("pois", [])))
-		root.add_child(build_mission_markers(poi.get("pois", [])))
+		root.add_child(build_mission_markers(poi.get("pois", []), mission_id))
 	return root

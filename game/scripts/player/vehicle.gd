@@ -22,6 +22,22 @@ const MAX_STEER := 0.6           # rad aux roues, à l'arrêt
 const GRAVITY := 22.0
 const SEAT_OFFSET := Vector3(-1.9, 0.0, -0.4)   # côté conducteur, pour descendre
 
+## Caractéristiques (initialisées aux constantes ; les voitures les surchargent).
+var max_speed := MAX_SPEED
+var max_reverse := MAX_REVERSE
+var accel := ACCEL
+var brake_force := BRAKE
+var coast_decel := COAST_DECEL
+var wheelbase := WHEELBASE
+var max_steer := MAX_STEER
+## Fonction d'entrée pour un véhicule sans conducteur (IA) : (véhicule, delta) -> entrée.
+var ai_script := Callable()
+## Maintenu immobile (départ de course) : aucune entrée n'est prise en compte.
+var hold := false
+## Moteur allumé sans conducteur (voiture IA de course) ; multiplicateur de hauteur du son moteur.
+var engine_on := false
+var engine_pitch_mult := 1.0
+
 var driver := 0
 var speed := 0.0                 # vitesse signée le long de l'axe avant (m/s)
 var vehicle_name := "Camionnette de Gégé"
@@ -82,6 +98,21 @@ func neutral_input() -> Dictionary:
 	return {"move": Vector2.ZERO, "jump": false}
 
 
+func server_input(delta: float) -> Dictionary:
+	if ai_script.is_valid():
+		return ai_script.call(self, delta)
+	return neutral_input()
+
+
+## Limite de vitesse du moment (une voiture peut la modifier : turbo, panne).
+func current_max_speed() -> float:
+	return max_speed
+
+
+func current_accel() -> float:
+	return accel
+
+
 func pack_input(inp: Dictionary) -> PackedFloat32Array:
 	return PackedFloat32Array([inp.move.x, inp.move.y, 1.0 if inp.jump else 0.0])
 
@@ -94,26 +125,26 @@ func unpack_input(a: PackedFloat32Array) -> Dictionary:
 
 ## Pas de conduite déterministe. move.y < 0 = avant (même convention que la marche).
 func simulate(inp: Dictionary, delta: float) -> void:
-	var mv: Vector2 = inp.move
+	var mv: Vector2 = inp.move if not hold else Vector2.ZERO
 	var throttle := -mv.y
 	var steer := mv.x
-	var handbrake: bool = inp.jump
+	var handbrake: bool = inp.jump and not hold
 	_last_input = inp
 	# Longitudinal : poussée conique, freinage si on inverse, ralentissement moteur sinon.
 	if absf(throttle) > 0.05:
 		if throttle * speed >= -0.1:
-			var limit := MAX_SPEED if throttle > 0.0 else MAX_REVERSE
-			speed += throttle * ACCEL * delta * clampf(1.0 - absf(speed) / limit, 0.12, 1.0)
+			var limit := current_max_speed() if throttle > 0.0 else max_reverse
+			speed += throttle * current_accel() * delta * clampf(1.0 - absf(speed) / limit, 0.12, 1.0)
 		else:
-			speed += throttle * BRAKE * delta
+			speed += throttle * brake_force * delta
 	else:
-		speed = move_toward(speed, 0.0, COAST_DECEL * delta)
+		speed = move_toward(speed, 0.0, coast_decel * delta)
 	if handbrake:
 		speed = move_toward(speed, 0.0, HANDBRAKE_DECEL * delta)
-	speed = clampf(speed, -MAX_REVERSE, MAX_SPEED)
+	speed = clampf(speed, -max_reverse, current_max_speed())
 	# Direction : braquage réduit avec la vitesse, modèle vélo.
-	var steer_angle := steer * MAX_STEER * lerpf(1.0, 0.3, clampf(absf(speed) / MAX_SPEED, 0.0, 1.0))
-	rotation.y -= (speed / WHEELBASE) * tan(steer_angle) * delta
+	var steer_angle := steer * max_steer * lerpf(1.0, 0.3, clampf(absf(speed) / max_speed, 0.0, 1.0))
+	rotation.y -= (speed / wheelbase) * tan(steer_angle) * delta
 	_steer_visual = steer_angle
 	var f := forward()
 	velocity.x = f.x * speed
@@ -141,14 +172,14 @@ func simulate(inp: Dictionary, delta: float) -> void:
 func _update_engine_sound() -> void:
 	if _engine == null:
 		return
-	var running := driver != 0
+	var running := driver != 0 or engine_on
 	if running and not _engine.playing:
 		_engine.play()
 	elif not running and _engine.playing:
 		_engine.stop()
 	var spd := absf(speed) if (is_local_controller() or (multiplayer.has_multiplayer_peer() and multiplayer.is_server())) else measured_speed
-	var k := clampf(spd / MAX_SPEED, 0.0, 1.0)
-	_engine.pitch_scale = lerpf(0.75, 2.1, k)
+	var k := clampf(spd / max_speed, 0.0, 1.0)
+	_engine.pitch_scale = lerpf(0.75, 2.1, k) * engine_pitch_mult
 	_engine.volume_db = lerpf(-12.0, -5.0, k)
 
 
@@ -180,7 +211,7 @@ func _process(delta: float) -> void:
 			var local := global_transform.basis.inverse() * n
 			target_pitch = atan2(-local.z, local.y) * 0.9
 			target_roll = atan2(local.x, local.y) * 0.9
-		target_roll += _steer_visual * absf(speed) / MAX_SPEED * 0.12
+		target_roll += _steer_visual * absf(speed) / max_speed * 0.12
 		_body_visual.rotation.x = lerp_angle(_body_visual.rotation.x, target_pitch, clampf(8.0 * delta, 0.0, 1.0))
 		_body_visual.rotation.z = lerp_angle(_body_visual.rotation.z, target_roll, clampf(8.0 * delta, 0.0, 1.0))
 

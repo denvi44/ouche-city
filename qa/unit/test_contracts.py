@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
@@ -94,8 +94,9 @@ def test_lieux_de_mission01_couvrent_les_etapes():
     """Chaque étape spatiale de m01 a un lieu posé sur la carte, et chaque lieu sert une étape existante."""
     m = json.loads((ROOT / "missions/m01_calva_gege.json").read_text(encoding="utf-8"))
     etapes = {s["id"] for s in m["steps"]}
-    pois = [p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"] if p.get("step")]
-    assert pois and all(p["step"] in etapes and "m01_calva_gege" in p["missions"] for p in pois)
+    pois = [p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
+            if p.get("step") and "m01_calva_gege" in p.get("missions", [])]
+    assert pois and all(p["step"] in etapes for p in pois)
     servies = {p["step"] for p in pois}
     assert {"crates", "vehicle", "checkpoint", "fair"} <= servies
     # Les 4 sources de caisses du JSON (cave, grange, poulailler, fumier) ont chacune un lieu.
@@ -108,3 +109,33 @@ def test_missions_importees_dans_godot():
     for src in (ROOT / "missions").glob("m*.json"):
         dst = ROOT / "game/assets/missions" / src.name
         assert dst.exists() and dst.read_bytes() == src.read_bytes(), f"{src.name} : lancer make city"
+
+
+def test_lieux_de_mission02():
+    """Chaque étape spatiale de m02 a un lieu ; la piste de drag fait 400 m, libre et presque plate."""
+    import math
+    from shapely.geometry import LineString, Point, Polygon
+    m = json.loads((ROOT / "missions/m02_tuning_samedi.json").read_text(encoding="utf-8"))
+    etapes = {s["id"] for s in m["steps"]}
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    m02 = [p for p in pois.values() if "m02_tuning_samedi" in p.get("missions", []) and p.get("step")]
+    assert all(p["step"] in etapes for p in m02)
+    for source in ("casse", "annonce", "auto_bling_27", "cour_dylan"):       # les 4 sources du JSON
+        assert any(s["id"] == source for s in m["sources"])
+    for pid in ("garage_kevin", "voiture_kevin", "casse_dugenou", "annonce_vendeur", "auto_bling_27", "cour_dylan", "parc_rdv", "drag_depart", "drag_arrivee"):
+        assert pid in pois, f"lieu manquant : {pid}"
+    a, b = pois["drag_depart"]["position"], pois["drag_arrivee"]["position"]
+    assert abs(math.dist(a, b) - m["steps"][[s["id"] for s in m["steps"]].index("drag")]["distanceM"]) < 0.5
+    couloir = LineString([a, b]).buffer(8.0, cap_style="flat")
+    batiments, routes = [], []
+    for f in (ROOT / "gis/out/tiles").glob("*.json"):
+        t = json.loads(f.read_text())
+        batiments += [Polygon(x["footprint"]) for x in t["buildings"]]
+        routes += [LineString(r["points"]) for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    assert not any(p.intersects(couloir) for p in batiments), "un bâtiment barre la piste"
+    assert not any(r.intersects(couloir) for r in routes), "une route traverse la piste"
+    # Les lieux de la mission 02 sont tous distincts les uns des autres (pas d'empilement).
+    pts = [Point(p["position"]) for p in m02 if p["id"] not in ("drag_arrivee",)]
+    for i, p in enumerate(pts):
+        for q in pts[i + 1:]:
+            assert p.distance(q) > 2.0

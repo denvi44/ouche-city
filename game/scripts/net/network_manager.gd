@@ -28,6 +28,8 @@ var port: int = DEFAULT_PORT
 var open_to_others := false
 ## Pilotage automatique du joueur local (bots de playtest QA).
 var bot := false
+## Mission jouée : "m01" ou "m02" (menu principal ou `--mission=`).
+var mission_id := "m01"
 ## peer_id -> { "name": String, "os": String, "ready": bool }
 var players: Dictionary = {}
 
@@ -167,7 +169,7 @@ func _hello(version: int, player_name: String, os_name: String) -> void:
 		return
 	players[id] = {"name": player_name.left(24).strip_edges(), "os": os_name, "ready": false}
 	print("[net] joueur %d accepté (%s, %s)" % [id, players[id].name, os_name])
-	_welcome.rpc_id(id, {"protocol": PROTOCOL_VERSION, "mode": Mode.keys()[mode]})
+	_welcome.rpc_id(id, {"protocol": PROTOCOL_VERSION, "mode": Mode.keys()[mode], "mission": str(arg("mission", mission_id))})
 	roster_changed.emit()
 
 
@@ -195,8 +197,11 @@ func _refuse(reason: String) -> void:
 
 
 @rpc("authority", "call_remote", "reliable")
-func _welcome(_info: Dictionary) -> void:
-	print("[net] accepté par le serveur")
+func _welcome(info: Dictionary) -> void:
+	# La mission est décidée par le serveur : le client charge la même, quoi qu'il ait demandé.
+	mission_id = str(info.get("mission", "m01"))
+	_args["mission"] = mission_id
+	print("[net] accepté par le serveur (mission %s)" % mission_id)
 	joined.emit()
 
 

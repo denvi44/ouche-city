@@ -4,6 +4,8 @@ extends RefCounted
 ## Il produit, à chaque pas physique, la même « entrée » qu'un joueur (déplacement, lacet,
 ## sprint) : le compagnon est simulé par `Player.simulate`, comme un humain.
 ##
+## Rôles (mission 02) : « mecano » (Kévin) attend au garage ; « ambianceur » (Gégé) prépare la sono au
+## rendez-vous ; « chineuse » (Ginette) va marchander l'annonce du père Bernard (elle négocie mieux que tout le monde).
 ## Rôles (mission 01) :
 ##  - « arrimeur » (Tonton Gégé) : va chercher une caisse au sol, la rapporte à la camionnette et
 ##    la charge. N'essaie jamais de monter dedans ;
@@ -23,7 +25,7 @@ var role := "arrimeur"
 var status := "attend"              # texte lisible (HUD, tests)
 
 var body: Player
-var mission: MissionM01
+var mission: MissionBase
 var nav: RoadNav
 
 var _target := Vector3.ZERO
@@ -37,6 +39,7 @@ var _target_crate := ""
 var _act_cooldown := 0.0
 var _last_yaw := 0.0
 var _skip_t := 0.0
+var _errand_tries := 0
 var _clock := 0.0
 var _crate_since := 0.0
 var _blacklist := {}                # id de caisse -> date (horloge du cerveau) de fin de mise à l'écart
@@ -45,7 +48,7 @@ var _hist_t := 0.0
 var _hist_pos := Vector2.ZERO
 
 
-func _init(p_body: Player, p_mission: MissionM01, p_nav: RoadNav, p_role := "arrimeur") -> void:
+func _init(p_body: Player, p_mission: MissionBase, p_nav: RoadNav, p_role := "arrimeur") -> void:
 	role = p_role
 	body = p_body
 	mission = p_mission
@@ -70,6 +73,12 @@ func think(delta: float) -> Dictionary:
 			return _hold("kevin", "se planque près du barrage", "est prêt à faire diversion", delta)
 		"guetteur":
 			return _hold("radio", "gagne son poste de guet", "guette depuis la place Carnot", delta)
+		"mecano":
+			return _hold("garage_kevin", "file au garage", "prépare le cric", delta)
+		"ambianceur":
+			return _hold("meet_gege", "gagne le rendez-vous", "installe la sono", delta)
+		"chineuse":
+			return _errand_haggle(delta)
 	var me := body.peer_id
 	var pos := body.global_position
 	# 1. Une caisse sur l'épaule : direction la camionnette, puis chargement.
@@ -110,10 +119,33 @@ func _hold(spot_name: String, going: String, there: String, delta: float) -> Dic
 		status = going
 		return _walk_to(target, delta)
 	status = there if mission.step == "checkpoint" or role == "guetteur" else "attend en position"
-	var focus: Vector3 = mission.zones.get("barrage", pos)
+	var focus: Vector3 = mission.look_target()
+	if focus == Vector3.ZERO:
+		focus = pos + Vector3(-sin(_last_yaw), 0.0, -cos(_last_yaw))
 	var d := focus - pos
 	_last_yaw = atan2(-d.x, -d.z)
 	return {"move": Vector2.ZERO, "yaw": _last_yaw, "jump": false, "sprint": false}
+
+
+## Course de Ginette : aller chez le père Bernard, proposer 60 % du prix (deux essais au plus).
+func _errand_haggle(delta: float) -> Dictionary:
+	var m := mission as MissionM02
+	if m == null or m.step != "parts" or m.sources.get("annonce", false) or _errand_tries >= 2:
+		status = "a fini ses courses"
+		return idle()
+	var target := m.spot("annonce")
+	if target == Vector3.ZERO:
+		return idle()
+	if _horizontal(body.global_position, target) > 2.4:
+		status = "va chez le père Bernard"
+		return _walk_to(target, delta)
+	status = "marchande avec le père Bernard"
+	if _act_cooldown <= 0.0 and m._haggle_cd <= 0.0:
+		_act_cooldown = 2.0
+		m.interact(body.peer_id, ["haggle"])
+		m.choose_for(body.peer_id, "2")
+		_errand_tries += 1
+	return idle()
 
 
 func _pick_crate(pos: Vector3) -> String:

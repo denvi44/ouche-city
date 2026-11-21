@@ -3,6 +3,7 @@ extends Node3D
 ## Le même script tourne sur le serveur (dédié ou local) et sur les clients.
 
 const CITY_DIR := "res://assets/city"
+const MISSION_IDS := {"m01": "m01_calva_gege", "m02": "m02_tuning_samedi"}
 const PlayerScript := preload("res://scripts/player/player.gd")
 
 var players_root: Node3D
@@ -14,12 +15,14 @@ var env: Environment
 var sun: DirectionalLight3D
 var van: Vehicle
 var mission: MissionBase
+var mission_key := "m01"
 
 
 func _ready() -> void:
 	_build_environment()
 	builder = CityBuilder.new()
-	city = builder.build_city(CITY_DIR)
+	mission_key = str(Net.arg("mission", Net.mission_id))
+	city = builder.build_city(CITY_DIR, MISSION_IDS.get(mission_key, "m01_calva_gege"))
 	add_child(city)
 	spawn_point = find_spawn(CITY_DIR)
 	spawn_point.y = builder.height_at(spawn_point.x, spawn_point.z) + 1.0
@@ -76,18 +79,19 @@ func _build_van_and_mission() -> void:
 	var poi = CityBuilder.read_json(CITY_DIR.path_join("poi.json"))
 	var pois: Array = poi.get("pois", []) if poi is Dictionary else []
 	var van_poi := {}
+	var van_id := "voiture_kevin" if mission_key == "m02" else "van_gege"
 	for p in pois:
-		if p.id == "van_gege":
+		if p.id == van_id:
 			van_poi = p
 	if not van_poi.is_empty():
-		van = Vehicle.new()
-		van.name = "Van"
+		van = Car.new() if mission_key == "m02" else Vehicle.new()
+		van.name = "Fusee" if mission_key == "m02" else "Van"
 		var x := float(van_poi.position[0])
 		var z := float(van_poi.position[1])
 		van.position = Vector3(x, builder.height_at(x, z) + 0.4, z)
 		van.rotation.y = float(van_poi.facing) + PI
 		add_child(van)
-	mission = MissionM01.new()
+	mission = MissionM02.new() if mission_key == "m02" else MissionM01.new()
 	mission.name = "Mission"
 	add_child(mission)
 	mission.setup(pois, builder.height_at, van, players_root)
@@ -99,26 +103,32 @@ func _build_van_and_mission() -> void:
 func _spawn_companions() -> void:
 	if Net.mode != Net.Mode.SOLO or Net.arg("no-companions") != null or mission == null:
 		return
-	var which := str(Net.arg("companions", "gege,ginette,radio,kevin")).split(",")
-	var ids := {"gege": -1, "ginette": -2, "radio": -3, "kevin": -4}
+	var roles: Dictionary = mission.companion_roles()
+	var allowed: PackedStringArray = str(Net.arg("companions", "gege,ginette,radio,kevin")).split(",")
+	var names := {-1: "gege", -2: "ginette", -3: "radio", -4: "kevin"}
 	var nav := RoadNav.load_default()
 	var k := 0
-	for key in which:
-		if not ids.has(key):
+	for id in roles:
+		if not (names[id] in allowed):
 			continue
-		var id: int = ids[key]
 		var angle := TAU * k / 4.0
 		var pos := find_free_spawn(spawn_point + Vector3(cos(angle) * 3.0, 0.0, sin(angle) * 3.0))
 		var c := _spawn(id, Player.OUTFITS[id].nom, pos)
-		c.brain = CompanionBrain.new(c, mission, nav, Player.OUTFITS[id].role)
+		c.brain = CompanionBrain.new(c, mission, nav, roles[id])
 		k += 1
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
-		for i in 3:
+		for i in 5:
 			if event.is_action_pressed("choose_%d" % (i + 1)):
-				mission.request_choice(MissionM01.OPTIONS[i] if mission is MissionM01 else str(i + 1))
+				if mission is MissionM01:
+					if i < MissionM01.OPTIONS.size():
+						mission.request_choice(MissionM01.OPTIONS[i])
+				else:
+					mission.request_choice(str(i + 1))
+		if event.is_action_pressed("sprint") and van and van.driver == multiplayer.get_unique_id():
+			mission.request_boost()
 	if event.is_action_pressed("radio_toggle") and van and van.driver == multiplayer.get_unique_id():
 		Sfx.toggle_radio()
 	if event.is_action_pressed("horn") and mission and van and van.driver == multiplayer.get_unique_id():
@@ -282,7 +292,11 @@ func _qa_report() -> void:
 	var parts := []
 	for p in players_root.get_children():
 		parts.append("%d@%.1f,%.1f,%.1f" % [p.peer_id, p.global_position.x, p.global_position.y, p.global_position.z])
-	var vinfo := "van=%.1f,%.1f,%.1f conducteur=%d etape=%s nids=%d tracteur=%s" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step, mission.potholes.size(), mission.tractor != null] if van else "van=-"
+	var vinfo := "van=-"
+	if van and mission is MissionM01:
+		vinfo = "van=%.1f,%.1f,%.1f conducteur=%d etape=%s nids=%d tracteur=%s" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step, mission.potholes.size(), mission.tractor != null]
+	elif van:
+		vinfo = "van=%.1f,%.1f,%.1f conducteur=%d etape=%s nids=0 tracteur=false" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step]
 	print("[qa] mode=%s joueurs=%d %s positions=%s" % [Net.Mode.keys()[Net.mode], players_root.get_child_count(), vinfo, " ".join(parts)])
 
 

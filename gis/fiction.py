@@ -108,6 +108,8 @@ def lieux_fictifs(tuiles: dict, taille: float) -> list[dict]:
     for pid, kind, label, missions in LIEUX_MISSION:
         if restants:
             ajout(restants.pop(0), pid, kind, label, missions)
+            if pid == "auto_bling_27":
+                pois[-1]["step"] = "parts"       # boutique de pièces de la mission 2 (prix ×1,5)
             deja.add(label)
 
     categories = sorted(ENSEIGNES)
@@ -260,6 +262,180 @@ def lieux_mission01(tuiles: dict, taille: float, normaliser, spawn) -> list[dict
         (x, z), f = carnot
         out.append(_poi("stand_comite", "mission_target", LABELS_M01["stand_comite"], x, z, f, taille, "fair", prop="stand", radius=5.0))
     return out
+
+
+# --- Mission 02 « Tuning du samedi soir » : lieux de blockout ------------------------------------
+M02 = "m02_tuning_samedi"
+LABELS_M02 = {
+    "garage_kevin": "Garage de Kévin (mécanique à la dure)",
+    "voiture_kevin": "La Fusée de Kévin",
+    "casse_dugenou": "Casse Auto Dugenou",
+    "annonce_vendeur": "Chez le père Bernard (annonce : jantes à saisir)",
+    "cour_dylan": "Cour de Dylan",
+    "parc_rdv": "Parking du rendez-vous du samedi soir",
+    "drag_depart": "Ligne de départ du drag",
+    "drag_arrivee": "Ligne d'arrivée du drag",
+}
+DRAG_LENGTH = 400.0       # m, imposé par missions/m02 (drag_race.distanceM)
+STRIP_SEARCH_LENGTH = 440.0
+STRIP_WIDTH = 16.0
+
+
+def _poi2(pid, kind, label, x, z, facing, taille, step, prop=None, building=None, radius=5.0):
+    p = {"id": pid, "kind": kind, "label": label, "position": [_r(x), _r(z)],
+         "tile": f"{int(x // taille)}_{int(z // taille)}", "radius": radius, "source": "design",
+         "missions": [M02], "step": step, "facing": _r(facing)}
+    if prop:
+        p["prop"] = prop
+    if building:
+        p["building"] = building
+    return p
+
+
+def _hauteur(tuiles: dict, x: float, z: float, taille: float):
+    """Altitude relative du terrain (grille des tuiles), None hors tuiles."""
+    t = tuiles.get((int(x // taille), int(z // taille)))
+    if not t:
+        return None
+    g = t["ground"]
+    res, hs = g["resolution"], g["heights"]
+    step = taille / (res - 1)
+    gx = min(max((x - t["origin"][0]) / step, 0.0), res - 1.001)
+    gz = min(max((z - t["origin"][1]) / step, 0.0), res - 1.001)
+    i, j = int(gx), int(gz)
+    fx, fz = gx - i, gz - j
+    top = hs[j * res + i] * (1 - fx) + hs[j * res + i + 1] * fx
+    bot = hs[(j + 1) * res + i] * (1 - fx) + hs[(j + 1) * res + i + 1] * fx
+    return top * (1 - fz) + bot * fz
+
+
+def trouver_piste(tuiles_xy: dict, taille: float, longueur=STRIP_SEARCH_LENGTH, largeur=STRIP_WIDTH):
+    """Couloir rectangulaire libre (sans bâtiment, route ni eau) et le plus plat possible.
+
+    `tuiles_xy` : {(x, y): tuile}. Renvoie (dénivelé m, cap degrés, centre x, centre z) ou None.
+    Déterministe : balayage d'une grille de 20 m, caps tous les 10°.
+    """
+    from shapely.strtree import STRtree
+    obstacles = []
+    for t in tuiles_xy.values():
+        obstacles += [Polygon(b["footprint"]).buffer(3.0) for b in t["buildings"]]
+        obstacles += [LineString(r["points"]).buffer(r["width"] / 2 + 2.0) for r in t["roads"] if r["kind"] not in ("footway", "track")]
+        obstacles += [Polygon(v["polygon"]) for v in t["vegetation"] if v["kind"] == "water"]
+    arbre = STRtree(obstacles)
+    xs = [k[0] for k in tuiles_xy]
+    ys = [k[1] for k in tuiles_xy]
+    x0, x1 = min(xs) * taille, (max(xs) + 1) * taille
+    z0, z1 = min(ys) * taille, (max(ys) + 1) * taille
+    meilleur = None
+    for cap in range(0, 180, 10):
+        a = math.radians(cap)
+        d = (math.sin(a), math.cos(a))
+        p = (-d[1], d[0])
+        for cx in range(int(x0) + 60, int(x1) - 60, 20):
+            for cz in range(int(z0) + 60, int(z1) - 60, 20):
+                coins = [(cx + d[0] * s * longueur / 2 + p[0] * w * largeur / 2, cz + d[1] * s * longueur / 2 + p[1] * w * largeur / 2)
+                         for s, w in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+                if any((int(qx // taille), int(qz // taille)) not in tuiles_xy for qx, qz in coins):
+                    continue
+                poly = Polygon(coins)
+                if any(obstacles[i].intersects(poly) for i in arbre.query(poly)):
+                    continue
+                hs = [_hauteur(tuiles_xy, cx + d[0] * k, cz + d[1] * k, taille) for k in range(-int(longueur / 2), int(longueur / 2) + 1, 20)]
+                if None in hs:
+                    continue
+                pente = max(hs) - min(hs)
+                if meilleur is None or pente < meilleur[0] - 1e-9:
+                    meilleur = (pente, cap, cx, cz)
+    return meilleur
+
+
+def _dir_route(routes, pt: Point):
+    """Point de la route la plus proche et sa direction (rad, convention (sin, cos))."""
+    route = min(routes, key=lambda r: r.distance(pt))
+    d = route.project(pt)
+    a = route.interpolate(max(d - 2.0, 0.0))
+    b = route.interpolate(min(d + 2.0, route.length))
+    near = route.interpolate(d)
+    return (near.x, near.y), math.atan2(b.x - a.x, b.y - a.y)
+
+
+def lieux_mission02(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Lieux jouables de la mission 02, posés sur la vraie carte (sans retouche manuelle).
+
+    - garage : annexe de taille moyenne proche de l'apparition ; la voiture est garée sur la rue ;
+    - casse : grande annexe éloignée ; annonce et cour de Dylan : deux maisons éloignées l'une de l'autre ;
+    - piste de drag : couloir libre de 440 m (400 m utiles) cherché sur toute la zone, le plus plat ;
+    - parking du rendez-vous : à côté de la ligne de départ, de sorte que le jury précède la course.
+    """
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    batiments = [b for t in tuiles.values() for b in t["buildings"] if b["id"] not in utilises]
+    batiments.sort(key=lambda b: b["id"])
+    sx, sz = spawn
+    out: list[dict] = []
+
+    def centre(b):
+        c = Polygon(b["footprint"]).centroid
+        return c.x, c.y
+
+    def dist(b, ref=(sx, sz)):
+        c = centre(b)
+        return math.hypot(c[0] - ref[0], c[1] - ref[1])
+
+    def aire(b):
+        return Polygon(b["footprint"]).area
+
+    # Garage et voiture.
+    garages = sorted((b for b in batiments if b["typology"] == "annexe" and 40 <= aire(b) <= 160 and 40 < dist(b) < 260), key=dist)
+    garage = garages[0] if garages else None
+    if garage:
+        (x, z), f = emplacement_enseigne(garage["footprint"], routes)
+        out.append(_poi2("garage_kevin", "hideout", LABELS_M02["garage_kevin"], x, z, f, taille, "assembly", prop="garage", building=garage["id"]))
+        (rx, rz), rf = _dir_route(routes, Point(x, z))
+        # La voiture est garée sur la chaussée, nez dans le sens de la rue, décalée de 2 m du centre.
+        out.append(_poi2("voiture_kevin", "spawn", LABELS_M02["voiture_kevin"], rx + math.cos(rf) * 2.2, rz - math.sin(rf) * 2.2, rf, taille, "test_drive", prop="car"))
+        utilises = utilises | {garage["id"]}
+    garage_pos = centre(garage) if garage else (sx, sz)
+    # Casse : grande annexe, loin du garage.
+    grandes = sorted((b for b in batiments if b["typology"] == "annexe" and aire(b) >= 110 and b["id"] not in utilises), key=lambda b: -aire(b))[:6]
+    casse = max(grandes, key=lambda b: dist(b, garage_pos)) if grandes else None
+    if casse:
+        (x, z), f = emplacement_enseigne(casse["footprint"], routes)
+        out.append(_poi2("casse_dugenou", "mission_target", LABELS_M02["casse_dugenou"], x, z, f, taille, "parts", prop="junkyard", building=casse["id"], radius=7.0))
+        utilises = utilises | {casse["id"]}
+    # Annonce puis cour de Dylan : deux maisons, à 120 m au moins l'une de l'autre.
+    maisons = sorted((b for b in batiments if b["typology"] in ("pavillon", "brique", "colombages") and b["id"] not in utilises and 110 < dist(b) < 380 and 25 < aire(b) < 160),
+                     key=lambda b: (_hash_str(b["id"]), b["id"]))
+    annonce = maisons[0] if maisons else None
+    if annonce:
+        (x, z), f = emplacement_enseigne(annonce["footprint"], routes)
+        out.append(_poi2("annonce_vendeur", "mission_target", LABELS_M02["annonce_vendeur"], x, z, f, taille, "parts", building=annonce["id"]))
+        dylan = next((b for b in maisons[1:] if math.hypot(centre(b)[0] - centre(annonce)[0], centre(b)[1] - centre(annonce)[1]) > 120), None)
+        if dylan:
+            (x, z), f = emplacement_enseigne(dylan["footprint"], routes)
+            out.append(_poi2("cour_dylan", "mission_target", LABELS_M02["cour_dylan"], x, z, f, taille, "parts", building=dylan["id"]))
+    # Piste de drag, parking du rendez-vous.
+    piste = trouver_piste({k: v for k, v in _tuiles_par_xy(tuiles).items()}, taille)
+    if piste:
+        pente, cap, cx, cz = piste
+        a = math.radians(cap)
+        d = (math.sin(a), math.cos(a))
+        demi = DRAG_LENGTH / 2
+        ax, az = cx - d[0] * demi, cz - d[1] * demi
+        bx, bz = cx + d[0] * demi, cz + d[1] * demi
+        out.append(_poi2("drag_depart", "mission_target", LABELS_M02["drag_depart"], ax, az, a, taille, "drag", prop="strip", radius=8.0))
+        out.append(_poi2("drag_arrivee", "mission_target", LABELS_M02["drag_arrivee"], bx, bz, a, taille, "drag", radius=8.0))
+        px, pz = ax - d[0] * 22 - d[1] * 20, az - d[1] * 22 + d[0] * 20
+        out.append(_poi2("parc_rdv", "mission_target", LABELS_M02["parc_rdv"], px, pz, a, taille, "meet", radius=9.0))
+    return out
+
+
+def _hash_str(s: str) -> int:
+    return _h("m02", s)
+
+
+def _tuiles_par_xy(tuiles: dict) -> dict:
+    """Les tuiles construites, indexées par (x, y) entiers."""
+    return {(t["tile"]["x"], t["tile"]["y"]): t for t in tuiles.values()}
 
 
 def nom_commerce_generique(osm_id) -> str:

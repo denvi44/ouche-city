@@ -1,5 +1,5 @@
 {
- "schemaVersion": 3,
+ "schemaVersion": 4,
  "pois": [
   {
    "id": "spawn_rue_sainte_foy",
@@ -40,7 +40,8 @@
    "facing": 1.33,
    "missions": [
     "m02_tuning_samedi"
-   ]
+   ],
+   "step": "parts"
   },
   {
    "id": "comite_fetes",
@@ -1500,6 +1501,150 @@
    "step": "fair",
    "facing": 3.13,
    "prop": "stand"
+  },
+  {
+   "id": "garage_kevin",
+   "kind": "hideout",
+   "label": "Garage de Kévin (mécanique à la dure)",
+   "position": [
+    1442.79,
+    1400.9
+   ],
+   "tile": "5_5",
+   "radius": 5.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "assembly",
+   "facing": 2.9,
+   "prop": "garage",
+   "building": "b_18668"
+  },
+  {
+   "id": "voiture_kevin",
+   "kind": "spawn",
+   "label": "La Fusée de Kévin",
+   "position": [
+    1443.94,
+    1396.14
+   ],
+   "tile": "5_5",
+   "radius": 5.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "test_drive",
+   "facing": 1.33,
+   "prop": "car"
+  },
+  {
+   "id": "casse_dugenou",
+   "kind": "mission_target",
+   "label": "Casse Auto Dugenou",
+   "position": [
+    1204.25,
+    1998.93
+   ],
+   "tile": "4_7",
+   "radius": 7.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "parts",
+   "facing": 0.21,
+   "prop": "junkyard",
+   "building": "b_10230"
+  },
+  {
+   "id": "annonce_vendeur",
+   "kind": "mission_target",
+   "label": "Chez le père Bernard (annonce : jantes à saisir)",
+   "position": [
+    1334.28,
+    1274.08
+   ],
+   "tile": "5_5",
+   "radius": 5.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "parts",
+   "facing": -3.07,
+   "building": "b_18350"
+  },
+  {
+   "id": "cour_dylan",
+   "kind": "mission_target",
+   "label": "Cour de Dylan",
+   "position": [
+    1511.73,
+    1574.77
+   ],
+   "tile": "6_6",
+   "radius": 5.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "parts",
+   "facing": -0.23,
+   "building": "b_19301"
+  },
+  {
+   "id": "drag_depart",
+   "kind": "mission_target",
+   "label": "Ligne de départ du drag",
+   "position": [
+    1022.06,
+    1961.6
+   ],
+   "tile": "4_7",
+   "radius": 8.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "drag",
+   "facing": 1.22,
+   "prop": "strip"
+  },
+  {
+   "id": "drag_arrivee",
+   "kind": "mission_target",
+   "label": "Ligne d'arrivée du drag",
+   "position": [
+    1397.94,
+    2098.4
+   ],
+   "tile": "5_8",
+   "radius": 8.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "drag",
+   "facing": 1.22
+  },
+  {
+   "id": "parc_rdv",
+   "kind": "mission_target",
+   "label": "Parking du rendez-vous du samedi soir",
+   "position": [
+    994.55,
+    1972.87
+   ],
+   "tile": "3_7",
+   "radius": 9.0,
+   "source": "design",
+   "missions": [
+    "m02_tuning_samedi"
+   ],
+   "step": "meet",
+   "facing": 1.22
   }
  ]
 }

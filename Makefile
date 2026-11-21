@@ -32,6 +32,9 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m01_flow.gd -- --no-companions
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/companion_flow.gd -- --sec=600 --need=4
 	bash qa/integration/drive_online.sh
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m02_flow.gd -- --mission=m02 --no-companions
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m02_companions.gd -- --mission=m02
+	bash qa/integration/m02_online.sh
 
 ## Captures 1920×1080 de la scène témoin (GPU conseillé ; sinon rendu Compatibility).
 screenshots:
