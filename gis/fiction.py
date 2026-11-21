@@ -62,6 +62,34 @@ def _r(v: float) -> float:
     return round(float(v), 2)
 
 
+# Bâtiments voisins : une enseigne ou un objet de mission ne doit pas tomber dans une ruelle trop étroite pour un joueur
+# (corps de 0,8 m) entre deux bâtiments. Renseigné par `definir_batiments` (appelé au début de `lieux_fictifs`).
+_ARBRE = None
+_BATS: list = []
+LIBRE_MIN = 2.5
+
+
+def definir_batiments(tuiles: dict) -> None:
+    global _ARBRE, _BATS
+    from shapely.strtree import STRtree
+    _BATS = [Polygon(b["footprint"]) for t in tuiles.values() for b in t["buildings"]]
+    _ARBRE = STRtree(_BATS) if _BATS else None
+
+
+def _libre(x: float, z: float, propre: Polygon) -> float:
+    """Distance (≤ LIBRE_MIN) du point au bâtiment voisin le plus proche (le bâtiment `propre` est ignoré)."""
+    if _ARBRE is None:
+        return LIBRE_MIN
+    pt = Point(x, z)
+    mini = LIBRE_MIN
+    for i in _ARBRE.query(pt.buffer(LIBRE_MIN)):
+        b = _BATS[int(i)]
+        if b.equals(propre):
+            continue
+        mini = min(mini, b.distance(pt))
+    return mini
+
+
 def _normale_sortante(a, c, aire: float) -> tuple[float, float]:
     """Normale unitaire de l'arête a→c, tournée vers l'extérieur du bâtiment (`aire` : aire signée de l'anneau)."""
     ex, ez = c[0] - a[0], c[1] - a[1]
@@ -94,26 +122,34 @@ def emplacement_enseigne(footprint, routes: list[LineString], largeur: float = 2
         if long < 0.8:
             continue
         t = max(0.0, min(1.0, ((sur_route.x - a[0]) * ex + (sur_route.y - a[1]) * ez) / (long * long)))
-        qx, qz = a[0] + ex * t, a[1] + ez * t
-        d = math.hypot(sur_route.x - qx, sur_route.y - qz)
         n = _normale_sortante(a, c, aire)
-        vers = ((sur_route.x - qx) / d, (sur_route.y - qz) / d) if d > 1e-6 else n
-        regard = n[0] * vers[0] + n[1] * vers[1]            # 1 : la façade regarde la route
-        score = d + (4.0 if long < 2.0 else 0.0) + (3.0 if regard < 0.2 else 0.0)
-        if meilleur is None or score < meilleur[0]:
-            meilleur = (score, a, c, n, long, t)
+        marge = min(largeur / 2.0, long / 2.0)
+        lo, hi = marge / long, 1.0 - marge / long
+        # Positions candidates le long du mur : la plus proche de la route d'abord, puis le centre et les quarts.
+        for u in (max(lo, min(hi, t)), 0.5, 0.25, 0.75, 0.125, 0.875):
+            u = max(lo, min(hi, u))
+            px, pz = a[0] + ex * u, a[1] + ez * u
+            qx, qz = px + n[0] * 0.07, pz + n[1] * 0.07
+            libre = _libre(qx, qz, poly)
+            d = math.hypot(sur_route.x - px, sur_route.y - pz)
+            vers = ((sur_route.x - px) / d, (sur_route.y - pz) / d) if d > 1e-6 else n
+            regard = n[0] * vers[0] + n[1] * vers[1]            # 1 : la façade regarde la route
+            score = d + (4.0 if long < 2.0 else 0.0) + (3.0 if regard < 0.2 else 0.0) + (0.0 if libre >= LIBRE_MIN else 8.0 + (LIBRE_MIN - libre) * 4.0)
+            if meilleur is None or score < meilleur[0]:
+                meilleur = (score, a, c, n, long, u)
+            if libre >= LIBRE_MIN:
+                break
     if meilleur is None:
         c = poly.centroid
         return (c.x, c.y), 0.0
-    _, a, c, n, long, t = meilleur
-    marge = min(largeur / 2.0, long / 2.0)
-    u = max(marge, min(long - marge, t * long)) / long   # reste entièrement sur l'arête
+    _, a, c, n, long, u = meilleur
     px, pz = a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u
     return (px + n[0] * 0.07, pz + n[1] * 0.07), math.atan2(n[0], n[1])
 
 
 def lieux_fictifs(tuiles: dict, taille: float) -> list[dict]:
     """POI fictifs pour les commerces et monuments des tuiles construites."""
+    definir_batiments(tuiles)
     routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"]
               if r["kind"] not in ("footway", "track")]
     batiments = sorted((b for t in tuiles.values() for b in t["buildings"]), key=lambda b: b["id"])

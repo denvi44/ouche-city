@@ -141,3 +141,18 @@ def test_enseignes_plaquees_aux_murs():
             mauvais.append(p["id"])
     assert nb > 100
     assert not mauvais, f"enseignes non plaquées à un mur : {mauvais[:10]} ({len(mauvais)}/{nb})"
+
+
+def test_lieux_de_mission_atteignables():
+    """Un objet ou un lieu de mission collé à un mur ne se trouve jamais dans une ruelle trop étroite (corps du joueur : 0,8 m) :
+    à au moins 0,6 m de tout autre bâtiment, jamais dans l'un d'eux (régression : le charbon de la mission 4 était inaccessible)."""
+    polys = {bid: Polygon(b["footprint"]) for bid, b in BATIMENTS.items()}
+    mauvais = []
+    for p in POIS.values():
+        if "building" not in p or "step" not in p or p.get("facility"):
+            continue
+        pt = Point(p["position"])
+        for bid, poly in polys.items():
+            if bid != p["building"] and (poly.contains(pt) or poly.distance(pt) < 0.6):
+                mauvais.append((p["id"], bid))
+    assert not mauvais, f"lieux de mission coincés contre un autre bâtiment : {mauvais}"
