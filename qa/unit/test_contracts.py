@@ -200,7 +200,7 @@ def test_lieux_de_mission05():
 def test_supermarche_mission06():
     """Le supermarché existe, est posé en terrain libre (emprise de 26 × 18 m), presque plat, porte vers une route."""
     import math
-    from shapely.geometry import LineString, Polygon
+    from shapely.geometry import LineString, Point, Polygon
     pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
     sm = pois["supermarche"]
     assert sm["prop"] == "supermarket" and sm["missions"] == ["m06_courses_de_8h"] and sm["label"].startswith("Supermarché")
@@ -333,3 +333,32 @@ def test_lieux_de_mission08():
     assert m["requires"] == ["m07_jus_de_pomme"] and m["flock"]["geese"] == 12 and set(m["companions"]) == {"rabatteuse", "sentinelle", "ferme_file"}
     m7 = json.loads((ROOT / "missions/m07_jus_de_pomme.json").read_text(encoding="utf-8"))
     assert "m08_oies_en_greve" in m7["rewards"]["unlocks"], "la mission 7 débloque la mission 8"
+
+
+def test_gare_du_pays_d_ouche():
+    """Gare sur la voie : quai de 80 m et bâtiment libres de tout obstacle, quai avant le passage à niveau (le train s'y arrête quand
+    les oies le bloquent), chemin d'accès libre jusqu'à la route."""
+    import math
+    from shapely.geometry import LineString, Point, Polygon
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    g, rail = pois["gare_pays_ouche"], pois["passage_niveau"]
+    assert g["prop"] == "gare" and g["missions"] == ["m08_oies_en_greve"] and g["label"] == "Gare du Pays d'Ouche"
+    assert abs(g["facing"] - rail["facing"]) < 1e-6 and g["side"] in (-1, 1)
+    d = (math.sin(rail["facing"]), math.cos(rail["facing"]))
+    rx = (d[1], -d[0])
+    q = (g["position"][0] - rail["position"][0], g["position"][1] - rail["position"][1])
+    u, v = q[0] * d[0] + q[1] * d[1], q[0] * rx[0] + q[1] * rx[1]
+    assert abs(v) < 0.5, "la gare est sur l'axe de la voie"
+    assert -rail["length"] / 2 + 40 < u <= -60.0, f"le quai doit finir avant le passage à niveau (u = {u:.0f})"
+    side = g["side"]
+    lot = Polygon([(g["position"][0] + d[0] * s * 40 + rx[0] * side * w, g["position"][1] + d[1] * s * 40 + rx[1] * side * w)
+                   for s, w in ((-1, 2), (1, 2), (1, 26), (-1, 26))])
+    batis, routes = [], []
+    for f in (ROOT / "gis/out/tiles").glob("*.json"):
+        t = json.loads(f.read_text(encoding="utf-8"))
+        batis += [Polygon(b["footprint"]) for b in t["buildings"]]
+        routes += [LineString(r["points"]).buffer(r["width"] / 2) for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    assert not any(o.intersects(lot) for o in batis + routes), "le quai ou le bâtiment est sur un bâtiment ou une route"
+    chemin = LineString(g["path"])
+    assert 20 < chemin.length < 110 and not any(b.intersects(chemin.buffer(1.0)) for b in batis), "chemin d'accès"
+    assert any(r.distance(Point(g["path"][-1])) < 3.0 for r in routes), "le chemin rejoint une route"

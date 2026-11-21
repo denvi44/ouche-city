@@ -779,6 +779,8 @@ func _add_prop(root: Node3D, prop: String) -> void:
 		"pond":
 			var pond := PropKit.goose_pond().build()
 			root.add_child(pond)
+		"gare":
+			_add_gare(root)
 		"fumier":
 			var heap := SphereMesh.new()
 			heap.radius = 1.6; heap.height = 1.8; heap.radial_segments = 8; heap.rings = 4
@@ -813,6 +815,100 @@ func _add_rail(root: Node3D) -> void:
 	hut.position = Vector3(16.0, 0.0, -3.0)
 	hut.rotation.y = -PI / 2.0
 	root.add_child(hut)
+
+
+## Gare du Pays d'Ouche (POI `gare_pays_ouche`, prop `gare`) : quai, auvent, bâtiment des voyageurs avec horloge et enseigne, mobilier du quai
+## (bancs, lampadaires, panneaux), chemin de gravier jusqu'à la route. Repère du POI : +Z le long de la voie ; `side` (+1 / -1) donne le côté.
+func _add_gare(root: Node3D) -> void:
+	var poi: Dictionary = root.get_meta("poi", {})
+	var side := float(poi.get("side", 1))
+	var gare := Node3D.new()
+	gare.name = "Gare"
+	if side < 0.0:
+		gare.rotation.y = PI                    # le bâtiment passe de l'autre côté de la voie
+	root.add_child(gare)
+	var gy := height_at(root.position.x, root.position.z)
+	gare.position.y = 0.0
+	gare.add_child(PropKit.station_platform().build())
+	gare.add_child(PropKit.station_canopy().build())
+	gare.add_child(PropKit.station_building().build())
+	# Enseignes (face quai et face parvis) et numéro de quai.
+	for spec in [[Vector3(10.0, 5.6, 0.0), -PI / 2.0, "GARE DU PAYS D'OUCHE"], [Vector3(19.1, 5.6, 0.0), PI / 2.0, "GARE DU PAYS D'OUCHE"]]:
+		var board := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.12, 0.9, 7.0)
+		bm.material = _toon(Color(0.16, 0.3, 0.45))
+		board.mesh = bm
+		board.position = spec[0] - Vector3(0.0 if spec[1] < 0.0 else 0.0, 0, 0)
+		gare.add_child(board)
+		var label := Label3D.new()
+		label.text = spec[2]
+		label.font_size = 64
+		label.pixel_size = 0.0095
+		label.modulate = Color(0.98, 0.96, 0.88)
+		label.outline_size = 0
+		label.double_sided = false
+		label.position = spec[0] + Vector3(-0.08 if spec[1] < 0.0 else 0.08, 0.0, 0.0)
+		label.rotation.y = spec[1]
+		gare.add_child(label)
+	var quai := Label3D.new()
+	quai.text = "QUAI 1"
+	quai.font_size = 56
+	quai.pixel_size = 0.008
+	quai.modulate = Color(1.0, 0.95, 0.6)
+	quai.position = Vector3(6.0, 3.0, -24.0)
+	quai.rotation.y = -PI / 2.0
+	gare.add_child(quai)
+	# Mobilier de quai : bancs contre la façade, lampadaires au bord de l'auvent.
+	for z in [-14.0, 0.0, 14.0]:
+		var bench := PropKit.bench().build()
+		bench.position = Vector3(9.4, QUAI_H_VISUAL, z)
+		bench.rotation.y = -PI / 2.0 + PI
+		gare.add_child(bench)
+	for z in [-30.0, -10.0, 10.0, 30.0]:
+		var lamp := PropKit.lamp().build()
+		lamp.position = Vector3(3.2, QUAI_H_VISUAL, z)
+		lamp.rotation.y = -PI / 2.0
+		gare.add_child(lamp)
+	# Collisions : quai (marchable par les rampes), bâtiment.
+	var body := StaticBody3D.new()
+	body.name = "Collision"
+	var shapes := [
+		[Vector3(4.2, 0.8, 80.0), Vector3(4.3, 0.4, 0.0), 0.0],
+		[Vector3(4.2, 0.15, 4.2), Vector3(4.3, 0.4, 42.0), -0.2],
+		[Vector3(4.2, 0.15, 4.2), Vector3(4.3, 0.4, -42.0), 0.2],
+		[Vector3(9.0, 6.5, 24.0), Vector3(14.5, 3.25, 0.0), 0.0],
+	]
+	for sp in shapes:
+		var cs := CollisionShape3D.new()
+		var bs := BoxShape3D.new()
+		bs.size = sp[0]
+		cs.shape = bs
+		cs.position = sp[1]
+		cs.rotation.x = sp[2]
+		body.add_child(cs)
+	gare.add_child(body)
+	# Chemin d'accès : dalles de gravier posées sur le relief du parvis à la route (points du POI en coordonnées monde).
+	var path: Array = poi.get("path", [])
+	if path.size() >= 2:
+		var xfs := []
+		for i in path.size() - 1:
+			var a := Vector2(float(path[i][0]), float(path[i][1]))
+			var b := Vector2(float(path[i + 1][0]), float(path[i + 1][1]))
+			var n := maxi(int(ceil(a.distance_to(b) / 3.0)), 1)
+			var yaw := atan2(b.x - a.x, b.y - a.y)
+			for k in n:
+				var q := a.lerp(b, (float(k) + 0.5) / float(n))
+				var q0 := a.lerp(b, float(k) / float(n))
+				var q1 := a.lerp(b, float(k + 1) / float(n))
+				var pitch := -atan2(height_at(q1.x, q1.y) - height_at(q0.x, q0.y), q0.distance_to(q1))
+				var local := Vector3(q.x - root.position.x, height_at(q.x, q.y) - root.position.y, q.y - root.position.z)
+				local = Basis(Vector3.UP, -root.rotation.y) * local
+				xfs.append(Transform3D(Basis(Vector3.UP, yaw - root.rotation.y) * Basis.from_euler(Vector3(pitch, 0, 0)), local))
+		StreetFurniture._multimesh(root, "CheminGare", StreetFurniture.kit("path_tile"), xfs)
+
+
+const QUAI_H_VISUAL := 0.8
 
 
 ## Piste de drag : bitume de 14 m de large sur 400 m (axe +Z local), bandes latérales, lignes de

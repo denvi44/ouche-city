@@ -1954,7 +1954,7 @@
     "m08_oies_en_greve"
    ],
    "step": "block",
-   "facing": 1.4,
+   "facing": -1.75,
    "prop": "rail",
    "length": 480.0
   },
@@ -1975,6 +1975,35 @@
    "step": "gather",
    "facing": 2.97,
    "prop": "pond"
+  },
+  {
+   "id": "gare_pays_ouche",
+   "kind": "landmark",
+   "label": "Gare du Pays d'Ouche",
+   "position": [
+    1318.94,
+    2102.16
+   ],
+   "tile": "5_8",
+   "radius": 40.0,
+   "source": "design",
+   "missions": [
+    "m08_oies_en_greve"
+   ],
+   "step": "station",
+   "facing": -1.75,
+   "prop": "gare",
+   "side": -1,
+   "path": [
+    [
+     1323.45,
+     2076.55
+    ],
+    [
+     1306.81,
+     2026.83
+    ]
+   ]
   }
  ]
 }

@@ -34,6 +34,7 @@ func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	root.size = Vector2i(1920, 1080)
 	DisplayServer.window_set_size(root.size)
+	root.get_node("Settings").cinematics = false        # captures sans cinématique d'introduction
 	root.get_node("Net").mission_id = "m08"
 	world = load(WORLD).instantiate()
 	root.add_child(world)
@@ -85,5 +86,19 @@ func _run() -> void:
 	await shot(out_dir, "m08_4_le_train_bloque")
 	look(mission.track_to_world(Vector2(-2, 9)) + Vector3(0, 2.2, 0), mission.track_to_world(Vector2(-6, 0)) + Vector3(0, 0.7, 0), 1.8)
 	await shot(out_dir, "m08_5_les_oies_sur_la_voie")
+	# 4. La gare : quai, auvent, bâtiment, voyageurs descendus du train.
+	mission.train.hold = 30.0
+	await frames(10)
+	var g: Vector3 = mission.zones.station
+	var gp := Vector3(g.x, g.y, g.z)
+	var f: float = mission.facing_track
+	var basis := Basis(Vector3.UP, f)
+	var sd := float(mission.station_side)
+	look(gp + basis * Vector3(-sd * 13.0, 4.0, 22.0), gp + basis * Vector3(sd * 6.0, 1.6, -2.0), 2.0)
+	await shot(out_dir, "m08_6_la_gare_depuis_la_voie")
+	look(gp + basis * Vector3(sd * 34.0, 14.0, -46.0), gp + basis * Vector3(sd * 8.0, 1.0, 0.0), 6.0)
+	await shot(out_dir, "m08_7_la_gare_vue_aerienne")
+	look(gp + basis * Vector3(sd * 30.0, 3.0, 16.0), gp + basis * Vector3(sd * 14.0, 2.5, 0.0), 2.5)
+	await shot(out_dir, "m08_8_la_gare_cote_ville")
 	print("[m08-captures] terminé")
 	quit()

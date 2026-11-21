@@ -587,8 +587,9 @@ func _run() -> void:
 	goose.queue_free()
 	var pk = load("res://scripts/world/prop_kit.gd")
 	check(pk.goose(0).part_count() > 10 and pk.train().part_count() > 40 and pk.rail_tie().part_count() >= 4 and pk.gate_hut().part_count() > 5 and pk.goose_pond().part_count() > 10, "m08 : accessoires (oie, train, voie, maisonnette, mare)")
+	check(pk.station_platform().part_count() >= 4 and pk.station_canopy().part_count() >= 8 and pk.station_building().part_count() > 40 and pk.suitcase().part_count() >= 4 and pk.path_tile().part_count() == 1, "m08 : accessoires de la gare (quai, auvent, bâtiment, valise, dalle)")
 	var CP = load("res://scripts/cinematic/cinematic_player.gd")
-	check(CP.load_def("m08_intro").get("shots", []).size() == 3, "m08 : cinématique d'introduction")
+	check(CP.load_def("m08_intro").get("shots", []).size() == 4, "m08 : cinématique d'introduction")
 
 	print("%d tests, %d échec(s)" % [_count, _fails])
 	quit(1 if _fails > 0 else 0)

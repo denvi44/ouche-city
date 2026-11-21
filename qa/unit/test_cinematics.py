@@ -34,7 +34,7 @@ def test_cinematique_valide(path):
     if d["when"] == "intro":
         assert d.get("title") and d.get("subtitle"), "l'introduction a un carton de titre"
     total = sum(s["dur"] for s in d["shots"])
-    assert total <= (24 if d["when"] == "intro" else 12), f"trop longue : {total:.1f} s"
+    assert total <= (24 if d["when"] == "intro" else 14), f"trop longue : {total:.1f} s"
     assert any("caption" in s for s in d["shots"]), "au moins une légende (accessibilité : rien ne passe que par l'image)"
 
 

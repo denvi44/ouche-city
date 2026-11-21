@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ouche-city/contracts/poi.schema.json",
   "title": "Points d'intérêt Ouche City",
-  "description": "Lieux nommés du jeu : produits par gis/ et complétés par level-designer. Tous les noms de bâtiments, commerces et monuments sont fictifs (gis/fiction.py) ; seuls les noms de rues sont réels. v2 : building et facing (enseignes). v3 : step et prop (lieux de mission). v4 : props garage, junkyard, strip, car (mission 02). v5 : prop stage (mission 03). v6 : props fete, pyre (mission 04). v7 : prop pen (mission 05). v8 : prop supermarket (mission 06). v9 : props pressoir, wc (mission 07). v10 : prop coop (poulailler de la mission 01). v11 : props rail, pond et champ length (voie ferrée et mare de la mission 08).",
-  "version": 11,
+  "description": "Lieux nommés du jeu : produits par gis/ et complétés par level-designer. Tous les noms de bâtiments, commerces et monuments sont fictifs (gis/fiction.py) ; seuls les noms de rues sont réels. v2 : building et facing (enseignes). v3 : step et prop (lieux de mission). v4 : props garage, junkyard, strip, car (mission 02). v5 : prop stage (mission 03). v6 : props fete, pyre (mission 04). v7 : prop pen (mission 05). v8 : prop supermarket (mission 06). v9 : props pressoir, wc (mission 07). v10 : prop coop (poulailler de la mission 01). v11 : props rail, pond et champ length (voie ferrée et mare de la mission 08). v12 : prop gare et champs side, path (gare du Pays d'Ouche).",
+  "version": 12,
   "type": "object",
   "required": ["schemaVersion", "pois"],
   "additionalProperties": false,
@@ -26,8 +26,10 @@
           "source": { "type": "string", "enum": ["osm", "ign", "design"] },
           "building": { "type": "string", "pattern": "^b_[0-9a-z_]+$", "description": "v2 : bâtiment porteur (enseigne posée sur sa façade)." },
           "step": { "type": "string", "pattern": "^[a-z_0-9]+$", "description": "v3 : identifiant de l'étape de mission servie par ce lieu (missions/*.json)." },
-          "prop": { "type": "string", "enum": ["van", "barrier", "stand", "fumier", "garage", "junkyard", "strip", "car", "stage", "fete", "pyre", "pen", "supermarket", "pressoir", "wc", "coop", "rail", "pond"], "description": "v3 : accessoire de blockout posé par Godot." },
+          "prop": { "type": "string", "enum": ["van", "barrier", "stand", "fumier", "garage", "junkyard", "strip", "car", "stage", "fete", "pyre", "pen", "supermarket", "pressoir", "wc", "coop", "rail", "pond", "gare"], "description": "v3 : accessoire de blockout posé par Godot." },
           "length": { "type": "number", "minimum": 50, "description": "v11 : longueur de la voie ferrée (m), centrée sur le POI, orientée selon facing." },
+          "side": { "type": "integer", "enum": [-1, 1], "description": "v12 : côté de la voie où se trouvent le quai et le bâtiment (+1 = côté +X local, à droite en suivant facing)." },
+          "path": { "type": "array", "minItems": 2, "items": { "type": "array", "prefixItems": [{ "type": "number" }, { "type": "number" }], "minItems": 2, "maxItems": 2 }, "description": "v12 : chemin d'accès (x, z) du parvis à la route." },
           "facing": { "type": "number", "description": "v2 : orientation de l'enseigne (rad, rotation Y Godot ; +Z local vers la rue)." }
         }
       }

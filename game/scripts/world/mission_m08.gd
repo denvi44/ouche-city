@@ -76,6 +76,8 @@ var _snd := {}
 var _clock := 0.0
 var _wander := {}
 var _train_started := false
+var station_side := -1                              # côté de la voie où se trouve le quai (+1 : +X local, à droite)
+var _visitors: Array = []                           # voyageurs sur le quai (visuel seulement)
 
 
 func _ready() -> void:
@@ -110,6 +112,9 @@ func setup(pois: Array, ground: Callable, _vehicle: Vehicle, players_root: Node3
 	var w := get_parent()
 	day_night = w.get("day_night")
 	for p in pois:
+		if p.id == "gare_pays_ouche":
+			station_side = int(p.get("side", -1))
+			zones["station"] = Vector3(float(p.position[0]), ground.call(float(p.position[0]), float(p.position[1])), float(p.position[1]))
 		if p.id == "passage_niveau" or p.id == "etang_oies":
 			var x := float(p.position[0])
 			var z := float(p.position[1])
@@ -167,8 +172,28 @@ func _build_visuals() -> void:
 	_train_node.visible = false
 	w.add_child(_train_node)
 	_master_node = _fallback_master()
+	if zones.has("station"):
+		_build_visitors(w)
 	_master_node.name = "M8_GardeBarriere"
 	w.add_child(_master_node)
+
+
+## Voyageurs parisiens sur le quai : visibles quand le train est arrêté devant les oies (visuel seulement, positions fixes).
+func _build_visitors(w: Node) -> void:
+	var shirts := [Color(0.2, 0.2, 0.25), Color(0.85, 0.75, 0.6), Color(0.35, 0.5, 0.45), Color(0.15, 0.15, 0.18), Color(0.7, 0.35, 0.4), Color(0.9, 0.9, 0.85)]
+	var cases := [Color(0.8, 0.25, 0.25), Color(0.25, 0.4, 0.75), Color(0.15, 0.15, 0.18), Color(0.85, 0.7, 0.2), Color(0.3, 0.6, 0.4), Color(0.6, 0.3, 0.6)]
+	for i in 6:
+		var n := Node3D.new()
+		n.name = "Voyageur_%d" % i
+		var model := CharacterModel.make(shirts[i], Color(0.18, 0.2, 0.28), Color(0.15, 0.15, 0.2), {"hair": Color(0.2 + 0.1 * float(i % 3), 0.15, 0.1), "scarf": Color(0.8, 0.2 + 0.1 * float(i), 0.3), "glasses": i % 2 == 0})
+		model.scale = Vector3.ONE * 0.93
+		n.add_child(model)
+		var sc := PropKit.suitcase(cases[i]).build()
+		sc.position = Vector3(0.55, 0.0, 0.0)
+		n.add_child(sc)
+		n.visible = false
+		w.add_child(n)
+		_visitors.append(n)
 
 
 func _fallback_master() -> Node3D:
@@ -816,6 +841,7 @@ func _process(delta: float) -> void:
 		elif g.st == "block" or g.st == "follow":
 			n.rotation.y = lerp_angle(n.rotation.y, facing_track + PI * 0.5, clampf(3.0 * delta, 0.0, 1.0)) if g.st == "block" else n.rotation.y
 	_place_train()
+	_place_visitors()
 	if _master_node:
 		_master_node.position = Vector3(float(master.x), _ground_y(float(master.x), float(master.z)), float(master.z))
 		var mv := Vector2(float(master.vx), float(master.vz))
@@ -824,6 +850,22 @@ func _process(delta: float) -> void:
 		_master_node.visible = master.st != "hut" or true
 	for comp in companions():
 		(comp as Player).carrying = false
+
+
+func _place_visitors() -> void:
+	if _visitors.is_empty():
+		return
+	var out: bool = train.st == "stopped" or step == "done"
+	var r := Vector2(cos(facing_track), -sin(facing_track))         # « droite » de la voie
+	for i in _visitors.size():
+		var n: Node3D = _visitors[i]
+		n.visible = out and (step == "done" or float(train.hold) > 1.0 + 0.8 * float(i))
+		if not n.visible:
+			continue
+		var w := track_to_world(Vector2(-70.0 + 7.0 * float(i) + 2.0 * sin(float(i)), float(station_side) * 3.7))
+		n.position = Vector3(w.x, w.y + 0.8, w.z)
+		var toward := r * float(-station_side)                   # vers l'axe de la voie
+		n.rotation.y = atan2(toward.x, toward.y) + 0.35 * sin(float(i) * 1.7 + _clock * 0.3)
 
 
 func _place_train() -> void:

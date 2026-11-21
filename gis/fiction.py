@@ -745,18 +745,57 @@ M08 = "m08_oies_en_greve"
 LABELS_M08 = {
     "passage_niveau": "Passage à niveau du Pays d'Ouche",
     "etang_oies": "La mare des oies de Mémé Odette",
+    "gare_pays_ouche": "Gare du Pays d'Ouche",
 }
+GARE_QUAI = 80.0            # longueur du quai (m)
+GARE_LOT = (2.0, 26.0)      # emprise latérale (m depuis l'axe de la voie) : quai, bâtiment et parvis
 RAIL_LENGTHS = (480.0, 400.0, 340.0, 280.0)
 RAIL_WIDTH = 14.0
 POND_RADIUS = 14.0
 
 
-def _poi8(pid, label, x, z, facing, taille, step, prop=None, radius=5.0, length=None):
-    p = _poi2(pid, "mission_target", label, x, z, facing, taille, step, prop=prop, radius=radius)
+def _poi8(pid, label, x, z, facing, taille, step, prop=None, radius=5.0, length=None, kind="mission_target"):
+    p = _poi2(pid, kind, label, x, z, facing, taille, step, prop=prop, radius=radius)
     p["missions"] = [M08]
     if length is not None:
         p["length"] = length
     return p
+
+
+def _gare(tuiles: dict, taille: float, cx: float, cz: float, d: tuple, longueur: float, obstacles_tous: list):
+    """Gare sur la voie : quai de 80 m et bâtiment du même côté, libres de tout obstacle, au plus près de u = -60 m du passage à
+    niveau (côté d'où vient le train : il s'arrête devant le quai quand les oies le bloquent), reliée par un chemin à la route la plus
+    proche. Renvoie (u, côté, chemin) ou None."""
+    from shapely.strtree import STRtree
+    p = (-d[1], d[0])
+    arbre = STRtree(obstacles_tous)
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] in ("primary", "secondary", "tertiary", "residential")]
+    batis = [Polygon(b["footprint"]).buffer(2.0) for t in tuiles.values() for b in t["buildings"]]
+    batis += [Polygon(v["polygon"]) for t in tuiles.values() for v in t["vegetation"] if v["kind"] == "water"]
+    arbre_b = STRtree(batis)
+    meilleur = None
+    u = -longueur / 2 + 80.0
+    while u <= min(longueur / 2 - 80.0, -60.0):      # le quai s'arrête avant le passage à niveau
+        for cote in (-1, 1):
+            x, z = cx + d[0] * u, cz + d[1] * u
+            lot = Polygon([(x + d[0] * s * (GARE_QUAI / 2) + p[0] * cote * w, z + d[1] * s * (GARE_QUAI / 2) + p[1] * cote * w)
+                           for s, w in ((-1, GARE_LOT[0]), (1, GARE_LOT[0]), (1, GARE_LOT[1]), (-1, GARE_LOT[1]))])
+            if any(obstacles_tous[i].intersects(lot) for i in arbre.query(lot)):
+                continue
+            parvis = Point(x + p[0] * cote * GARE_LOT[1], z + p[1] * cote * GARE_LOT[1])
+            route = min(routes, key=lambda r: r.distance(parvis))
+            q = route.interpolate(route.project(parvis))
+            chemin = LineString([(parvis.x, parvis.y), (q.x, q.y)])
+            if chemin.length > 110.0 or any(batis[i].intersects(chemin.buffer(1.2)) for i in arbre_b.query(chemin.buffer(1.2))):
+                continue
+            hauteurs = [_hauteur(tuiles, x + d[0] * k, z + d[1] * k, taille) for k in (-40, -20, 0, 20, 40)]
+            if None in hauteurs:
+                continue
+            score = abs(u + 70.0) * 0.6 + chemin.length * 0.5 + (max(hauteurs) - min(hauteurs)) * 25.0
+            if meilleur is None or score < meilleur[0] - 1e-9:
+                meilleur = (score, u, cote, [[round(parvis.x, 2), round(parvis.y, 2)], [round(q.x, 2), round(q.y, 2)]])
+        u += 10.0
+    return None if meilleur is None else meilleur[1:]
 
 
 def lieux_mission08(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
@@ -805,8 +844,18 @@ def lieux_mission08(tuiles: dict, taille: float, normaliser, spawn, utilises: se
             break
     if not pond:
         return []
-    f = math.atan2(d[0], d[1])
-    return [
+    # La voie est orientée de la gare vers le passage à niveau : le train vient du côté de la gare (cap inversé si besoin).
+    dr = (-d[0], -d[1])
+    f = math.atan2(dr[0], dr[1])
+    out = [
         _poi8("passage_niveau", LABELS_M08["passage_niveau"], cx, cz, f, taille, "block", prop="rail", radius=14.0, length=longueur),
         _poi8("etang_oies", LABELS_M08["etang_oies"], pond[0], pond[1], math.atan2(cx - pond[0], cz - pond[1]), taille, "gather", prop="pond", radius=POND_RADIUS),
     ]
+    gare = _gare(tuiles, taille, cx, cz, dr, longueur, obstacles)
+    if gare:
+        u, cote, chemin = gare
+        g = _poi8("gare_pays_ouche", LABELS_M08["gare_pays_ouche"], cx + dr[0] * u, cz + dr[1] * u, f, taille, "station", prop="gare", radius=40.0, kind="landmark")
+        g["side"] = -cote           # +1 : côté +X local (droite en suivant le cap de la voie)
+        g["path"] = chemin
+        out.append(g)
+    return out

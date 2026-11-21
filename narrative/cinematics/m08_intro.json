@@ -71,6 +71,38 @@
     {
       "dur": 4.5,
       "cam": {
+        "at": "gare_pays_ouche",
+        "off": [
+          30,
+          22,
+          -36
+        ]
+      },
+      "cam_to": {
+        "at": "gare_pays_ouche",
+        "off": [
+          20,
+          15,
+          -24
+        ]
+      },
+      "look": {
+        "at": "gare_pays_ouche",
+        "off": [
+          -8,
+          0,
+          0
+        ]
+      },
+      "fov": 58,
+      "caption": {
+        "who": "Gégé",
+        "text": "La gare du Pays d'Ouche : trois quais imaginaires et un seul vrai. Le train s'y arrête rarement. Aujourd'hui, il n'aura pas le choix."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
         "at": "passage_niveau",
         "off": [
           0,

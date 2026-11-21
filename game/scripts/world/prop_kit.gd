@@ -886,3 +886,93 @@ static func goose_pond() -> PropKit:
 	k.add_box(Vector3(1.6, 1.0, 1.2), Vector3(9.5, 0.5, 2.0), Color(0.55, 0.38, 0.24))                   # cabane
 	k.add_box(Vector3(1.9, 0.1, 1.5), Vector3(9.5, 1.15, 2.0), Color(0.36, 0.25, 0.17), Vector3(0, 0, 0.12))
 	return k
+
+# --- Gare du Pays d'Ouche (mission 08) ---------------------------------------------------------------------------------------------------
+## Repère : +Z le long de la voie, +X vers le bâtiment (le quai est entre la voie, x ≈ 0, et le bâtiment). Le monde tourne le tout de 180° si
+## la gare est de l'autre côté. Quai : x de 2,2 à 6,4 m, 80 m de long, 0,8 m de haut ; bâtiment : x de 10 à 19 m, 24 m de long.
+
+const QUAI_LEN := 80.0
+const QUAI_H := 0.8
+
+
+## Quai : dalle, ligne de sécurité jaune, bordure et deux rampes d'extrémité.
+static func station_platform() -> PropKit:
+	var k := PropKit.new()
+	var concrete := Color(0.72, 0.71, 0.68)
+	k.add_box(Vector3(4.2, QUAI_H, QUAI_LEN), Vector3(4.3, QUAI_H / 2.0, 0), concrete)
+	k.add_box(Vector3(0.3, 0.03, QUAI_LEN), Vector3(2.45, QUAI_H + 0.02, 0), Color(0.97, 0.8, 0.15))        # ligne de sécurité
+	k.add_box(Vector3(0.22, 0.12, QUAI_LEN), Vector3(2.2, QUAI_H - 0.04, 0), Color(0.55, 0.55, 0.52))        # bordure
+	for sz in [-1.0, 1.0]:
+		k.add_box(Vector3(4.2, 0.12, 4.2), Vector3(4.3, QUAI_H / 2.0, sz * (QUAI_LEN / 2.0 + 2.0)), concrete, Vector3(-sz * 0.2, 0, 0))   # rampes
+	return k
+
+
+## Auvent du quai : huit poteaux et un toit à pente douce en zinc, avec lambrequin crème.
+static func station_canopy() -> PropKit:
+	var k := PropKit.new()
+	var zinc := Color(0.5, 0.56, 0.58)
+	var cream := Color(0.95, 0.9, 0.78)
+	for i in 8:
+		var z := -22.0 + float(i) * 6.3
+		k.add_box(Vector3(0.18, 3.0, 0.18), Vector3(5.7, QUAI_H + 1.5, z), Color(0.2, 0.34, 0.3))
+	k.add_box(Vector3(5.6, 0.14, 46.0), Vector3(5.2, QUAI_H + 3.15, 0), zinc, Vector3(0, 0, -0.06))
+	k.add_box(Vector3(0.1, 0.45, 46.0), Vector3(2.5, QUAI_H + 2.95, 0), cream)
+	return k
+
+
+## Bâtiment des voyageurs : socle de brique, murs crème à colombages, toit d'ardoise à quatre pans, cheminées, fenêtres et portes,
+## horloge côté quai.
+static func station_building() -> PropKit:
+	var k := PropKit.new()
+	var brick := Color(0.7, 0.34, 0.26)
+	var cream := Color(0.95, 0.91, 0.78)
+	var timber := Color(0.36, 0.25, 0.17)
+	var slate := Color(0.3, 0.33, 0.4)
+	var glass := Color(0.45, 0.62, 0.78)
+	var x0 := 14.5
+	k.add_box(Vector3(9.0, 1.1, 24.0), Vector3(x0, 0.55, 0), brick)
+	k.add_box(Vector3(9.0, 3.2, 24.0), Vector3(x0, 2.7, 0), cream)
+	for i in 9:
+		var z := -11.0 + float(i) * 2.75
+		k.add_box(Vector3(9.05, 3.2, 0.14), Vector3(x0, 2.7, z), timber)                                      # colombages
+	k.add_box(Vector3(9.05, 0.16, 24.05), Vector3(x0, 4.35, 0), timber)
+	# Toit : quatre pans (deux grands, deux croupes) et faîtage.
+	k.add_box(Vector3(5.6, 0.2, 25.5), Vector3(x0 - 2.3, 5.2, 0), slate, Vector3(0, 0, 0.48))
+	k.add_box(Vector3(5.6, 0.2, 25.5), Vector3(x0 + 2.3, 5.2, 0), slate, Vector3(0, 0, -0.48))
+	k.add_box(Vector3(0.3, 0.2, 22.0), Vector3(x0, 6.3, 0), Color(0.22, 0.24, 0.3))
+	for cz in [-8.0, 7.0]:
+		k.add_box(Vector3(0.9, 2.0, 0.9), Vector3(x0 + 1.5, 6.4, cz), brick)
+	# Fenêtres et portes sur les deux faces.
+	for face in [-1.0, 1.0]:
+		var fx: float = x0 + face * 4.52
+		for z in [-9.0, -6.0, 6.0, 9.0]:
+			k.add_box(Vector3(0.1, 1.5, 1.2), Vector3(fx, 2.6, z), glass)
+			k.add_box(Vector3(0.13, 1.7, 1.4), Vector3(fx - face * 0.02, 2.6, z), Color(0.96, 0.96, 0.94))
+		for z in [-2.4, 0.0, 2.4]:
+			k.add_box(Vector3(0.12, 2.2, 1.3), Vector3(fx, 1.65 if face < 0 else 1.5, z), Color(0.42, 0.28, 0.18))
+			k.add_box(Vector3(0.14, 1.0, 0.8), Vector3(fx - face * 0.02, 2.0, z), glass)
+	# Horloge au-dessus de la porte centrale, côté quai (face x = x0 - 4,5).
+	k.add_cyl(0.62, 0.62, 0.1, Vector3(x0 - 4.6, 4.0, 0), Color(0.97, 0.96, 0.92), Vector3(0, 0, PI / 2.0), 20)
+	k.add_box(Vector3(0.12, 0.45, 0.06), Vector3(x0 - 4.68, 4.12, 0), Color(0.1, 0.1, 0.1))
+	k.add_box(Vector3(0.12, 0.06, 0.34), Vector3(x0 - 4.68, 4.0, 0.12), Color(0.1, 0.1, 0.1))
+	# Parvis côté ville : dalle, deux bancs et un portique à vélos.
+	k.add_box(Vector3(10.0, 0.05, 30.0), Vector3(x0 + 9.5, 0.025, 0), Color(0.6, 0.58, 0.55))
+	return k
+
+
+## Dalle de chemin : posée tous les 3 m le long de la ligne d'accès (gravier clair).
+static func path_tile() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(2.6, 0.08, 3.3), Vector3(0, 0.04, 0), Color(0.78, 0.72, 0.6))
+	return k
+
+
+## Valise à roulettes (voyageur) : coque, poignée, roues.
+static func suitcase(color := Color(0.8, 0.25, 0.25)) -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(0.42, 0.62, 0.22), Vector3(0, 0.4, 0), color)
+	k.add_box(Vector3(0.05, 0.38, 0.05), Vector3(0.12, 0.9, 0), Color(0.2, 0.2, 0.22))
+	k.add_box(Vector3(0.3, 0.05, 0.05), Vector3(0.0, 1.1, 0), Color(0.2, 0.2, 0.22))
+	for sx in [-0.16, 0.16]:
+		k.add_cyl(0.04, 0.04, 0.04, Vector3(sx, 0.05, 0.08), Color(0.15, 0.15, 0.15), Vector3(0, 0, PI / 2.0), 6)
+	return k

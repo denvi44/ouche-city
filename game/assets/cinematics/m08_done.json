@@ -7,6 +7,38 @@
     {
       "dur": 4.5,
       "cam": {
+        "at": "gare_pays_ouche",
+        "off": [
+          12,
+          2.6,
+          10
+        ]
+      },
+      "cam_to": {
+        "at": "gare_pays_ouche",
+        "off": [
+          9,
+          2.2,
+          6
+        ]
+      },
+      "look": {
+        "at": "gare_pays_ouche",
+        "off": [
+          -6,
+          1.7,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Parisien",
+        "text": "Quai 1… Il y a un comité d'accueil. Avec des plumes. Et un très bon sens de l'organisation."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
         "at": "passage_niveau",
         "off": [
           10,
