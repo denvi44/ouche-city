@@ -71,6 +71,8 @@ func think(delta: float) -> Dictionary:
 	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06 or mission is MissionM07 or mission is MissionM08)):
 		status = "attend"
 		return idle()
+	if not mission.companions_help():
+		return _guide(delta)             # solo par défaut : les compagnons guident, ils ne font pas les tâches du joueur
 	match role:
 		"negociatrice":
 			return _hold("ginette", "se poste au barrage", "négocie avec le gendarme", delta)
@@ -299,6 +301,85 @@ func _herd_m05(delta: float) -> Dictionary:
 		_last_yaw = yaw2
 		return {"move": Vector2(0, -1), "yaw": yaw2, "jump": false, "sprint": d.length() > 8.0}
 	return _walk_to(target, delta)
+
+
+# --- Mode « guide » (solo par défaut) --------------------------------------------------------------------------------------------------
+# Les compagnons accompagnent le joueur sans jamais agir sur la mission : pas d'objet pris, pas de bête rabattue, pas de service.
+# Le premier d'entre eux passe devant, vers la balise d'objectif, et attend le joueur ; les autres restent à proximité.
+const GUIDE_AHEAD := 11.0         # m : le guide marche à cette distance devant le joueur, en direction de la balise
+const GUIDE_WAIT := 20.0          # m : au-delà, le guide s'arrête et attend
+const GUIDE_NEAR := 6.5           # m : les accompagnateurs ne bougent pas tant que le joueur est plus près
+const GUIDE_TELEPORT := 90.0      # m : très loin (le joueur a pris le volant) : le compagnon se retrouve près de lui
+var _hint_t := 0.0
+
+
+func _human_node() -> Node3D:
+	return mission.actor(mission.local_peer())
+
+
+func _guide_slot() -> int:
+	# 0 = le guide (le compagnon d'identifiant le plus proche de 0), 1.. = accompagnateurs.
+	var ids: Array = []
+	for c in mission.companions():
+		ids.append(absi((c as Player).peer_id))
+	ids.sort()
+	return maxi(ids.find(absi(body.peer_id)), 0)
+
+
+func _guide(delta: float) -> Dictionary:
+	var m = mission
+	var hp := _human_node()
+	if hp == null:
+		status = "attend"
+		return idle()
+	var pp := hp.global_position
+	var hv := Vector2(pp.x, pp.z)
+	var here := Vector2(body.global_position.x, body.global_position.z)
+	var d_me := here.distance_to(hv)
+	var slot := _guide_slot()
+	if d_me > GUIDE_TELEPORT:
+		var a := float(slot) * 2.1
+		body.global_position = pp + Vector3(cos(a) * 3.0, 0.5, sin(a) * 3.0)
+		body.velocity = Vector3.ZERO
+		return idle()
+	var marks: Array = m.focus_markers()
+	var goal := Vector3.ZERO
+	var label := ""
+	if not marks.is_empty():
+		goal = marks[0].pos
+		label = str(marks[0].label)
+	var gv := Vector2(goal.x, goal.z)
+	var d_goal := gv.distance_to(hv) if goal != Vector3.ZERO else 0.0
+	# Un petit mot toutes les 45 s tant que le joueur est loin de son but.
+	if d_goal > 14.0:
+		_hint_t += delta
+		if _hint_t > 45.0 and slot == 0:
+			_hint_t = 0.0
+			m.bark("%s_guide" % m.dialogue_prefix(), 45.0)
+	else:
+		_hint_t = 0.0
+	if slot == 0 and goal != Vector3.ZERO and d_goal > 14.0:
+		if d_me > GUIDE_WAIT:
+			status = "t'attend (suis la balise : %s)" % label
+			return _face(hv, here)
+		var dir := (gv - hv).normalized()
+		var ahead := hv + dir * minf(GUIDE_AHEAD, d_goal - 8.0)
+		status = "te montre le chemin : %s" % label
+		return _walk_to(Vector3(ahead.x, pp.y, ahead.y), delta)
+	# Accompagnateur (ou guide arrivé) : reste à proximité, sur une couronne propre à chaque compagnon.
+	status = "reste près de toi"
+	if d_me < GUIDE_NEAR:
+		return _face(hv, here)
+	var ang := float(slot) * 2.1 + 0.6
+	var spot := hv + Vector2(cos(ang), sin(ang)) * 4.0
+	return _walk_to(Vector3(spot.x, pp.y, spot.y), delta)
+
+
+func _face(target: Vector2, here: Vector2) -> Dictionary:
+	var d := target - here
+	if d.length() > 0.1:
+		_last_yaw = atan2(-d.x, -d.y)
+	return {"move": Vector2.ZERO, "yaw": _last_yaw, "jump": false, "sprint": false}
 
 
 ## Mission 08, rabatteuse : va vers l'oie libre la plus proche, crie quand elle est à portée, puis mène la file jusqu'à la voie.

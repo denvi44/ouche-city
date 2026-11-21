@@ -22,6 +22,8 @@ var volume_ambience: float = 0.8
 var colorblind_mode: String = "aucun"
 ## Cinématiques d'introduction et de fin de mission (désactivables ; toujours passables).
 var cinematics: bool = true
+## En solo, les compagnons IA ne font que guider (suivre, montrer le chemin) ; vrai : ils tiennent aussi leurs rôles (tâches de mission).
+var companions_help: bool = false
 
 
 func _ready() -> void:
@@ -46,6 +48,7 @@ func load_settings() -> void:
 	volume_ambience = clampf(cfg.get_value("audio", "ambiance", volume_ambience), 0.0, 1.0)
 	colorblind_mode = cfg.get_value("accessibilite", "daltonisme", colorblind_mode)
 	cinematics = cfg.get_value("jeu", "cinematiques", cinematics)
+	companions_help = cfg.get_value("jeu", "compagnons_aident", companions_help)
 
 
 func save_settings() -> void:
@@ -63,4 +66,5 @@ func save_settings() -> void:
 	cfg.set_value("audio", "ambiance", volume_ambience)
 	cfg.set_value("accessibilite", "daltonisme", colorblind_mode)
 	cfg.set_value("jeu", "cinematiques", cinematics)
+	cfg.set_value("jeu", "compagnons_aident", companions_help)
 	cfg.save(PATH)

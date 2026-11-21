@@ -785,7 +785,7 @@ func hud_lines() -> PackedStringArray:
 	if step in ["done", "failed"]:
 		lines.append("Temps total de bouchon : %s   ·   Incidents : %d   ·   « Après vous » : %d" % [MissionBase.format_time(blocked_total), incidents, politeness])
 	for c in companions():
-		lines.append("• %s : %s" % [c.display_name, companion_status(c)])
+		lines.append("• %s : %s" % [c.display_name, companion_line(c)])
 	for msg in messages.slice(maxi(messages.size() - 3, 0)):
 		lines.append("• " + msg)
 	return lines

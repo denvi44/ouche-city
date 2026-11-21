@@ -26,6 +26,7 @@ func _run() -> void:
 	var seconds := float(args.get("sec", 180))
 	create_timer(seconds + 120.0).timeout.connect(func(): printerr("ÉCHEC délai dépassé"); quit(2))
 	var need := int(args.get("need", 2))
+	root.get_node("Settings").companions_help = true      # ces tests vérifient que les compagnons savent tenir leurs rôles (mode « coéquipiers »)
 	var world = load(WORLD).instantiate()
 	root.add_child(world)
 	for i in 40:

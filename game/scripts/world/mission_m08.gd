@@ -908,7 +908,7 @@ func hud_lines() -> PackedStringArray:
 	if step in ["gather", "block"]:
 		lines.append("Oies : %d à vous · %d sur la voie · %d à la mare   ·   Temps : %s" % [count_state("follow"), blockers(), free_count(), MissionBase.format_time(time_left)])
 	for c in companions():
-		lines.append("• %s : %s" % [c.display_name, companion_status(c)])
+		lines.append("• %s : %s" % [c.display_name, companion_line(c)])
 	for msg in messages.slice(maxi(messages.size() - 3, 0)):
 		lines.append("• " + msg)
 	return lines

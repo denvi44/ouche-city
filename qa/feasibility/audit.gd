@@ -75,6 +75,7 @@ func record(mission_id: String, scenario: String, ok: bool, result: String, t: f
 func boot(key: String, companions: bool) -> void:
 	var net = root.get_node("Net")
 	net.mission_id = key
+	root.get_node("Settings").companions_help = companions      # « avec compagnons » = mode coéquipiers ; sinon ils ne font que guider
 	world = load(WORLD).instantiate()
 	root.add_child(world)
 	await frames(100)

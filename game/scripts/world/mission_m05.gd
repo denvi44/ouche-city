@@ -694,7 +694,7 @@ func hud_lines() -> PackedStringArray:
 		if not cows.is_empty() and int(cows[0].id) == 0 and cows[0].st != "pen":
 			lines.append("Marguerite, la meneuse, est la plus farouche.")
 	for c in companions():
-		lines.append("• %s : %s" % [c.display_name, companion_status(c)])
+		lines.append("• %s : %s" % [c.display_name, companion_line(c)])
 	for msg in messages.slice(maxi(messages.size() - 3, 0)):
 		lines.append("• " + msg)
 	return lines

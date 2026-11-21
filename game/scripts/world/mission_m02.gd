@@ -1022,7 +1022,7 @@ func hud_lines() -> PackedStringArray:
 	if step == "drag" and race_state in ["go", "finished"]:
 		lines.append("Course : vous %d m   ·   Dylan %d m   ·   %.1f s" % [int(race_sp), int(race_sd), race_time])
 	for c in companions():
-		lines.append("• %s : %s" % [c.display_name, companion_status(c)])
+		lines.append("• %s : %s" % [c.display_name, companion_line(c)])
 	for msg in messages.slice(maxi(messages.size() - 3, 0)):
 		lines.append("• " + msg)
 	return lines

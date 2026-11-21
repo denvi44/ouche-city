@@ -23,6 +23,7 @@ func check(cond: bool, label: String) -> bool:
 
 func _run() -> void:
 	create_timer(800.0).timeout.connect(func(): printerr("ÉCHEC délai dépassé"); quit(2))
+	root.get_node("Settings").companions_help = true      # ces tests vérifient que les compagnons savent tenir leurs rôles (mode « coéquipiers »)
 	var world = load(WORLD).instantiate()
 	root.add_child(world)
 	for i in 80:

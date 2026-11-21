@@ -951,7 +951,7 @@ func hud_lines() -> PackedStringArray:
 	if step in ["crates", "road", "checkpoint", "fair"]:
 		lines.append("Bouteilles intactes : %d / %d   (cassées : %d)   ·   Temps restant : %s" % [cargo, bottles_total, broken, format_time(time_limit - elapsed)])
 	for c in companions():
-		lines.append("• %s : %s" % [c.display_name, companion_status(c)])
+		lines.append("• %s : %s" % [c.display_name, companion_line(c)])
 	for msg in messages.slice(maxi(messages.size() - 3, 0)):
 		lines.append("• " + msg)
 	return lines

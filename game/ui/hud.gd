@@ -301,6 +301,13 @@ func _build_pause(root: Control) -> void:
 		Settings.cinematics = on
 		Settings.save_settings())
 	box.add_child(cin)
+	var help := CheckButton.new()
+	help.text = "Les compagnons font les tâches à ma place (sinon : ils guident)"
+	help.button_pressed = Settings.companions_help
+	help.toggled.connect(func(on: bool):
+		Settings.companions_help = on
+		Settings.save_settings())
+	box.add_child(help)
 	var keys := Button.new()
 	keys.text = "Touches et souris"
 	keys.pressed.connect(func(): root.add_child(preload("res://ui/controls_menu.gd").new()))

@@ -256,6 +256,18 @@ func companion_status(_c: Player) -> String:
 	return "attend"
 
 
+## Les compagnons font-ils leurs tâches de mission (réglage) ? Par défaut non : en solo ils guident seulement.
+func companions_help() -> bool:
+	return bool(get_node("/root/Settings").companions_help)
+
+
+## Texte du HUD pour un compagnon : sa tâche (mode « coéquipiers ») ou ce qu'il fait pour guider.
+func companion_line(c: Player) -> String:
+	if not companions_help() and c.brain != null:
+		return c.brain.status
+	return companion_status(c)
+
+
 func on_player_left(_peer: int) -> void:
 	pass
 

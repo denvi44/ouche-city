@@ -916,7 +916,7 @@ func hud_lines() -> PackedStringArray:
 		for i in menu_options.size():
 			lines.append("  [%d] %s" % [i + 1, menu_options[i]])
 	for c in companions():
-		lines.append("• %s : %s" % [c.display_name, companion_status(c)])
+		lines.append("• %s : %s" % [c.display_name, companion_line(c)])
 	for msg in messages.slice(maxi(messages.size() - 3, 0)):
 		lines.append("• " + msg)
 	return lines

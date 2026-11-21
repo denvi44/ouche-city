@@ -28,6 +28,10 @@ les runs 56 à 59 sont rouges pour des raisons connues et corrigées (voir « Hi
 - **Anti-superposition des noms flottants** : `label_declutter.gd` (groupe `etiquettes`, priorités par méta `prio`).
 - **Chute sous la carte** : `Player.void_y` est fixé par `World` d'après le relief (les vallées descendent à −48 m). Avant, un seuil fixe à −30 m renvoyait en l'air
   les personnages dans le pré des vaches. `CompanionBrain._clear_at` ne prend plus une pente douce pour un mur.
+- **Compagnons guides en solo** (demande du propriétaire) : par défaut (`Settings.companions_help` faux) `CompanionBrain.think` appelle `_guide` : les compagnons suivent le joueur,
+  le premier passe devant vers la balise d'objectif (`focus_markers()[0]`) et l'attend, une réplique `mNN_guide` toutes les 45 s si le joueur est loin ; **aucune action de mission**.
+  Le mode « coéquipiers » (tâches faites par l'IA) reste disponible : case dans le menu pause, et les tests `*_companions.gd`/l'audit « avec compagnons » le forcent à vrai.
+  Test : `qa/integration/guide_mode.gd`. Le HUD affiche `companion_line(c)` (« te montre le chemin… » ou la tâche).
 - Plan de reprise (ce dossier), décisions 0015 à 0018.
 
 ## Chiffres de contrôle
