@@ -110,7 +110,58 @@ def _lisse_cubique(t: np.ndarray) -> np.ndarray:
     return t * t * (3.0 - 2.0 * t)
 
 
-def niveler(tuiles: dict, T: float, sol) -> dict:
+CARRIERE_R = 62.0           # m : rayon du bord de la carrière
+CARRIERE_PROF = 13.5        # m : profondeur au fond (trois gradins de 4,5 m)
+RAMPE_L = 9.0               # m : largeur de la rampe d'accès des camions
+
+
+def profil_carriere(r: float, R: float = CARRIERE_R, prof: float = CARRIERE_PROF) -> float:
+    """Profondeur (m, ≥ 0) du terrain à la distance r du centre : trois gradins plats séparés par des talus raides, fond plat."""
+    rn = r / R
+    if rn >= 1.0:
+        return 0.0
+    t = min(max((1.0 - rn) / 0.72, 0.0), 1.0) * 3.0
+    pas = min(int(t), 2)
+    frac = t - pas if t < 3.0 else 1.0
+    if t >= 3.0:
+        return prof
+    montee = min(max((frac - 0.72) / 0.28, 0.0), 1.0)
+    montee = montee * montee * (3.0 - 2.0 * montee)
+    return prof / 3.0 * (pas + montee)
+
+
+def site_carriere(tuiles: dict, T: float, centre: tuple, obstacles: list):
+    """Site de la carrière : disque de CARRIERE_R + 12 m sans bâtiment, route ni eau, à 350-900 m du centre, le plus plat possible.
+    Renvoie (cx, cz, cap de la rampe en radians) ou None. Déterministe (balayage d'une grille de 15 m)."""
+    from shapely.geometry import Point
+    from shapely.strtree import STRtree
+    arbre = STRtree(obstacles)
+    meilleur = None
+    xs = [k[0] for k in tuiles]
+    ys = [k[1] for k in tuiles]
+    x0, x1 = min(xs) * T, (max(xs) + 1) * T
+    z0, z1 = min(ys) * T, (max(ys) + 1) * T
+    for cx in range(int(x0) + 90, int(x1) - 90, 15):
+        for cz in range(int(z0) + 90, int(z1) - 90, 15):
+            d = math.hypot(cx - centre[0], cz - centre[1])
+            if not 350.0 <= d <= 900.0:
+                continue
+            if any((int((cx + dx) // T), int((cz + dz) // T)) not in tuiles for dx, dz in ((-80, 0), (80, 0), (0, -80), (0, 80))):
+                continue
+            disque = Point(cx, cz).buffer(CARRIERE_R + 12.0)
+            if any(obstacles[i].intersects(disque) for i in arbre.query(disque)):
+                continue
+            score = d
+            if meilleur is None or score < meilleur[0]:
+                meilleur = (score, cx, cz)
+    if meilleur is None:
+        return None
+    _, cx, cz = meilleur
+    cap = math.atan2(centre[0] - cx, centre[1] - cz)      # la rampe regarde le centre du bourg
+    return cx, cz, cap
+
+
+def niveler(tuiles: dict, T: float, sol, carriere=None) -> dict:
     """Remplace le relief de chaque tuile par une grille de RES×RES points avec routes nivelées. Renvoie des statistiques."""
     if not tuiles:
         return {}
@@ -187,6 +238,28 @@ def niveler(tuiles: dict, T: float, sol) -> dict:
         deja.append((axe, np.full(len(axe), float(r["width"]) / 2.0)))
         nivelees += 1
 
+    # Carrière : gradins, fond plat et rampe d'accès (profondeur croissante le long de la rampe, plus profonde que les gradins).
+    if carriere is not None:
+        ccx, ccz, cap = carriere
+        d = (math.sin(cap), math.cos(cap))
+        n = (d[1], -d[0])
+        for j in range(nz):
+            for i in range(nx):
+                px, pz = x0 + i * pas, z0 + j * pas
+                dx, dz = px - ccx, pz - ccz
+                r = math.hypot(dx, dz)
+                if r >= CARRIERE_R + 8.0:
+                    continue
+                prof = profil_carriere(r)
+                u, v = dx * d[0] + dz * d[1], dx * n[0] + dz * n[1]
+                if u > 0 and abs(v) < RAMPE_L / 2.0 + 4.0:
+                    rampe = CARRIERE_PROF * min(max((CARRIERE_R - u) / (0.85 * CARRIERE_R), 0.0), 1.0)
+                    w = 1.0 if abs(v) <= RAMPE_L / 2.0 else max(0.0, 1.0 - (abs(v) - RAMPE_L / 2.0) / 4.0)
+                    prof = prof + (rampe - prof) * w
+                # bord arrondi : le talus extérieur remonte en douceur (8 m)
+                if r > CARRIERE_R:
+                    prof = 0.0
+                H[j, i] -= prof
     # Écriture dans les tuiles (les bords partagés ont les mêmes valeurs).
     for (tx, ty), t in tuiles.items():
         base = t["ground"].get("baseAltitude", 0.0)

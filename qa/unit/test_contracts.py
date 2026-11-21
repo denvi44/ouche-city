@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | set(fiction.LABELS_M06.values()) | set(fiction.LABELS_M07.values()) | set(fiction.LABELS_M08.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | set(fiction.LABELS_M06.values()) | set(fiction.LABELS_M07.values()) | set(fiction.LABELS_M08.values()) | set(fiction.LABELS_PUBLICS.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):

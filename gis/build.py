@@ -25,7 +25,7 @@ from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, P
 from shapely.geometry.polygon import orient
 from shapely.ops import nearest_points
 
-from . import fiction, nivelage
+from . import fiction, nivelage, vegetation
 from .config import GIS_DIR, Emprise, charger
 
 CACHE_OSM = GIS_DIR / "cache" / "osm_conches.json"
@@ -273,6 +273,7 @@ def toit(tags: dict, typo: str, poly: Polygon) -> str:
 
 # --- Construction ------------------------------------------------------------
 
+CARRIERE = None  # site de la carrière (cx, cz, cap de la rampe), fixé par construire()
 GROUND_RES = nivelage.RES  # 51 × 51 points par tuile : un point tous les 5 m (routes nivelées, voir nivelage.py)
 
 
@@ -390,7 +391,15 @@ def construire(src: Sources, rep: Repere, relief: Relief, emp: Emprise, toutes: 
             if key in garder and zone.contains(Point(x, z)):
                 tuiles[key]["trees"].append([_r(x), _r(z)])
 
-    nivelage.niveler(tuiles, T, hauteur_sol)
+    # Carrière : site libre (ni bâtiment, ni route, ni eau) ; le relief est creusé en même temps que les routes sont nivelées.
+    obstacles = [Polygon(b["footprint"]).buffer(10.0) for t in tuiles.values() for b in t["buildings"]]
+    obstacles += [LineString(r["points"]).buffer(r["width"] / 2 + 10.0) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "path")]
+    obstacles += [Polygon(v["polygon"]).buffer(10.0) for t in tuiles.values() for v in t["vegetation"] if v["kind"] == "water"]
+    global CARRIERE
+    CARRIERE = nivelage.site_carriere(tuiles, T, (poc_centre.x, poc_centre.y), obstacles)
+    nivelage.niveler(tuiles, T, hauteur_sol, CARRIERE)
+    stats = vegetation.planter(tuiles, T, CARRIERE, nivelage.CARRIERE_R)
+    print("végétation :", stats, "| carrière :", CARRIERE)
     return tuiles, poc_centre, ref
 
 
@@ -481,12 +490,6 @@ def main(argv=None) -> int:
         return 1
     relief = Relief(args.alti)
     tuiles, poc_centre, ref = construire(src, rep, relief, emp, args.toutes)
-    tiles_dir = args.out / "tiles"
-    for old in tiles_dir.glob("*.json"):
-        old.unlink()
-    for (tx, ty), t in sorted(tuiles.items()):
-        t["buildings"].sort(key=lambda b: b["id"])
-        ecrire(tiles_dir / f"{tx}_{ty}.json", t)
     ecrire(args.out / "road_graph.json", graphe_routier(src.ways, src.nodes, src.attribution))
     poi = points_interet(rep, src.ways, src.points, poc_centre, emp, "ign" if args.ign.exists() else "osm")
     fictifs = fiction.lieux_fictifs(tuiles, emp.taille_tuile_m)
@@ -503,9 +506,21 @@ def main(argv=None) -> int:
     deja_pris |= {p["building"] for p in fictifs if p.get("building")}
     fictifs += fiction.lieux_mission07(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
     fictifs += fiction.lieux_mission08(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
+    if CARRIERE:
+        fictifs.append(fiction.poi_carriere(CARRIERE, emp.taille_tuile_m))
+    fictifs += fiction.lieux_publics(tuiles, emp.taille_tuile_m, (poc_centre.x, poc_centre.y), poi["pois"] + fictifs)
     ids_fictifs = {p["id"] for p in fictifs}
     # Les monuments trouvés dans la zone remplacent leurs homologues lointains.
     poi["pois"] = [p for p in poi["pois"] if not (p["id"] == "eglise_lointaine" and "eglise" in ids_fictifs)] + fictifs
+    retires = vegetation.nettoyer(tuiles, poi["pois"])
+    print("arbres retirés des lieux de mission :", retires)
+    tiles_dir = args.out / "tiles"
+    for old in tiles_dir.glob("*.json"):
+        old.unlink()
+    for (tx, ty), t in sorted(tuiles.items()):
+        t["buildings"].sort(key=lambda b: b["id"])
+        ecrire(tiles_dir / f"{tx}_{ty}.json", t)
+
     ecrire(args.out / "poi.json", poi)
     ecrire(args.out / "manifest.json", {
         "sources": src.meta, "attribution": src.attribution, "tiles": [f"{x}_{y}" for x, y in sorted(tuiles)],

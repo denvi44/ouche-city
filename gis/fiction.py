@@ -859,3 +859,113 @@ def lieux_mission08(tuiles: dict, taille: float, normaliser, spawn, utilises: se
         g["path"] = chemin
         out.append(g)
     return out
+
+
+# --- Édifices publics et industriels : mairie, écoles, hôpital, usine de calva (modèles détaillés côté Godot) -------------------
+LABELS_PUBLICS = {
+    "mairie": "Mairie de Frouch City",
+    "ecole_pommiers": "École primaire des Pommiers",
+    "college_bocage": "Collège du Bocage",
+    "hopital_frouch": "Hôpital de Frouch",
+    "usine_calva": "Distillerie Pommier & Fils (usine de calva)",
+    "carriere_pierres": "Carrière de pierres du Bocage",
+}
+FACILITIES = ("eglise", "mairie", "ecole", "hopital", "usine")
+
+
+def _rect_orienté(footprint, facing: float):
+    """Rectangle englobant orienté du bâtiment : (cx, cz, largeur le long de la façade, profondeur, cap aligné sur un axe du rectangle,
+    rectangularité = aire / aire du rectangle). Le cap est ramené à l'axe du rectangle le plus proche de `facing`."""
+    poly = Polygon(footprint)
+    mr = poly.minimum_rotated_rectangle
+    pts = list(mr.exterior.coords)[:4]
+    e1 = (pts[1][0] - pts[0][0], pts[1][1] - pts[0][1])
+    e2 = (pts[2][0] - pts[1][0], pts[2][1] - pts[1][1])
+    l1, l2 = math.hypot(*e1), math.hypot(*e2)
+    n = (math.sin(facing), math.cos(facing))
+    best = None
+    for axe, lg, lat, lat_l in ((e1, l1, e2, l2), (e2, l2, e1, l1)):
+        for s in (1, -1):
+            u = (axe[0] / lg * s, axe[1] / lg * s)
+            sc = u[0] * n[0] + u[1] * n[1]
+            if best is None or sc > best[0]:
+                best = (sc, u, lg, lat_l)
+    _, u, prof, larg = best
+    c = mr.centroid
+    return c.x, c.y, larg, prof, math.atan2(u[0], u[1]), poly.area / max(mr.area, 1e-6)
+
+
+def lieux_publics(tuiles: dict, taille: float, spawn, pois: list[dict]) -> list[dict]:
+    """Choisit, parmi les bâtiments sans enseigne ni lieu de mission, ceux qui deviennent la mairie (proche de l'église), deux écoles,
+    l'hôpital (le plus grand rectangle) et l'usine de calva (grande halle de brique), et annote l'église. Déterministe ; les POI existants
+    ne bougent pas (on ne prend que des bâtiments libres)."""
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    pris = {p["building"] for p in pois if p.get("building")}
+    batiments = [b for t in tuiles.values() for b in t["buildings"] if b["id"] not in pris]
+    eglise = next((p for p in pois if p["id"] == "eglise"), None)
+
+    def infos(b):
+        (x, z), f = emplacement_enseigne(b["footprint"], routes)
+        cx, cz, w, d, cap, rect = _rect_orienté(b["footprint"], f)
+        return {"b": b, "c": (cx, cz), "w": w, "d": d, "cap": cap, "rect": rect, "aire": Polygon(b["footprint"]).area}
+
+    cand = [i for i in (infos(b) for b in batiments if b["typology"] != "eglise") if i["rect"] >= 0.72 and routes]
+    cand.sort(key=lambda i: i["b"]["id"])
+    out: list[dict] = []
+    utilises: list[tuple[float, float]] = []
+
+    def dist(a, b):
+        return math.hypot(a[0] - b[0], a[1] - b[1])
+
+    def prendre(i, pid, label, facility):
+        utilises.append(i["c"])
+        p = {"id": pid, "kind": "landmark", "label": label, "position": [_r(i["c"][0]), _r(i["c"][1])],
+             "tile": f"{int(i['c'][0] // taille)}_{int(i['c'][1] // taille)}", "radius": 12.0, "source": "design",
+             "building": i["b"]["id"], "facing": _r(i["cap"]), "facility": facility, "rect": [_r(i["w"]), _r(i["d"])]}
+        out.append(p)
+        return p
+
+    centre_eglise = None
+    if eglise is not None:
+        b_eg = next((b for t in tuiles.values() for b in t["buildings"] if b["id"] == eglise.get("building")), None)
+        if b_eg is not None:
+            ie = infos(b_eg)
+            centre_eglise = ie["c"]
+            eglise["facility"] = "eglise"
+            eglise["rect"] = [_r(ie["w"]), _r(ie["d"])]
+            eglise["position"] = [_r(ie["c"][0]), _r(ie["c"][1])]
+            eglise["facing"] = _r(ie["cap"])
+            utilises.append(ie["c"])
+    ref = centre_eglise or tuple(spawn)
+    # Mairie : 250-800 m², à 40-250 m de l'église, la plus proche.
+    mairies = sorted((i for i in cand if 250 <= i["aire"] <= 800 and 40 <= dist(i["c"], ref) <= 250 and 12 <= i["w"] and 9 <= i["d"]),
+                     key=lambda i: (dist(i["c"], ref), i["b"]["id"]))
+    if mairies:
+        prendre(mairies[0], "mairie", LABELS_PUBLICS["mairie"], "mairie")
+    # Écoles : 300-900 m², à 120-700 m du centre, éloignées de 150 m entre elles et des autres édifices ; la seconde plus grande.
+    ecoles = sorted((i for i in cand if 300 <= i["aire"] <= 900 and 120 <= dist(i["c"], tuple(spawn)) <= 700), key=lambda i: (_h("ecole", i["b"]["id"]), i["b"]["id"]))
+    choisies = []
+    for i in ecoles:
+        if all(dist(i["c"], u) >= 150 for u in utilises) and all(dist(i["c"], c["c"]) >= 150 for c in choisies):
+            choisies.append(i)
+        if len(choisies) == 2:
+            break
+    choisies.sort(key=lambda i: i["aire"])
+    for i, (pid, fac) in zip(choisies, (("ecole_pommiers", "ecole"), ("college_bocage", "ecole"))):
+        prendre(i, pid, LABELS_PUBLICS[pid], fac)
+    # Hôpital : le plus grand rectangle libre (≥ 700 m²), loin des autres édifices ; usine : grande halle de brique (≥ 500 m²).
+    hop = sorted((i for i in cand if i["aire"] >= 700 and all(dist(i["c"], u) >= 120 for u in utilises)), key=lambda i: (-i["aire"], i["b"]["id"]))
+    if hop:
+        prendre(hop[0], "hopital_frouch", LABELS_PUBLICS["hopital_frouch"], "hopital")
+    usines = sorted((i for i in cand if i["aire"] >= 500 and i["b"]["typology"] in ("brique", "annexe", "commerce") and all(dist(i["c"], u) >= 120 for u in utilises)),
+                    key=lambda i: (-i["aire"], i["b"]["id"]))
+    if usines:
+        prendre(usines[0], "usine_calva", LABELS_PUBLICS["usine_calva"], "usine")
+    return out
+
+
+def poi_carriere(site, taille: float) -> dict:
+    """POI de la carrière (prop `carriere`, rayon du bord ; `facing` = cap de la rampe d'accès, vers le bourg)."""
+    cx, cz, cap = site
+    return {"id": "carriere_pierres", "kind": "landmark", "label": "Carrière de pierres du Bocage", "position": [_r(cx), _r(cz)],
+            "tile": f"{int(cx // taille)}_{int(cz // taille)}", "radius": 62.0, "source": "design", "facing": _r(cap), "prop": "carriere"}

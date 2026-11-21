@@ -976,3 +976,123 @@ static func suitcase(color := Color(0.8, 0.25, 0.25)) -> PropKit:
 	for sx in [-0.16, 0.16]:
 		k.add_cyl(0.04, 0.04, 0.04, Vector3(sx, 0.05, 0.08), Color(0.15, 0.15, 0.15), Vector3(0, 0, PI / 2.0), 6)
 	return k
+
+
+# --- Arbres, carrière (Frouch City) ---------------------------------------------------------------------------------------------------------
+
+## Chêne : tronc court, houppier de trois masses vertes.
+static func tree_oak() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(0.22, 0.34, 3.3, Vector3(0, 1.65, 0), Color(0.4, 0.28, 0.18), Vector3.ZERO, 6)
+	k.add_sphere(2.5, Vector3(0, 4.6, 0), Color(0.3, 0.55, 0.26), Vector3(1.0, 0.85, 1.0), 8)
+	k.add_sphere(1.9, Vector3(1.3, 4.0, 0.5), Color(0.36, 0.6, 0.3), Vector3(1.0, 0.85, 1.0), 7)
+	k.add_sphere(1.7, Vector3(-1.2, 5.2, -0.6), Color(0.26, 0.5, 0.24), Vector3(1.0, 0.85, 1.0), 7)
+	return k
+
+
+## Pin : tronc nu et trois étages de branches coniques.
+static func tree_pine() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(0.18, 0.3, 4.0, Vector3(0, 2.0, 0), Color(0.38, 0.26, 0.17), Vector3.ZERO, 6)
+	for i in 3:
+		k.add_cyl(0.0, 2.3 - 0.45 * float(i), 3.0, Vector3(0, 3.6 + 2.2 * float(i), 0), Color(0.16 + 0.03 * float(i), 0.38, 0.22), Vector3.ZERO, 7)
+	return k
+
+
+## Pommier : tronc tordu court, houppier bas et large, pommes rouges.
+static func tree_apple() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(0.16, 0.26, 1.9, Vector3(0, 0.95, 0), Color(0.36, 0.25, 0.16), Vector3(0.05, 0, 0.04), 6)
+	k.add_sphere(1.9, Vector3(0, 2.7, 0), Color(0.38, 0.62, 0.3), Vector3(1.15, 0.8, 1.15), 8)
+	for i in 8:
+		var a := float(i) * 0.8
+		k.add_sphere(0.14, Vector3(cos(a) * 1.5, 2.3 + 0.35 * sin(float(i) * 1.7), sin(a) * 1.5), Color(0.86, 0.2, 0.15), Vector3.ONE, 5)
+	return k
+
+
+## Peuplier : fût fin, houppier en fuseau.
+static func tree_poplar() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(0.15, 0.24, 2.6, Vector3(0, 1.3, 0), Color(0.45, 0.4, 0.32), Vector3.ZERO, 6)
+	k.add_sphere(1.15, Vector3(0, 6.2, 0), Color(0.42, 0.6, 0.25), Vector3(0.85, 3.6, 0.85), 7)
+	return k
+
+
+## Tronçon de clôture de carrière : deux poteaux, deux lisses et grillage orange (3 m le long de +Z).
+static func quarry_fence() -> PropKit:
+	var k := PropKit.new()
+	for z in [-1.5, 1.5]:
+		k.add_cyl(0.06, 0.07, 1.6, Vector3(0, 0.8, z), Color(0.35, 0.36, 0.38), Vector3.ZERO, 6)
+	for y in [0.55, 1.3]:
+		k.add_box(Vector3(0.05, 0.06, 3.1), Vector3(0, y, 0), Color(0.5, 0.5, 0.52))
+	k.add_box(Vector3(0.02, 0.6, 3.0), Vector3(0, 0.9, 0), Color(0.95, 0.5, 0.15))
+	return k
+
+
+## Panneau « DANGER » : poteau et losange jaune (le texte est ajouté par le monde).
+static func warning_sign() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(0.05, 0.06, 2.2, Vector3(0, 1.1, 0), Color(0.3, 0.3, 0.32), Vector3.ZERO, 6)
+	k.add_box(Vector3(1.1, 1.1, 0.05), Vector3(0, 2.3, 0), Color(0.98, 0.82, 0.15), Vector3(0, 0, PI / 4.0))
+	k.add_box(Vector3(0.12, 0.55, 0.06), Vector3(0, 2.38, 0.02), Color(0.1, 0.1, 0.1))
+	k.add_box(Vector3(0.12, 0.12, 0.06), Vector3(0, 2.0, 0.02), Color(0.1, 0.1, 0.1))
+	return k
+
+
+## Pelleteuse jaune sur chenilles (+Z = devant) : châssis, tourelle, cabine vitrée, flèche, bras et godet.
+static func excavator() -> PropKit:
+	var k := PropKit.new()
+	var yellow := Color(0.95, 0.75, 0.15)
+	var dark := Color(0.2, 0.2, 0.22)
+	for sx in [-1.0, 1.0]:
+		k.add_box(Vector3(0.8, 0.8, 4.2), Vector3(sx * 1.2, 0.4, 0), dark)
+	k.add_box(Vector3(3.0, 0.5, 3.2), Vector3(0, 1.0, 0), Color(0.3, 0.3, 0.32))
+	k.add_box(Vector3(2.8, 1.3, 3.0), Vector3(0, 1.9, -0.3), yellow)
+	k.add_box(Vector3(1.6, 1.5, 1.6), Vector3(-0.5, 3.0, 0.4), yellow)
+	k.add_box(Vector3(1.4, 0.9, 0.06), Vector3(-0.5, 3.1, 1.22), Color(0.5, 0.7, 0.85))
+	k.add_box(Vector3(0.5, 0.5, 4.0), Vector3(0.7, 2.6, 2.2), yellow, Vector3(-0.35, 0, 0))
+	k.add_box(Vector3(0.4, 0.4, 3.0), Vector3(0.7, 3.2, 4.6), yellow, Vector3(0.7, 0, 0))
+	k.add_box(Vector3(1.0, 0.7, 0.9), Vector3(0.7, 1.7, 5.8), Color(0.55, 0.55, 0.58), Vector3(0.3, 0, 0))
+	return k
+
+
+## Camion-benne orange.
+static func dump_truck() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(2.6, 0.7, 6.8), Vector3(0, 1.0, 0), Color(0.25, 0.25, 0.28))
+	k.add_box(Vector3(2.8, 1.6, 4.0), Vector3(0, 2.2, -0.9), Color(0.92, 0.52, 0.12), Vector3(0.12, 0, 0))
+	k.add_box(Vector3(2.4, 1.9, 1.9), Vector3(0, 2.2, 2.9), Color(0.92, 0.52, 0.12))
+	k.add_box(Vector3(2.0, 0.7, 0.06), Vector3(0, 2.7, 3.87), Color(0.5, 0.7, 0.85))
+	for sx in [-1.0, 1.0]:
+		for z in [-2.2, 2.6]:
+			k.add_cyl(0.62, 0.62, 0.45, Vector3(sx * 1.3, 0.62, z), Color(0.12, 0.12, 0.13), Vector3(0, 0, PI / 2.0), 10)
+	return k
+
+
+## Concasseur et tapis : trémie, corps, tapis incliné et tas de gravier.
+static func crusher() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(3.4, 3.0, 4.0), Vector3(0, 1.5, 0), Color(0.45, 0.5, 0.55))
+	k.add_box(Vector3(4.2, 0.4, 3.6), Vector3(0, 3.5, -0.6), Color(0.3, 0.33, 0.37), Vector3(0.0, 0.0, 0.0))
+	k.add_cyl(2.2, 1.0, 1.6, Vector3(0, 4.5, -0.6), Color(0.3, 0.33, 0.37), Vector3.ZERO, 4)
+	k.add_box(Vector3(1.0, 0.35, 11.0), Vector3(0, 3.6, 7.2), Color(0.18, 0.18, 0.2), Vector3(-0.38, 0, 0))
+	k.add_cyl(0.0, 3.0, 3.2, Vector3(0, 1.6, 14.0), Color(0.68, 0.64, 0.57), Vector3.ZERO, 9)
+	return k
+
+
+## Bloc de pierre (rocher anguleux).
+static func boulder(size := 1.0) -> PropKit:
+	var k := PropKit.new()
+	var c := Color(0.62, 0.6, 0.55)
+	k.add_box(Vector3(1.8, 1.3, 1.5) * size, Vector3(0, 0.6 * size, 0), c, Vector3(0.1, 0.5, 0.05))
+	k.add_box(Vector3(1.2, 1.0, 1.1) * size, Vector3(0.5 * size, 1.3 * size, 0.1 * size), Color(0.56, 0.54, 0.5), Vector3(0.3, 0.2, 0.2))
+	return k
+
+
+static var _fence_cache: PropKit
+
+
+static func quarry_fence_cached() -> PropKit:
+	if _fence_cache == null:
+		_fence_cache = quarry_fence()
+	return _fence_cache

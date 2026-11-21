@@ -1367,14 +1367,19 @@
    "kind": "landmark",
    "label": "Église Notre-Dame-du-Bocage",
    "position": [
-    1396.13,
-    1372.2
+    1419.61,
+    1377.37
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18556",
-   "facing": -2.92
+   "facing": -2.92,
+   "facility": "eglise",
+   "rect": [
+    43.8,
+    19.73
+   ]
   },
   {
    "id": "cave_gege",
@@ -2003,6 +2008,115 @@
      1306.81,
      2026.83
     ]
+   ]
+  },
+  {
+   "id": "carriere_pierres",
+   "kind": "landmark",
+   "label": "Carrière de pierres du Bocage",
+   "position": [
+    1740.0,
+    1380.0
+   ],
+   "tile": "6_5",
+   "radius": 62.0,
+   "source": "design",
+   "facing": -1.33,
+   "prop": "carriere"
+  },
+  {
+   "id": "mairie",
+   "kind": "landmark",
+   "label": "Mairie de Frouch City",
+   "position": [
+    1459.61,
+    1429.28
+   ],
+   "tile": "5_5",
+   "radius": 12.0,
+   "source": "design",
+   "building": "b_18593",
+   "facing": 1.81,
+   "facility": "mairie",
+   "rect": [
+    22.26,
+    13.85
+   ]
+  },
+  {
+   "id": "ecole_pommiers",
+   "kind": "landmark",
+   "label": "École primaire des Pommiers",
+   "position": [
+    1305.6,
+    1786.44
+   ],
+   "tile": "5_7",
+   "radius": 12.0,
+   "source": "design",
+   "building": "b_14551",
+   "facing": -1.76,
+   "facility": "ecole",
+   "rect": [
+    14.06,
+    31.75
+   ]
+  },
+  {
+   "id": "college_bocage",
+   "kind": "landmark",
+   "label": "Collège du Bocage",
+   "position": [
+    1572.54,
+    1022.84
+   ],
+   "tile": "6_4",
+   "radius": 12.0,
+   "source": "design",
+   "building": "b_950",
+   "facing": -2.88,
+   "facility": "ecole",
+   "rect": [
+    42.36,
+    10.93
+   ]
+  },
+  {
+   "id": "hopital_frouch",
+   "kind": "landmark",
+   "label": "Hôpital de Frouch",
+   "position": [
+    1485.35,
+    1980.8
+   ],
+   "tile": "5_7",
+   "radius": 12.0,
+   "source": "design",
+   "building": "b_9859",
+   "facing": -1.07,
+   "facility": "hopital",
+   "rect": [
+    25.21,
+    54.29
+   ]
+  },
+  {
+   "id": "usine_calva",
+   "kind": "landmark",
+   "label": "Distillerie Pommier & Fils (usine de calva)",
+   "position": [
+    1100.5,
+    1771.87
+   ],
+   "tile": "4_7",
+   "radius": 12.0,
+   "source": "design",
+   "building": "b_5596",
+   "facing": 1.32,
+   "facility": "usine",
+   "rect": [
+    10.43,
+    51.26
    ]
   }
  ]

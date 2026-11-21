@@ -588,6 +588,17 @@ func _run() -> void:
 	var pk = load("res://scripts/world/prop_kit.gd")
 	check(pk.goose(0).part_count() > 10 and pk.train().part_count() > 40 and pk.rail_tie().part_count() >= 4 and pk.gate_hut().part_count() > 5 and pk.goose_pond().part_count() > 10, "m08 : accessoires (oie, train, voie, maisonnette, mare)")
 	check(pk.station_platform().part_count() >= 4 and pk.station_canopy().part_count() >= 8 and pk.station_building().part_count() > 40 and pk.suitcase().part_count() >= 4 and pk.path_tile().part_count() == 1, "m08 : accessoires de la gare (quai, auvent, bâtiment, valise, dalle)")
+
+	# --- Édifices détaillés, arbres, carrière ------------------------------------------------------------------------------------------------
+	var LM = load("res://scripts/world/landmarks.gd")
+	for spec in [["eglise", 44.0, 20.0], ["eglise", 20.0, 40.0], ["mairie", 22.0, 14.0], ["ecole", 14.0, 32.0], ["ecole", 42.0, 11.0], ["hopital", 25.0, 54.0], ["usine", 10.0, 51.0]]:
+		var r: Dictionary = LM.build(spec[0], spec[1], spec[2], "Nom de test")
+		var nd: Node3D = r.node
+		check(nd.get_child_count() >= 1 and r.size.x > 5.0 and r.size.y > 4.0 and r.size.z > 5.0, "édifice %s %.0f×%.0f : modèle et collision (%s)" % [spec[0], spec[1], spec[2], str(r.size)])
+		nd.free()
+	var pk2 = load("res://scripts/world/prop_kit.gd")
+	check(pk2.tree_oak().part_count() >= 4 and pk2.tree_pine().part_count() >= 4 and pk2.tree_apple().part_count() >= 9 and pk2.tree_poplar().part_count() >= 2, "arbres : chêne, pin, pommier, peuplier")
+	check(pk2.excavator().part_count() > 8 and pk2.dump_truck().part_count() >= 7 and pk2.crusher().part_count() >= 5 and pk2.quarry_fence().part_count() >= 5 and pk2.warning_sign().part_count() >= 4 and pk2.boulder(1.0).part_count() >= 2, "carrière : engins, clôture, panneau, bloc")
 	var CP = load("res://scripts/cinematic/cinematic_player.gd")
 	check(CP.load_def("m08_intro").get("shots", []).size() == 4, "m08 : cinématique d'introduction")
 

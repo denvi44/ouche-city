@@ -17,7 +17,7 @@ const WALL_MAT := {
 	"commerce": "facade_commerce", "public": "facade_pierre_public", "eglise": "facade_pierre_eglise", "annexe": "crepi_pavillon",
 }
 const VEG_MAT := {
-	"grass": "vert_bocage", "park": "parc", "garden": "parc", "forest": "foret", "farmland": "champ", "water": "eau",
+	"grass": "vert_bocage", "park": "parc", "garden": "parc", "forest": "foret", "farmland": "champ", "water": "eau", "orchard": "vert_bocage",
 }
 const SURFACE_MAT := {"asphalt": "route", "pavers": "paves", "gravel": "gravier", "grass": "vert_bocage"}
 
@@ -259,6 +259,8 @@ static func split_ring_at_ridge(ring: PackedVector2Array, m: Dictionary) -> Pack
 
 
 func add_building(b: Dictionary) -> void:
+	if landmark_buildings.has(str(b.id)):
+		return                      # remplacé par un modèle détaillé (Landmarks), posé par build_landmarks
 	var ring := to_ring(b.footprint)
 	if ring.size() < 3:
 		return
@@ -447,6 +449,8 @@ func add_vegetation(v: Dictionary) -> void:
 
 ## Centres des enseignes : les lampadaires s'en écartent (renseigné par `build_city`).
 var sign_spots: Array = []
+## Bâtiments remplacés par un édifice détaillé (POI portant `facility`) : id de bâtiment -> POI.
+var landmark_buildings := {}
 
 
 ## Construit une tuile : un MeshInstance3D par tuile (une surface par matériau),
@@ -554,25 +558,170 @@ func _commit() -> ArrayMesh:
 func _build_trees(points: Array) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Arbres"
-	var trunk := CylinderMesh.new()
-	trunk.top_radius = 0.18; trunk.bottom_radius = 0.25; trunk.height = 2.6; trunk.radial_segments = 6; trunk.rings = 1
-	trunk.material = material("tronc")
-	var crown := SphereMesh.new()
-	crown.radius = 2.2; crown.height = 3.8; crown.radial_segments = 8; crown.rings = 4
-	crown.material = material("feuillage")
-	for spec in [[trunk, 1.3], [crown, 4.2]]:
-		var mm := MultiMesh.new()
-		mm.transform_format = MultiMesh.TRANSFORM_3D
-		mm.mesh = spec[0]
-		mm.instance_count = points.size()
-		for i in points.size():
-			var p: Array = points[i]
-			var s := 0.8 + _hash01("%s_%s" % [p[0], p[1]]) * 0.5
-			mm.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3.ONE * s), Vector3(p[0], height_at(p[0], p[1]) + spec[1] * s, p[1])))
-		var mmi := MultiMeshInstance3D.new()
-		mmi.multimesh = mm
-		root.add_child(mmi)
+	# Quatre espèces (0 chêne, 1 pin, 2 pommier, 3 peuplier), un MultiMesh par espèce et par tuile, masqué au-delà de 420 m.
+	var kits := ["tree_oak", "tree_pine", "tree_apple", "tree_poplar"]
+	var groups := [[], [], [], []]
+	for p in points:
+		var sp := clampi(int(p[2]) if p.size() > 2 else 0, 0, 3)
+		var h1 := _hash01("%s_%s" % [p[0], p[1]])
+		var h2 := _hash01("%s|%s" % [p[1], p[0]])
+		var sc := 0.82 + h1 * 0.5
+		var x := float(p[0])
+		var z := float(p[1])
+		groups[sp].append(Transform3D(Basis(Vector3.UP, h2 * TAU) * Basis.from_scale(Vector3.ONE * sc), Vector3(x, height_at(x, z) - 0.05, z)))
+	for sp in 4:
+		if groups[sp].is_empty():
+			continue
+		# La distance de visibilité se mesure à l'origine du nœud : on le place au centre du groupe et on recale les transformations.
+		var centre := Vector3.ZERO
+		for xf: Transform3D in groups[sp]:
+			centre += xf.origin
+		centre /= float(groups[sp].size())
+		var rebased := []
+		for xf: Transform3D in groups[sp]:
+			rebased.append(Transform3D(xf.basis, xf.origin - centre))
+		var holder := Node3D.new()
+		holder.name = "Arbres_%d" % sp
+		holder.position = centre
+		root.add_child(holder)
+		StreetFurniture._multimesh(holder, "Arbre_%d" % sp, StreetFurniture.kit(kits[sp]), rebased)
+		for c in holder.get_children():
+			if c is GeometryInstance3D:
+				(c as GeometryInstance3D).visibility_range_end = 420.0
+				(c as GeometryInstance3D).visibility_range_end_margin = 40.0
+				(c as GeometryInstance3D).visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 	return root
+
+
+## Édifices détaillés (église, mairie, écoles, hôpital, distillerie) : un modèle `Landmarks` par POI portant `facility` et `rect`,
+## posé sur l'emprise du bâtiment d'origine (omis du maillage des tuiles), avec une collision à la taille du volume principal.
+func build_landmarks(pois: Array) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Edifices"
+	for p in pois:
+		if str(p.get("prop", "")) == "carriere":
+			var q := Node3D.new()
+			q.name = "Carriere"
+			q.position = Vector3(float(p.position[0]), height_at(float(p.position[0]), float(p.position[1])), float(p.position[1]))
+			q.rotation.y = float(p.get("facing", 0.0))
+			q.set_meta("poi", p)
+			_add_carriere(q)
+			root.add_child(q)
+			continue
+		if not p.has("facility") or not p.has("rect"):
+			continue
+		var x := float(p.position[0])
+		var z := float(p.position[1])
+		var w := float(p.rect[0])
+		var d := float(p.rect[1])
+		var m := Landmarks.build(str(p.facility), w, d, str(p.label))
+		var n: Node3D = Node3D.new()
+		n.name = "Edifice_" + str(p.id)
+		# Posé au point le plus bas de l'emprise (le soubassement masque la pente).
+		var gy := height_at(x, z)
+		var f := float(p.get("facing", 0.0))
+		var bas := Basis(Vector3.UP, f)
+		for c: Vector2 in [Vector2(-w / 2, -d / 2), Vector2(w / 2, -d / 2), Vector2(w / 2, d / 2), Vector2(-w / 2, d / 2)]:
+			var q: Vector3 = bas * Vector3(c.x, 0, c.y)
+			gy = minf(gy, height_at(x + q.x, z + q.z))
+		n.position = Vector3(x, gy, z)
+		n.rotation.y = f
+		n.add_child(m.node)
+		var body := StaticBody3D.new()
+		body.name = "Collision"
+		var cs := CollisionShape3D.new()
+		var bs := BoxShape3D.new()
+		var sz: Vector3 = m.size
+		bs.size = sz
+		cs.shape = bs
+		cs.position = Vector3(0, sz.y / 2.0, 0)
+		body.add_child(cs)
+		n.add_child(body)
+		root.add_child(n)
+	return root
+
+
+## Carrière de pierres (prop `carriere`) : clôture orange sur le bord (sauf à la rampe), panneaux « DANGER », et au fond une pelleteuse,
+## un camion-benne, un concasseur à tapis, des tas de gravier, des blocs, une cabane de chantier et une mare. Repère : +Z = vers la rampe.
+func _add_carriere(root: Node3D) -> void:
+	var poi: Dictionary = root.get_meta("poi", {})
+	var R := float(poi.get("radius", 62.0))
+	var basis := Basis(Vector3.UP, root.rotation.y)
+	var fence := []
+	var n := int(floor(TAU * (R + 2.0) / 3.0))
+	for i in n:
+		var a := TAU * float(i) / float(n)
+		# Pas de clôture dans l'axe de la rampe (a = 0 : +Z local).
+		if absf(wrapf(a, -PI, PI)) < 0.2:
+			continue
+		var lp := Vector3(sin(a) * (R + 2.0), 0, cos(a) * (R + 2.0))
+		var wp := root.position + basis * lp
+		var yaw := a + PI / 2.0
+		fence.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(lp.x, height_at(wp.x, wp.z) - root.position.y, lp.z)))
+	StreetFurniture._multimesh(root, "Cloture", PropKit.quarry_fence_cached(), fence)
+	for a in [0.9, 2.2, 3.6, 5.1]:
+		var lp := Vector3(sin(a) * (R + 3.0), 0, cos(a) * (R + 3.0))
+		var wp := root.position + basis * lp
+		var sign := PropKit.warning_sign().build()
+		sign.position = Vector3(lp.x, height_at(wp.x, wp.z) - root.position.y, lp.z)
+		sign.rotation.y = a + PI
+		root.add_child(sign)
+	var fond := {"exc": Vector3(-14, 0, -10), "cam": Vector3(12, 0, -6), "conc": Vector3(-3, 0, 14), "cab": Vector3(16, 0, 10)}
+	var kits := {"exc": [PropKit.excavator(), 0.6], "cam": [PropKit.dump_truck(), -1.2], "conc": [PropKit.crusher(), 2.6], "cab": [PropKit.gate_hut(), 2.0]}
+	for key in fond:
+		var lp: Vector3 = fond[key]
+		var wp := root.position + basis * lp
+		var node: Node3D = (kits[key][0] as PropKit).build()
+		node.position = Vector3(lp.x, height_at(wp.x, wp.z) - root.position.y, lp.z)
+		node.rotation.y = float(kits[key][1])
+		root.add_child(node)
+	for i in 9:
+		var a2 := float(i) * 2.4
+		var lp2 := Vector3(cos(a2) * (6.0 + float(i) * 1.7), 0, sin(a2) * (6.0 + float(i) * 1.7))
+		var wp2 := root.position + basis * lp2
+		var b := PropKit.boulder(0.8 + 0.5 * float(i % 3)).build()
+		b.position = Vector3(lp2.x, height_at(wp2.x, wp2.z) - root.position.y, lp2.z)
+		b.rotation.y = a2
+		root.add_child(b)
+	# Sol de roche : maillage de 5 m posé sur le relief creusé (gradins et fond), en gravier clair.
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_material(material("gravier"))
+	var step := 5.0
+	var m := int(ceil((R + 6.0) / step))
+	for gi in range(-m, m):
+		for gj in range(-m, m):
+			var c00 := Vector2(gi, gj) * step
+			var c11 := Vector2(gi + 1, gj + 1) * step
+			if (c00 + c11).length() / 2.0 > R + 3.0:
+				continue
+			var pts := []
+			for q in [Vector2(gi, gj), Vector2(gi + 1, gj), Vector2(gi + 1, gj + 1), Vector2(gi, gj + 1)]:
+				var lp := Vector3(q.x * step, 0, q.y * step)
+				var wp := root.position + basis * lp
+				pts.append(Vector3(lp.x, height_at(wp.x, wp.z) - root.position.y + 0.55, lp.z))
+			for tri in [[0, 1, 2], [0, 2, 3]]:
+				for idx in tri:
+					st.set_normal(Vector3.UP)
+					st.add_vertex(pts[idx])
+	var rock := MeshInstance3D.new()
+	rock.name = "SolRoche"
+	rock.mesh = st.commit()
+	rock.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(rock)
+	var lake := PropKit.new().add_cyl(6.5, 6.5, 0.12, Vector3(0, 0.06, 0), Color(0.3, 0.55, 0.72), Vector3.ZERO, 16).build()
+	var lw := root.position + basis * Vector3(-18, 0, 12)
+	lake.position = Vector3(-18, height_at(lw.x, lw.z) - root.position.y + 0.02, 12)
+	root.add_child(lake)
+	var label := Label3D.new()
+	label.text = "CARRIÈRE — ENTRÉE INTERDITE"
+	label.font_size = 56
+	label.pixel_size = 0.012
+	label.modulate = Color(1.0, 0.85, 0.2)
+	label.outline_size = 8
+	label.position = Vector3(0, 10.0, R * 0.9)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	root.add_child(label)
 
 
 ## Enseignes des lieux fictifs (POI v2 portant `building` et `facing`) : panneau crème bordé
@@ -584,7 +733,7 @@ func build_signs(pois: Array) -> Node3D:
 	board_mat.shader = preload("res://shaders/toon.gdshader")
 	board_mat.set_shader_parameter("couleur", Color(0.96, 0.91, 0.78))
 	for p in pois:
-		if not p.has("building") or not p.has("facing"):
+		if not p.has("building") or not p.has("facing") or p.has("facility"):
 			continue
 		var label_text: String = p.label
 		var x := float(p.position[0])
@@ -1003,8 +1152,11 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 	var manifest := load_manifest(dir)
 	var poi0 = read_json(dir.path_join("poi.json"))
 	sign_spots = []
+	landmark_buildings = {}
 	if poi0 is Dictionary:
 		for p in poi0.get("pois", []):
+			if p.has("facility") and p.has("building"):
+				landmark_buildings[str(p.building)] = p
 			if (p.has("building") and p.has("facing")) or p.has("prop"):
 				sign_spots.append(Vector2(float(p.position[0]), float(p.position[1])))
 	var tiles: Array[Dictionary] = []
@@ -1020,6 +1172,7 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 	var poi = read_json(dir.path_join("poi.json"))
 	if poi is Dictionary:
 		root.add_child(build_signs(poi.get("pois", [])))
+		root.add_child(build_landmarks(poi.get("pois", [])))
 		root.add_child(StreetFurniture.build_shops(poi.get("pois", []), height_at))
 		root.add_child(build_mission_markers(poi.get("pois", []), mission_id))
 	return root
