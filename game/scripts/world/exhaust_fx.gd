@@ -4,7 +4,7 @@ extends CPUParticles3D
 ## Purement visuelle et locale (aucune réplication). `set_level(0..1)` : 0 = moteur coupé, 1 = plein régime (bouffées plus nombreuses).
 ## Usage : ExhaustFx.attach(parent, position_locale, direction_locale)
 
-const GREY := Color(0.66, 0.66, 0.7)
+const GREY := Color(0.52, 0.52, 0.56)
 
 
 static func attach(parent: Node3D, pos: Vector3, dir := Vector3(0, 0.25, 1)) -> ExhaustFx:
@@ -31,8 +31,8 @@ func _ready() -> void:
 	gravity = Vector3(0, 0.45, 0)
 	damping_min = 0.4
 	damping_max = 0.9
-	scale_amount_min = 0.1
-	scale_amount_max = 0.2
+	scale_amount_min = 0.07
+	scale_amount_max = 0.15
 	var curve := Curve.new()
 	curve.add_point(Vector2(0.0, 0.5))
 	curve.add_point(Vector2(1.0, 2.2))

@@ -6,9 +6,9 @@ extends Node3D
 ## de PED_SPAWN_MIN / CAR_SPAWN_MIN mètres). Les voitures s'arrêtent (et klaxonnent) devant un joueur, la camionnette ou une autre voiture.
 ## Absent en headless (serveur dédié, tests) sauf `AmbientLife.force` ; désactivable (Settings.ambient_life).
 
-const PED_MAX := 18
+const PED_MAX := 24
 const CAR_MAX := 6
-const PED_SPAWN_MIN := 35.0
+const PED_SPAWN_MIN := 28.0
 const PED_SPAWN_MAX := 100.0
 const PED_OUT := 135.0
 const CAR_SPAWN_MIN := 70.0
