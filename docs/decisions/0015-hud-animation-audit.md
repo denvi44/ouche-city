@@ -22,3 +22,15 @@ Bots + calculs : chaque mission est jouable dans sa limite de temps. Réglages i
 
 ## Fiction
 Contrôle des marques réelles : « Subaru » (m02) remplacé par « Sapristi GT ».
+
+## Mouvements et collisions (audit `qa/integration/movement_audit.gd`)
+Saut 0,80 m / 0,58 s (4,5 m en courant). Ajout d'une montée de marche automatique (≤ 35 cm), déterministe
+(client = serveur). Murs, marches de 60 cm, obstacles de 2 m et rampes à 25° vérifiés.
+
+## Écran titre et sauvegarde
+« Continuer » (prochaine mission non terminée), résumé de sauvegarde, « Nouvelle partie » avec confirmation
+(`qa/integration/menu_save_audit.gd`). Balises de mission : 80 m de haut, étiquette à taille constante.
+
+## Fumée (mission 7)
+`smoke_puff.gd` : nuage « dessin animé » (CPUParticles3D, purement visuel, déclenché côté client par les
+événements répliqués). Crampe : fuite (petite si l'on serre) + bruitage `toot` ; accident : grand nuage + `toot_big`.

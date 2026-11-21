@@ -620,3 +620,29 @@ static func gurgle() -> PackedFloat32Array:
 				v += sin(TAU * f * ls) * exp(-ls * 12.0) * 0.8
 		out[i] = v * _env(s, 1.0, 0.03, 0.2)
 	return normalized(out, 0.8)
+
+
+## Petit « prout » discret : une fuite brève, grave, qui vibre.
+static func toot() -> PackedFloat32Array:
+	_rng.seed = 909
+	var out := _buf(0.38)
+	var ph := 0.0
+	for i in out.size():
+		var s := float(i) / RATE
+		ph += (118.0 - 80.0 * s + 14.0 * sin(TAU * 11.0 * s)) / RATE
+		var flutter := 0.55 + 0.45 * sin(TAU * 42.0 * s)
+		out[i] = (_lookup(_saw(), ph) * 0.7 * flutter + _noise() * 0.12) * _env(s, 0.38, 0.01, 0.12)
+	return normalized(out, 0.75)
+
+
+## Grand « PRRRRRT » : long, qui ronfle, descend et chevrote (l'accident de la mission 07).
+static func toot_big() -> PackedFloat32Array:
+	_rng.seed = 910
+	var out := _buf(1.25)
+	var ph := 0.0
+	for i in out.size():
+		var s := float(i) / RATE
+		ph += (128.0 - 62.0 * s / 1.25 + 16.0 * sin(TAU * 9.0 * s) + 9.0 * sin(TAU * 23.0 * s)) / RATE
+		var flutter := 0.5 + 0.5 * sin(TAU * (34.0 + 12.0 * s) * s)
+		out[i] = (_lookup(_saw(), ph) * 0.8 * flutter + _noise() * 0.14) * _env(s, 1.25, 0.02, 0.35)
+	return normalized(out, 0.85)

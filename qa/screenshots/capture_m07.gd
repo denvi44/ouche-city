@@ -86,6 +86,24 @@ func _run() -> void:
 	Engine.time_scale = 0.1
 	await shot(out_dir, "m07_2_la_pression")
 	Engine.time_scale = 1.0
+	# 2b. La fuite : petit nuage derrière le joueur, « PFRRT ! ».
+	mission.victims[1].cl = false
+	mission._leaks()
+	Engine.time_scale = 0.08
+	await frames(10)
+	look(r1 + dirn * 4.5 + Vector3(1.5, 0, 1.5), r1 + Vector3(0, 1.1, 0), 1.8)
+	await shot(out_dir, "m07_2b_fuite")
+	Engine.time_scale = 1.0
+	await frames(60)
+	# 2c. L'accident : le grand nuage.
+	mission.accident_peer = 1
+	mission._big_cloud()
+	Engine.time_scale = 0.08
+	await frames(14)
+	look(r1 + dirn * 6.5 + Vector3(2.0, 0, 2.0), r1 + Vector3(0, 1.6, 0), 2.4)
+	await shot(out_dir, "m07_2c_accident")
+	Engine.time_scale = 1.0
+	await frames(120)
 	# 3. Mme Hubert et la causette.
 	var hb: Vector3 = mission.spot("hubert")
 	player.global_position = hb + Vector3(0, 0.6, 0)

@@ -164,7 +164,7 @@ func _run() -> void:
 	pr2.free()
 
 	# --- Audio : synthèse ---
-	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle", "beep", "coin", "sigh", "gurgle"]
+	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle", "beep", "coin", "sigh", "gurgle", "toot", "toot_big"]
 	for n in synth_names:
 		var smp: PackedFloat32Array = Callable(Synth, n).call()
 		var peak := 0.0

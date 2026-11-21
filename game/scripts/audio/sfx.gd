@@ -34,6 +34,8 @@ const CATALOG := {
 	"sigh": {"gen": "sigh", "caption": "[Soupir agacé d'un client]", "db": -4.0, "bus": "Effets"},
 	"babble": {"gen": "babble", "caption": "", "db": -12.0, "bus": "Effets"},
 	"gurgle": {"gen": "gurgle", "caption": "[Gargouillis inquiétant]", "db": -3.0, "bus": "Effets"},
+	"toot": {"gen": "toot", "caption": "[Un petit bruit… discret]", "db": -3.0, "bus": "Effets"},
+	"toot_big": {"gen": "toot_big", "caption": "[Un bruit sans équivoque]", "db": -1.0, "bus": "Effets"},
 	"bird": {"gen": "bird", "caption": "", "db": -10.0, "bus": "Ambiance"},
 }
 ## Onomatopée de chaque son (texte, ton) : le bruitage a toujours un équivalent écrit, façon bande dessinée.
@@ -42,7 +44,7 @@ const ONOMA := {
 	"moo": ["MEUUUH !", "soft"], "chime": ["DING !", "good"], "fail": ["OUPS…", "bad"], "fanfare": ["TADAAAA !", "good"],
 	"radio_blip": ["KSSSH…", "soft"], "bell": ["DING DONG !", "good"], "bark": ["OUAF OUAF !", "loud"], "sizzle": ["TSSSSS", "soft"],
 	"firework": ["BOUM ! PSCHIIIT", "loud"], "whistle": ["FIIIIIT !", "loud"], "beep": ["BIP !", "soft"], "coin": ["CLING !", "good"],
-	"sigh": ["PFFFF…", "bad"], "gurgle": ["GRRRBLOUP !", "bad"],
+	"sigh": ["PFFFF…", "bad"], "gurgle": ["GRRRBLOUP !", "bad"], "toot": ["PFRRT !", "bad"], "toot_big": ["PRRRRRRRT !!", "loud"],
 }
 const ONOMA_COOLDOWN := 0.35
 const LOOPS := {

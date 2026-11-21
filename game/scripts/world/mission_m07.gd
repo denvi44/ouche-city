@@ -8,6 +8,7 @@ extends MissionBase
 ## Ginette qui l'a). À 100 %, c'est l'accident : mission ratée. Humour tendre : on ne montre rien, on entend un « PRRRT ! » et on rit.
 ## Chaque joueur humain a sa propre pression ; tout l'état vit côté serveur et est répliqué (`_sync`).
 
+const SmokePuffScript := preload("res://scripts/world/smoke_puff.gd")
 const MISSION_FILE := "res://assets/missions/m07_jus_de_pomme.json"
 const SYNC_PERIOD := 0.2
 const START_HOUR := 16.0
@@ -69,6 +70,7 @@ var _spasm_t := 10.0
 var _sync_t := 0.0
 var _dirty := true
 var _snd := {}
+var accident_peer := 0                      # joueur victime de l'accident (pour le nuage et le bruitage côté clients)
 var _nodes := {}
 var _clock := 0.0
 var _chat_peer := 0
@@ -405,6 +407,7 @@ func _check_end() -> void:
 
 func _accident(peer: int, name: String) -> void:
 	result = "accident"
+	accident_peer = peer
 	step = "failed"
 	_log("%s n'a pas tenu. PRRRRRT ! On fera comme si de rien n'était (le voisin a tout vu)." % name)
 	_mark()
@@ -576,7 +579,7 @@ func _mark() -> void:
 
 func state() -> Dictionary:
 	return {"step": step, "started": started, "elapsed": elapsed, "v": victims, "tl": time_left, "sp": spasms, "cd": chat_done, "dd": dog_done,
-		"door": door_open, "result": result, "medal": medal, "bp": best_pressure, "messages": messages}
+		"door": door_open, "result": result, "medal": medal, "bp": best_pressure, "messages": messages, "ap": accident_peer}
 
 
 func _push_state() -> void:
@@ -606,6 +609,7 @@ func _sync(s: Dictionary) -> void:
 	medal = s.medal
 	best_pressure = s.bp
 	messages = s.messages
+	accident_peer = int(s.get("ap", 0))
 	changed.emit()
 
 
@@ -618,6 +622,7 @@ func _audio_events() -> void:
 		return
 	if now.sp > _snd.sp:
 		Sfx.play("gurgle")
+		_leaks()
 	if now.dog and not _snd.dog:
 		Sfx.play("bark")
 	if now.door and not _snd.door:
@@ -627,7 +632,39 @@ func _audio_events() -> void:
 			Sfx.play("fanfare")
 		elif now.step == "failed":
 			Sfx.play("fail")
+			if result == "accident":
+				_big_cloud()
 	_snd = now
+
+
+## Point d'émission des gaz : derrière le personnage, à hauteur de ceinture.
+func _rear(node: Node3D) -> Vector3:
+	var f: float = float(node.get("facing")) if node.get("facing") != null else 0.0
+	return node.global_position + Vector3(sin(f) * 0.4, 0.9, cos(f) * 0.4)
+
+
+## Crampe : une fuite discrète derrière chaque victime encore en route (petit nuage si elle serre).
+func _leaks() -> void:
+	for pr in victims.keys():
+		var v: Dictionary = victims[pr]
+		var node := actor(pr) as Node3D
+		if node == null or str(v.done) != "":
+			continue
+		var clenched := bool(v.cl)
+		SmokePuffScript.spawn(_players_root.get_parent(), _rear(node), 0.45 if clenched else 0.95)
+		if not clenched:
+			get_tree().create_timer(0.45).timeout.connect(func():
+				if is_instance_valid(node):
+					Sfx.play_at("toot", node.global_position))
+
+
+## Accident : le grand nuage, et le bruit qui va avec.
+func _big_cloud() -> void:
+	var node := actor(accident_peer) as Node3D
+	if node == null:
+		return
+	SmokePuffScript.spawn(_players_root.get_parent(), _rear(node), 2.2)
+	Sfx.play_at("toot_big", node.global_position)
 
 
 func _process(delta: float) -> void:
