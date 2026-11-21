@@ -41,9 +41,9 @@
       "cam": {
         "at": "garage_kevin",
         "off": [
-          6,
-          2.4,
-          8
+          2,
+          4.5,
+          12
         ]
       },
       "look": {
@@ -58,9 +58,9 @@
       "cam_to": {
         "at": "garage_kevin",
         "off": [
-          4,
-          1.9,
-          5.5
+          1,
+          4.0,
+          9
         ]
       },
       "caption": {
