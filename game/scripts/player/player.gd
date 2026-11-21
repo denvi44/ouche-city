@@ -50,9 +50,11 @@ var _was_driving := false
 
 
 func _ready() -> void:
-	collision_mask = 1 | 2          # décor + mobilier de rue (couche 2) ; les véhicules ignorent le mobilier
 	peer_id = name.to_int()
 	is_ai = peer_id < 0
+	# Décor (couche 1) + mobilier de rue (couche 2) pour les humains ; les compagnons IA et les véhicules passent à travers le mobilier
+	# (les trottoirs sont trop étroits pour qu'un compagnon contourne un banc sans se coincer).
+	collision_mask = 1 if is_ai else (1 | 2)
 	controller = 0 if is_ai else peer_id
 	_shape = CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()

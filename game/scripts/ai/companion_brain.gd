@@ -382,6 +382,7 @@ func _clear_at(a: Vector2, b: Vector2, h: float) -> bool:
 	var y := body.global_position.y + h
 	var q := PhysicsRayQueryParameters3D.create(Vector3(a.x, y, a.y), Vector3(b.x, y, b.y))
 	q.exclude = [body.get_rid()]
+	q.collision_mask = 1                 # le mobilier de rue (couche 2) ne gêne pas les compagnons
 	for _i in 4:
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
