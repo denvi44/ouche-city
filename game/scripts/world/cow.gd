@@ -17,6 +17,7 @@ var graze_left := 0.0
 var _off := -7.0                    # position le long de `across`
 var _legs: Array[Node3D] = []
 var _phase := 0.0
+var _moo_t := 2.0
 
 
 func _ready() -> void:
@@ -57,10 +58,16 @@ func startle() -> void:
 	if state == "grazing" or state == "to_road":
 		state = "leaving"
 		graze_left = -9999.0
+		Sfx.play_at("moo", global_position + Vector3(0, 1.2, 0), 2.0, 1.15)
 
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	if active:
+		_moo_t -= delta
+		if _moo_t <= 0.0:
+			_moo_t = randf_range(6.0, 11.0)
+			Sfx.play_at("moo", global_position + Vector3(0, 1.2, 0), 0.0, randf_range(0.9, 1.1))
 	_phase += speed_now * delta * 4.0
 	var swing := sin(_phase) * 0.5 * clampf(speed_now / 1.0, 0.0, 1.0)
 	for i in _legs.size():

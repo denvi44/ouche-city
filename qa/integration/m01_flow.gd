@@ -10,6 +10,7 @@ var world
 var mission
 var van
 var player
+var heard_captions: Array = []
 
 
 func _initialize() -> void:
@@ -39,6 +40,7 @@ func _run() -> void:
 	create_timer(120.0).timeout.connect(func(): printerr("ÉCHEC délai dépassé"); quit(2))
 	world = load(WORLD).instantiate()
 	root.add_child(world)
+	root.get_node("Sfx").caption.connect(func(t, _d): heard_captions.append(t))
 	await frames(40)
 	mission = world.mission
 	van = world.van
@@ -59,12 +61,14 @@ func _run() -> void:
 		if not check(r.get("kind") == "pickup" and r.id == id, "caisse %s : prise possible" % id):
 			continue
 		mission.interact(1)
+		await frames(3)
 		check(c.state == "carried" and player.carrying, "caisse %s portée (joueur ralenti)" % id)
 		var far = c.pos + Vector3(30, 0, 0)
 		check(mission.resolve(1, far).get("kind") == "none", "loin de la camionnette : consigne « rapportez »")
 		place(player, van.global_position + van.global_transform.basis.x * 2.6)
 		check(mission.resolve(1, player.global_position).get("kind") == "load", "caisse %s : chargement possible" % id)
 		mission.interact(1)
+		await frames(3)
 		check(c.state == "loaded" and not player.carrying, "caisse %s chargée" % id)
 	check(mission.cargo == 24 and mission.step == "road", "24 bouteilles à bord, étape route")
 
@@ -273,7 +277,8 @@ func _run() -> void:
 	# 6. Ordres invalides ignorés.
 	mission.choose("detour")
 	check(mission.step == "fair", "un choix hors barrage est ignoré")
-	# 7. Arrivée au stand.
+	# 7. Arrivée au stand avec trop peu de bouteilles (8 < 12) : la mission échoue.
+	mission.cargo = 8
 	place(van, mission.zones.stand + Vector3(0, 0.6, 0))
 	van.speed = 0.0
 	await frames(10)
@@ -283,6 +288,7 @@ func _run() -> void:
 		check(mission.step == "failed" and mission.medal == "", "moins de %d bouteilles (%d) : mission échouée" % [mission.min_delivered, intact])
 	else:
 		check(mission.step == "done" and mission.medal == mission.medal_for(intact), "livraison au stand, médaille %s" % mission.medal)
+	await frames(3)
 	# Seconde issue : on remet 20 bouteilles intactes (hook de test) et on relivre.
 	mission.step = "fair"
 	mission.cargo = 20
@@ -302,6 +308,17 @@ func _run() -> void:
 	check(mission.medal_for(16) == "silver" and mission.medal_for(21) == "silver", "argent de 16 à 21")
 	check(mission.medal_for(12) == "bronze" and mission.medal_for(15) == "bronze", "bronze de 12 à 15")
 	check(mission.medal_for(11) == "", "rien sous 12")
+
+	# --- Sons déclenchés par les événements (journalisés même sans carte son) ----------------------------
+	var sfx = root.get_node("Sfx")
+	check(sfx.counts.get("crate", 0) >= 4, "son : 4 prises de caisse (%d)" % sfx.counts.get("crate", 0))
+	check(sfx.counts.get("chime", 0) >= 4, "son : 4 chargements validés (%d)" % sfx.counts.get("chime", 0))
+	check(sfx.counts.get("thud", 0) >= 2, "son : chocs de nids-de-poule (%d)" % sfx.counts.get("thud", 0))
+	check(sfx.counts.get("glass", 0) >= 1, "son : verre brisé (%d)" % sfx.counts.get("glass", 0))
+	check(sfx.counts.get("klaxon", 0) >= 1, "son : klaxon (%d)" % sfx.counts.get("klaxon", 0))
+	check(sfx.counts.get("fail", 0) >= 1, "son : échec quand moins de 12 bouteilles arrivent")
+	check(sfx.counts.get("fanfare", 0) >= 1, "son : fanfare à la médaille")
+	check("[Klaxon]" in heard_captions and "[Verre brisé]" in heard_captions and "[Fanfare de victoire]" in heard_captions, "sous-titres sonores émis : %s" % str(heard_captions.size()))
 
 	print("[m01] %s" % ("ÉCHEC : %d vérification(s)" % fails if fails > 0 else "toutes les vérifications passent"))
 	quit(1 if fails > 0 else 0)

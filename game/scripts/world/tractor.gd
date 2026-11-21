@@ -10,6 +10,7 @@ const WAYPOINT_RADIUS := 2.0
 var path := PackedVector2Array()
 var _wp := 0
 var finished := false
+var _loop: AudioStreamPlayer3D
 
 
 func _ready() -> void:
@@ -20,7 +21,19 @@ func _ready() -> void:
 	shape_node.shape = box
 	shape_node.position.y = 1.2
 	add_child(shape_node)
+	_loop = Sfx.make_loop("tractor", -4.0)
+	if _loop:
+		add_child(_loop)
 	super._ready()
+
+
+func set_active(a: bool) -> void:
+	super.set_active(a)
+	if _loop:
+		if a and not _loop.playing:
+			_loop.play()
+		elif not a:
+			_loop.stop()
 
 
 func start_route(p: PackedVector2Array) -> void:

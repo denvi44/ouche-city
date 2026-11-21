@@ -128,6 +128,50 @@ func _run() -> void:
 	check(cm.leg_angle_l < -0.5, "saut : jambe gauche repliée (%.2f rad)" % cm.leg_angle_l)
 	cm.free()
 
+	# --- Audio : synthèse ---
+	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird"]
+	for n in synth_names:
+		var smp: PackedFloat32Array = Callable(Synth, n).call()
+		var peak := 0.0
+		var rms := 0.0
+		for v in smp:
+			peak = maxf(peak, absf(v))
+			rms += v * v
+		rms = sqrt(rms / smp.size())
+		check(smp.size() > 100 and peak <= 1.0 and peak > 0.3 and rms > 0.02, "son « %s » : %.2f s, pic %.2f, rms %.2f" % [n, smp.size() / 22050.0, peak, rms])
+	var kl: PackedFloat32Array = Synth.klaxon()
+	var g392 := _goertzel(kl, 392.0)
+	check(g392 > 4.0 * _goertzel(kl, 700.0) and _goertzel(kl, 494.0) > 4.0 * _goertzel(kl, 700.0), "klaxon : énergie à 392 et 494 Hz (tierce), pas à 700 Hz")
+	var eng: PackedFloat32Array = Synth.engine_loop()
+	check(absf(eng[0] - eng[eng.size() - 1]) < 0.1, "moteur : boucle sans clic (écart %.3f)" % absf(eng[0] - eng[eng.size() - 1]))
+	var wd: PackedFloat32Array = Synth.wind_loop()
+	check(absf(wd[0] - wd[wd.size() - 1]) < 0.1, "vent : boucle sans couture (écart %.3f)" % absf(wd[0] - wd[wd.size() - 1]))
+	var mu: PackedFloat32Array = Synth.music_pommier()
+	check(absf(mu.size() / 22050.0 - Synth.music_length()) < 0.05, "musique : %.1f s (8 mesures à 3 temps)" % (mu.size() / 22050.0))
+	var bar_len := int(mu.size() / Synth.BARS)
+	var quiet_bars := 0
+	for bar in Synth.BARS:
+		var e := 0.0
+		for i in range(bar * bar_len, (bar + 1) * bar_len):
+			e += mu[i] * mu[i]
+		if sqrt(e / bar_len) < 0.05:
+			quiet_bars += 1
+	check(quiet_bars == 0, "musique : aucune mesure silencieuse")
+	var wav: AudioStreamWAV = Synth.to_stream(eng, true)
+	check(wav.data.size() == eng.size() * 2 and wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.mix_rate == 22050, "flux WAV 16 bits mono, bouclé")
+	var Amb = load("res://scripts/audio/ambiance.gd")
+	check(Amb.strikes_for(3) == 3 and Amb.strikes_for(15) == 3 and Amb.strikes_for(12) == 4 and Amb.strikes_for(0) == 4, "cloches : un coup par heure, plafonné à 4")
+	var caps := [["[Klaxon]", 5.0], ["[Meuglement]", 2.0]]
+	check(Hud.caption_text(caps, 3.0) == "[Klaxon]" and Hud.caption_text(caps, 1.0) == "[Klaxon]\n[Meuglement]" and Hud.caption_text(caps, 9.0) == "", "sous-titres : expiration")
+	var sfx = root.get_node("Sfx")
+	var heard := []
+	sfx.caption.connect(func(t, _d): heard.append(t))
+	sfx.play("klaxon")
+	check(sfx.counts.get("klaxon", 0) == 1 and heard == ["[Klaxon]"], "Sfx : le klaxon est journalisé et sous-titré")
+	sfx.play("step")
+	check(heard == ["[Klaxon]"], "Sfx : un pas n'a pas de sous-titre")
+	check(sfx.stream_for("moo") is AudioStreamWAV and sfx.stream_for("inconnu") == null, "Sfx : flux synthétisés en cache")
+
 	# --- Façades : portes et fenêtres peintes ---
 	var tile2 := {"schemaVersion": 1, "tile": {"x": 0, "y": 0}, "origin": [0, 0], "size": 250,
 		"ground": {"resolution": 2, "baseAltitude": 0.0, "heights": [0.0, 0.0, 0.0, 0.0]},
@@ -186,6 +230,19 @@ func _run() -> void:
 
 	print("%d tests, %d échec(s)" % [_count, _fails])
 	quit(1 if _fails > 0 else 0)
+
+
+## Énergie d'un échantillon à la fréquence `f` (algorithme de Goertzel, amplitude relative).
+func _goertzel(a: PackedFloat32Array, f: float) -> float:
+	var w := TAU * f / 22050.0
+	var c := 2.0 * cos(w)
+	var s1 := 0.0
+	var s2 := 0.0
+	for v in a:
+		var s0 := v + c * s1 - s2
+		s2 = s1
+		s1 = s0
+	return sqrt(s1 * s1 + s2 * s2 - c * s1 * s2) / a.size()
 
 
 func _surface(mesh: ArrayMesh, name: String) -> int:

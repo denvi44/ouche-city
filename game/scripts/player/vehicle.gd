@@ -33,6 +33,10 @@ var _steer_visual := 0.0
 var _last_input := {"move": Vector2.ZERO, "jump": false}
 ## Entrée imposée (tests QA) : remplace celle du clavier.
 var forced_input := {}
+var _engine: AudioStreamPlayer3D
+var _last_pos := Vector3.ZERO
+## Vitesse mesurée sur le déplacement visible (utile aux pairs qui ne simulent pas ce véhicule).
+var measured_speed := 0.0
 var _jolt := 0.0                 # secousse visuelle (nid-de-poule), décroît seule
 
 
@@ -47,6 +51,9 @@ func _ready() -> void:
 	shape.position.y = 0.95
 	add_child(shape)
 	_build_visual()
+	_engine = Sfx.make_loop("engine", -9.0)
+	if _engine:
+		add_child(_engine)
 
 
 func forward() -> Vector3:
@@ -130,6 +137,21 @@ func simulate(inp: Dictionary, delta: float) -> void:
 		speed = 0.0
 
 
+## Le moteur ronronne quand quelqu'un conduit ; la hauteur suit la vitesse (réelle ou mesurée).
+func _update_engine_sound() -> void:
+	if _engine == null:
+		return
+	var running := driver != 0
+	if running and not _engine.playing:
+		_engine.play()
+	elif not running and _engine.playing:
+		_engine.stop()
+	var spd := absf(speed) if (is_local_controller() or (multiplayer.has_multiplayer_peer() and multiplayer.is_server())) else measured_speed
+	var k := clampf(spd / MAX_SPEED, 0.0, 1.0)
+	_engine.pitch_scale = lerpf(0.75, 2.1, k)
+	_engine.volume_db = lerpf(-12.0, -5.0, k)
+
+
 ## Secousse de la caisse (nid-de-poule) : visuel seulement.
 func jolt() -> void:
 	_jolt = 1.0
@@ -137,6 +159,10 @@ func jolt() -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	var dp := global_position - _last_pos
+	_last_pos = global_position
+	measured_speed = lerpf(measured_speed, Vector2(dp.x, dp.z).length() / maxf(delta, 0.0001), clampf(8.0 * delta, 0.0, 1.0))
+	_update_engine_sound()
 	if _body_visual:
 		_jolt = maxf(_jolt - delta * 2.5, 0.0)
 		_body_visual.position.y = sin(Time.get_ticks_msec() * 0.045) * 0.13 * _jolt

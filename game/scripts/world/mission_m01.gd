@@ -90,6 +90,7 @@ var tractor_done := false
 var cows_active := false
 var cows_done := false
 var jolt_serial := 0
+var horn_serial := 0
 var tractor_start := Vector2.ZERO
 var cow_center := Vector2.ZERO
 var _hazard_payload := {}
@@ -577,6 +578,7 @@ func horn() -> void:
 		if cw.active and cw.state in ["to_road", "grazing"] and cw.global_position.distance_to(van.global_position) < HORN_RANGE:
 			cw.startle()
 			scared += 1
+	horn_serial += 1
 	_log("Pouet pouet !" + (" Les vaches détalent." if scared > 0 else ""))
 	_mark()
 
@@ -724,7 +726,7 @@ func state() -> Dictionary:
 	return {"step": step, "started": started, "elapsed": elapsed, "cargo": cargo, "broken": broken,
 		"medal": medal, "money": money, "driver": driver, "crates": cs, "messages": messages, "barrage": barrage_passed,
 		"cp_left": checkpoint_left, "failed": failed_options, "open": barrier_open,
-		"tractor": tractor_active, "cows": cows_active, "jolt": jolt_serial}
+		"tractor": tractor_active, "cows": cows_active, "jolt": jolt_serial, "horn": horn_serial}
 
 
 func _push_state() -> void:
@@ -771,6 +773,7 @@ func _sync(s: Dictionary) -> void:
 		cows_active = s.cows
 		for cw in cows:
 			cw.set_active(cows_active)
+	horn_serial = s.horn
 	if s.jolt != jolt_serial:
 		jolt_serial = s.jolt
 		if van:
@@ -858,7 +861,48 @@ func _refresh_nodes() -> void:
 				n.global_position = p.global_position + Vector3(0, 2.15, 0)
 
 
+## Sons des événements : on compare l'état d'une image à la précédente (serveur et clients
+## suivent donc le même chemin), sans rien rejouer au moment de la connexion.
+var _snd := {}
+
+
+func _crate_count(state_name: String) -> int:
+	var n := 0
+	for id in crates:
+		if crates[id].state == state_name:
+			n += 1
+	return n
+
+
+func _audio_events() -> void:
+	var now := {"jolt": jolt_serial, "horn": horn_serial, "broken": broken, "loaded": _crate_count("loaded"),
+		"carried": _crate_count("carried"), "step": step, "last": messages[-1] if messages.size() > 0 else ""}
+	if _snd.is_empty():
+		_snd = now
+		return
+	var at := van.global_position + Vector3(0, 1.0, 0) if van else Vector3.ZERO
+	if now.jolt != _snd.jolt:
+		Sfx.play_at("thud", at)
+	if now.horn != _snd.horn:
+		Sfx.play_at("klaxon", at)
+	if now.broken > _snd.broken:
+		Sfx.play_at("glass", at)
+	if now.carried > _snd.carried:
+		Sfx.play("crate")
+	if now.loaded > _snd.loaded:
+		Sfx.play("chime")
+	if now.step != _snd.step:
+		if now.step == "done":
+			Sfx.play("fanfare" if medal != "" else "chime")
+		elif now.step == "failed":
+			Sfx.play("fail")
+	if now.last != _snd.last and String(now.last).begins_with("Kévin Radio"):
+		Sfx.play("radio_blip")
+	_snd = now
+
+
 func _process(_delta: float) -> void:
+	_audio_events()
 	# Une caisse portée suit son porteur.
 	for id in crates:
 		if crates[id].state == "carried" and _crate_nodes.has(id):

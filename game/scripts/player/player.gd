@@ -88,6 +88,8 @@ func _build_visual() -> void:
 	else:
 		model = CharacterModel.make(color)
 	visual.add_child(model)
+	if is_local():
+		model.step_taken.connect(func(_side): Sfx.play_at("step", global_position, 0.0, randf_range(0.9, 1.1)))
 	var label := Label3D.new()
 	label.text = display_name
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED

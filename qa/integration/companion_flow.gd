@@ -123,5 +123,7 @@ func _run() -> void:
 				said = true
 		check(said, "le journal consigne l'intervention de Ginette")
 		mission.test_roll = -1.0
+		check(root.get_node("Sfx").counts.get("radio_blip", 0) >= 2, "son : Kévin Radio fait grésiller la radio (%d fois)" % root.get_node("Sfx").counts.get("radio_blip", 0))
+		check(root.get_node("Sfx").counts.get("crate", 0) >= 4, "son : Gégé fait claquer les caisses (%d)" % root.get_node("Sfx").counts.get("crate", 0))
 	print("[companion] %s" % ("ÉCHEC : %d vérification(s)" % fails if fails > 0 else "toutes les vérifications passent"))
 	quit(1 if fails > 0 else 0)

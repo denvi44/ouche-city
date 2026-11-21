@@ -29,7 +29,7 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | Mission 01 | 05, 07 | jouable : 4 caisses → camionnette → barrage → stand → médaille ; manquent cinématique, choix d'équipe, événements de route, compagnons IA |
 | PNJ, trafic, compagnons IA | 06 | M1 (graphe routier déjà produit) |
 | Missions (JSON) | 07 | m01 à m03 écrites, validées par schéma |
-| Audio, radios fictives | 08 | M2 |
+| Audio : effets, moteurs, ambiance, radio | 08 | synthétisés (décision 0006) : klaxon, moteurs, chocs, verre, meuglement, cloches, valse musette ; sous-titres sonores ; autres radios M2 |
 | Accessibilité, licences | 11 | sous-titres et échelle du texte prévus dans les réglages |
 
 ## Contrôles
@@ -42,7 +42,10 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | Sprinter | Maj gauche | Start (provisoire, M1 : gâchette) |
 | Interagir (prendre / charger une caisse, monter, descendre) | E | X / Carré |
 | Conduire | W A S D / stick gauche ; Espace = frein à main | stick gauche ; A = frein à main |
-| Pause | Échap | Select |
+| Klaxon | H | Y / Triangle |
+| Radio Pommiers (en voiture) | R | croix directionnelle bas |
+| Choix d'équipe au barrage | 1 / 2 / 3 | croix directionnelle haut / gauche / droite |
+| Pause (volumes, sous-titres) | Échap | Select |
 
 Aucun raccourci réservé au système (Cmd+Q, Cmd+H…). Remappage complet : M1 (agent 11).
 

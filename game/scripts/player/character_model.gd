@@ -10,6 +10,8 @@ extends Node3D
 ##  - repos : légère respiration.
 ## Hauteur totale ≈ 1,85 m (capsule de collision du joueur : 1,8 m).
 
+signal step_taken(side: int)
+
 const SHOULDER_Y := 1.4
 const HIP_Y := 0.84
 const ARM_LENGTH := 0.72
@@ -28,6 +30,7 @@ var _arm_r: Node3D
 var _leg_l: Node3D
 var _leg_r: Node3D
 var _phase := 0.0
+var _last_half := 0
 var _last_pos := Vector3.ZERO
 var _speed := 0.0
 var _carry_blend := 0.0
@@ -156,6 +159,12 @@ func animate(delta: float, speed: float) -> void:
 	var run := clampf((_speed - 4.5) / 3.0, 0.0, 1.0)            # 0 = marche, 1 = course
 	var amp := moving * lerpf(0.55, 0.95, run)
 	var swing := sin(_phase)
+	# Un pas à chaque demi-cycle, si on marche vraiment : le pied touche le sol.
+	var half := int(floorf(_phase / PI))
+	if half != _last_half:
+		_last_half = half
+		if moving > 0.6 and _air_blend < 0.5:
+			step_taken.emit(half % 2)
 	# Jambes : opposées, repliées en l'air.
 	var legs := swing * amp
 	_leg_l.rotation.x = lerpf(legs, -0.7, _air_blend)

@@ -27,6 +27,14 @@ func _ready() -> void:
 	players_root.name = "Joueurs"
 	add_child(players_root)
 	_build_van_and_mission()
+	var amb := Ambiance.new()
+	amb.name = "Ambiance"
+	amb.day_night = day_night
+	for poi in (CityBuilder.read_json(CITY_DIR.path_join("poi.json")) as Dictionary).get("pois", []):
+		if poi.id == "eglise":
+			amb.church_pos = Vector3(float(poi.position[0]), builder.height_at(float(poi.position[0]), float(poi.position[1])), float(poi.position[1]))
+			amb.has_church = true
+	add_child(amb)
 	if DisplayServer.get_name() != "headless":
 		add_child(preload("res://ui/hud.gd").new())
 
@@ -111,6 +119,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		for i in 3:
 			if event.is_action_pressed("choose_%d" % (i + 1)):
 				mission.request_choice(MissionM01.OPTIONS[i])
+	if event.is_action_pressed("radio_toggle") and van and van.driver == multiplayer.get_unique_id():
+		Sfx.toggle_radio()
 	if event.is_action_pressed("horn") and mission and van and van.driver == multiplayer.get_unique_id():
 		mission.request_horn()
 	if event.is_action_pressed("interact") and mission and Net.has_local_player() and DisplayServer.get_name() != "headless":

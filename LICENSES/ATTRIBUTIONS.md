@@ -16,4 +16,8 @@ La mention « © contributeurs OpenStreetMap » apparaît aussi dans les crédit
 
 ## Musique, sons, polices
 
-À compléter (agent 08 pour l'audio, agent 03 pour les polices).
+| Élément | Origine | Licence |
+| --- | --- | --- |
+| Effets sonores (klaxon, moteurs, chocs, verre, meuglement, cloches, vent, oiseaux…) | Synthèse par le code, `game/scripts/audio/synth.gd` | Œuvre originale du projet, aucune ressource tierce |
+| « Valse du Pommier » (Radio Pommiers) | Composition originale du projet, générée par `Synth.music_pommier` | Œuvre originale du projet |
+| Polices | Police par défaut du moteur Godot (Open Sans, licence OFL) | SIL Open Font License 1.1 |

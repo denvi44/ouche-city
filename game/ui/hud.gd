@@ -8,6 +8,8 @@ var _mission_label: Label
 var _hint: Label
 var _speed: Label
 var _result: Label
+var _captions: Label
+var _caption_lines: Array = []      # [texte, instant d'expiration (s)]
 
 
 func _ready() -> void:
@@ -36,7 +38,9 @@ func _ready() -> void:
 	osm.position -= Vector2(16, 10)
 	root.add_child(osm)
 	_build_mission(root)
+	_build_captions(root)
 	_build_pause(root)
+	Sfx.caption.connect(_on_caption)
 
 
 func _outlined(l: Label, size: int) -> void:
@@ -75,6 +79,32 @@ func _build_mission(root: Control) -> void:
 	_result.position.y += 140
 	_outlined(_result, 54)
 	root.add_child(_result)
+
+
+## Sous-titres sonores : toute information importante transmise par le son a un équivalent écrit.
+func _build_captions(root: Control) -> void:
+	_captions = Label.new()
+	_captions.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	_captions.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_captions.position += Vector2(24, -24)
+	_outlined(_captions, 24)
+	root.add_child(_captions)
+
+
+func _on_caption(text: String, seconds: float) -> void:
+	var now := Time.get_ticks_msec() / 1000.0
+	_caption_lines.append([text, now + seconds])
+	if _caption_lines.size() > 4:
+		_caption_lines.pop_front()
+
+
+## Texte des sous-titres encore valables à l'instant `now` (fonction pure, testée).
+static func caption_text(lines: Array, now: float) -> String:
+	var out: PackedStringArray = []
+	for l in lines:
+		if l[1] > now:
+			out.append(l[0])
+	return "\n".join(out)
 
 
 static func format_time(seconds: float) -> String:
@@ -152,6 +182,32 @@ func _build_pause(root: Control) -> void:
 	resume.text = "Reprendre"
 	resume.pressed.connect(_toggle_pause)
 	box.add_child(resume)
+	# Réglages audio : volumes par bus et sous-titres sonores.
+	for spec in [["Volume général", "volume_master"], ["Effets", "volume_sfx"], ["Musique (radio)", "volume_music"], ["Ambiance", "volume_ambience"]]:
+		var row := HBoxContainer.new()
+		var lab := Label.new()
+		lab.text = spec[0]
+		lab.custom_minimum_size = Vector2(230, 0)
+		row.add_child(lab)
+		var sl := HSlider.new()
+		sl.min_value = 0.0
+		sl.max_value = 1.0
+		sl.step = 0.05
+		sl.value = Settings.get(spec[1])
+		sl.custom_minimum_size = Vector2(190, 28)
+		sl.value_changed.connect(func(v: float):
+			Settings.set(spec[1], v)
+			Sfx.apply_volumes()
+			Settings.save_settings())
+		row.add_child(sl)
+		box.add_child(row)
+	var sub := CheckButton.new()
+	sub.text = "Sous-titres sonores"
+	sub.button_pressed = Settings.subtitles
+	sub.toggled.connect(func(on: bool):
+		Settings.subtitles = on
+		Settings.save_settings())
+	box.add_child(sub)
 	_open_btn = Button.new()
 	_open_btn.text = "Ouvrir la partie aux amis"
 	_open_btn.pressed.connect(func():
@@ -200,10 +256,11 @@ func _process(_delta: float) -> void:
 			if r.has("label"):
 				_hint.text = ("[E]  " if r.kind != "none" else "") + r.label
 			if me.is_driving() and me.vehicle:
-				_speed.text = "%d km/h" % int(me.vehicle.speed_kmh())
+				_speed.text = "%d km/h   ·   [R] Radio Pommiers %s" % [int(me.vehicle.speed_kmh()), "♪" if Sfx.radio_on else "(éteinte)"]
 		_result.text = ""
 		if mission.step == "done":
 			_result.text = "Médaille : %s" % {"gold": "OR", "silver": "ARGENT", "bronze": "BRONZE"}.get(mission.medal, "aucune")
 		elif mission.step == "failed":
 			_result.text = "Mission ratée"
+	_captions.text = caption_text(_caption_lines, Time.get_ticks_msec() / 1000.0) if Settings.subtitles else ""
 	_info.text = "Rue Sainte-Foy · %02d h %02d · %s · %d joueur(s)" % [int(h), int(fmod(h, 1.0) * 60), mode_txt, maxi(Net.players.size(), 1)]
