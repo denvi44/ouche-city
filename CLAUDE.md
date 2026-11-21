@@ -86,3 +86,7 @@ Dès qu'une chose se voit, on la capture. Chaque PR qui touche la carte, les ass
 ## Jalon en cours
 
 M0 — Préproduction : GDD, style guide, agents configurés, POC carto de la rue Sainte-Foy générée automatiquement et importée dans Godot, première build Windows + macOS d'une scène vide signée.
+
+## Reprise par une autre IA
+
+Voir `docs/reprise/README.md` (état des lieux, architecture, commandes, backlog priorisé, recettes).
