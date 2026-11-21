@@ -150,6 +150,42 @@ func _spawn_companions() -> void:
 		k += 1
 
 
+var _focus_t := 0.0
+
+
+func _process(delta: float) -> void:
+	_focus_t -= delta
+	if _focus_t <= 0.0:
+		_focus_t = 0.25
+		_update_place_focus()
+
+
+## Faisceaux et libellés des lieux de mission : seul le lieu de l'objectif en cours (balises de `focus_markers`) est visible,
+## les autres sont masqués. Les décors (supermarché, scène, enclos…) restent affichés.
+func _update_place_focus() -> void:
+	if mission == null or city == null or CinematicPlayer.active:
+		return
+	var places := city.get_node_or_null("LieuxDeMission")
+	if places == null:
+		return
+	var shown := {}
+	for m in mission.focus_markers():
+		var best: Node3D = null
+		var best_d := 30.0
+		for lieu in places.get_children():
+			var d := Vector2(lieu.position.x - m.pos.x, lieu.position.z - m.pos.z).length()
+			if d < best_d:
+				best_d = d
+				best = lieu
+		if best:
+			shown[best.get_instance_id()] = true
+	for lieu in places.get_children():
+		var on: bool = shown.has(lieu.get_instance_id())
+		for c in lieu.get_children():
+			if c is Label3D or (c is MeshInstance3D and (c as MeshInstance3D).mesh is CylinderMesh):
+				(c as Node3D).visible = on
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
 		for i in 5:

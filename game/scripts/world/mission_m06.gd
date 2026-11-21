@@ -836,9 +836,10 @@ func hud_markers() -> Array:
 	if not zone_ok:
 		return out
 	if step == ITEMS_STEP:
-		for it in ITEMS:
+		for it in ITEMS:                       # un article à la fois, dans l'ordre de la liste
 			if not (it in items_got):
 				out.append(marker(item_world(it), ITEM_NAMES[it].capitalize(), C_ITEM))
+				break
 		if items_got.size() == ITEMS.size():
 			out.append(marker(to_world(PAY_SPOT), "Caisse 2", C_GOAL))
 	elif step == "pay":

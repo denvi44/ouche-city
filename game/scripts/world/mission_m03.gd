@@ -955,13 +955,14 @@ func hud_gauges() -> Array:
 func hud_markers() -> Array:
 	var out := []
 	if step == "setup":
-		for it in ITEMS:
+		for it in ITEMS:                       # un objet à la fois, dans l'ordre
 			if not item_taken(it) and item_pos.has(it):
 				out.append(marker(item_pos[it], ITEM_NAMES[it].capitalize(), C_ITEM))
+				break
 	elif step == "round" and zones.has("camp"):
 		out.append(marker(zones.camp, "Votre sono", C_GOAL))
 		if sab.kind != "":
 			var sp := spot("sab_" + str(sab.kind))
 			if sp != Vector3.ZERO:
-				out.append(marker(sp, SAB_DEFEND[sab.kind], C_DANGER))
+				out.append(marker(sp, SAB_DEFEND[sab.kind], C_DANGER, true))
 	return out

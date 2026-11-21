@@ -354,7 +354,7 @@ func _process(_delta: float) -> void:
 		_status.text = "\n".join(status_lines(lines, not gauges.is_empty()))
 		_status.visible = _status.text != ""
 		_card.visible = true
-		var markers := mission.hud_markers()
+		var markers := mission.focus_markers()
 		_markers.markers = markers
 		_markers.text_scale = Settings.text_scale
 		_markers.queue_redraw()

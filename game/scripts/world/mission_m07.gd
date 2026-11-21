@@ -765,10 +765,6 @@ func hud_markers() -> Array:
 	var out := []
 	if step != "run" or zones.is_empty():
 		return out
-	out.append(marker(_front_point("door", 1.0), "Chez vous (%d m)" % int(distance_home(multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1)), C_GOAL))
-	out.append(marker(zones.wc, "Toilettes publiques", C_PLACE))
-	if not chat_done:
-		out.append(marker(spot("hubert"), "Mme Hubert (retient !)", C_DANGER))
-	if not dog_done:
-		out.append(marker(spot("dog"), "Chien du portail", C_DANGER))
+	# Un seul but : chez soi (les toilettes publiques, Mme Hubert et le chien se voient dans la rue).
+	out.append(marker(_front_point("door", 1.0), "Chez vous (%d m)" % int(distance_home(local_peer())), C_GOAL))
 	return out

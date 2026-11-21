@@ -114,7 +114,7 @@ func start(definition: Dictionary, anchor_map: Dictionary) -> void:
 	if places:
 		for lieu in places.get_children():
 			for c in lieu.get_children():
-				if c is Label3D or (c is MeshInstance3D and (c as MeshInstance3D).mesh is CylinderMesh):
+				if (c is Label3D or (c is MeshInstance3D and (c as MeshInstance3D).mesh is CylinderMesh)) and (c as Node3D).visible:
 					(c as Node3D).visible = false
 					_markers.append(c)
 	if get_node("/root/Net").can_pause() and not get_tree().paused:

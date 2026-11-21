@@ -25,7 +25,7 @@ from shapely.geometry import LineString, MultiLineString, MultiPolygon, Point, P
 from shapely.geometry.polygon import orient
 from shapely.ops import nearest_points
 
-from . import fiction
+from . import fiction, nivelage
 from .config import GIS_DIR, Emprise, charger
 
 CACHE_OSM = GIS_DIR / "cache" / "osm_conches.json"
@@ -273,7 +273,7 @@ def toit(tags: dict, typo: str, poly: Polygon) -> str:
 
 # --- Construction ------------------------------------------------------------
 
-GROUND_RES = 11  # 11 × 11 points par tuile : un point tous les 25 m
+GROUND_RES = nivelage.RES  # 51 × 51 points par tuile : un point tous les 5 m (routes nivelées, voir nivelage.py)
 
 
 def construire(src: Sources, rep: Repere, relief: Relief, emp: Emprise, toutes: bool):
@@ -390,6 +390,7 @@ def construire(src: Sources, rep: Repere, relief: Relief, emp: Emprise, toutes: 
             if key in garder and zone.contains(Point(x, z)):
                 tuiles[key]["trees"].append([_r(x), _r(z)])
 
+    nivelage.niveler(tuiles, T, hauteur_sol)
     return tuiles, poc_centre, ref
 
 

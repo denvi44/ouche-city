@@ -1600,17 +1600,17 @@
    "kind": "mission_target",
    "label": "Ligne de départ du drag",
    "position": [
-    1022.06,
-    1961.6
+    1093.04,
+    2075.27
    ],
-   "tile": "4_7",
+   "tile": "4_8",
    "radius": 8.0,
    "source": "design",
    "missions": [
     "m02_tuning_samedi"
    ],
    "step": "drag",
-   "facing": 1.22,
+   "facing": 1.4,
    "prop": "strip"
   },
   {
@@ -1618,8 +1618,8 @@
    "kind": "mission_target",
    "label": "Ligne d'arrivée du drag",
    "position": [
-    1397.94,
-    2098.4
+    1486.96,
+    2144.73
    ],
    "tile": "5_8",
    "radius": 8.0,
@@ -1628,24 +1628,24 @@
     "m02_tuning_samedi"
    ],
    "step": "drag",
-   "facing": 1.22
+   "facing": 1.4
   },
   {
    "id": "parc_rdv",
    "kind": "mission_target",
    "label": "Parking du rendez-vous du samedi soir",
    "position": [
-    994.55,
-    1972.87
+    1067.9,
+    2091.15
    ],
-   "tile": "3_7",
+   "tile": "4_8",
    "radius": 9.0,
    "source": "design",
    "missions": [
     "m02_tuning_samedi"
    ],
    "step": "meet",
-   "facing": 1.22
+   "facing": 1.4
   },
   {
    "id": "camp_pommiers",

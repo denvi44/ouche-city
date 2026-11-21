@@ -890,21 +890,28 @@ func hud_markers() -> Array:
 	var out := []
 	match step:
 		ITEMS_STEP:
-			for it in ITEMS:
+			for it in ITEMS:                   # un objet à la fois, dans l'ordre
 				if not item_taken(it) and item_pos.has(it):
 					out.append(marker(item_pos[it], ITEM_NAMES[it].capitalize(), C_ITEM))
+					break
 		"fire", "serve":
-			if zones.has("fete"):
-				out.append(marker(station(), "Foyer", C_GOAL))
-			if step == "serve":
+			# Une assiette en main : la table qui en a le moins reçu ; sinon le foyer.
+			var shown := false
+			if step == "serve" and is_carrying(local_peer()):
+				var best := -1
 				for i in TABLE_LOCAL.size():
-					if int(served[i]) < per_table and table_pos(i) != Vector3.ZERO:
-						out.append(marker(table_pos(i), "Table %d" % (i + 1), C_PLACE))
+					if int(served[i]) < per_table and table_pos(i) != Vector3.ZERO and (best < 0 or int(served[i]) < int(served[best])):
+						best = i
+				if best >= 0:
+					out.append(marker(table_pos(best), "Table %d" % (best + 1), C_PLACE))
+					shown = true
+			if not shown and zones.has("fete"):
+				out.append(marker(station(), "Foyer", C_GOAL))
 		"bonfire":
 			if zones.has("bucher"):
 				out.append(marker(zones.bucher, "Bûcher de la Saint-Jean", C_DANGER))
 	for d in dogs:
 		if d.st == "run" and _ground.is_valid():
 			var gy: float = _ground.call(float(d.x), float(d.z))
-			out.append(marker(Vector3(float(d.x), gy, float(d.z)), "Chien !", C_DANGER))
+			out.append(marker(Vector3(float(d.x), gy, float(d.z)), "Chien !", C_DANGER, true))
 	return out

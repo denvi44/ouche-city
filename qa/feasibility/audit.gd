@@ -80,6 +80,7 @@ func boot(key: String, companions: bool) -> void:
 	await frames(100)
 	mission = world.mission
 	player = world.players_root.get_node("1")
+	player.collision_mask = 1                  # le bot ne contourne pas le mobilier de rue (un humain le fait) : il ne le heurte pas
 	var BrainC = load("res://scripts/ai/companion_brain.gd")
 	var nav = load("res://scripts/ai/road_nav.gd").load_default()
 	walker = Walker.new()

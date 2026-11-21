@@ -201,8 +201,31 @@ static func gauge(id: String, label: String, value: float, color: Color, text :=
 	return g
 
 
-static func marker(pos: Vector3, label: String, color: Color) -> Dictionary:
-	return {"pos": pos, "label": label, "color": color}
+## `keep` : balise qui s'ajoute à l'objectif en cours (danger ou action immédiate, ex. un chien qui court).
+static func marker(pos: Vector3, label: String, color: Color, keep := false) -> Dictionary:
+	var m := {"pos": pos, "label": label, "color": color}
+	if keep:
+		m["keep"] = true
+	return m
+
+
+## Identifiant réseau du joueur local (1 en solo).
+func local_peer() -> int:
+	return multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
+
+
+## Ce que le joueur voit : UNE seule balise à la fois, l'objectif en cours, pour que le but reste lisible. Les missions listent
+## leurs balises par ordre de priorité dans `hud_markers()` ; seules celles marquées `keep` (danger ou action immédiate) s'y ajoutent.
+## Les faisceaux lumineux du monde, la minicarte et les flèches de bord d'écran suivent cette liste.
+func focus_markers() -> Array:
+	var all := hud_markers()
+	if all.is_empty():
+		return all
+	var out: Array = [all[0]]
+	for i in range(1, all.size()):
+		if bool(all[i].get("keep", false)):
+			out.append(all[i])
+	return out
 
 
 ## Palette des balises (style guide : aplats chauds) : objectif, danger, lieu, allié.

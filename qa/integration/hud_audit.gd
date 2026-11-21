@@ -72,6 +72,12 @@ func audit(key: String, id: String, mutate: Callable) -> void:
 		check(e2 == "", "%s, phase %d : %d balise(s) valides %s" % [id, phase, ms.size(), e2])
 		check(str(m.objective()) != "" or m.step in ["done", "failed"], "%s, phase %d : consigne présente (étape %s)" % [id, phase, m.step])
 		check(m.hud_lines().size() >= 2, "%s, phase %d : titre et consigne dans hud_lines" % [id, phase])
+		var fm: Array = m.focus_markers()
+		var primary := 0
+		for fmk in fm:
+			if not bool(fmk.get("keep", false)):
+				primary += 1
+		check(primary <= 1 and fm.size() <= 3, "%s, phase %d : un seul objectif affiché à la fois (%d balise(s), %d objectif)" % [id, phase, fm.size(), primary])
 		seen_gauges += gs.size()
 		seen_markers += ms.size()
 	check(seen_gauges >= 4 and seen_markers >= 2, "%s : jauges (%d) et balises (%d) présentes sur le parcours" % [id, seen_gauges, seen_markers])

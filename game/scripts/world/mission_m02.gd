@@ -1071,16 +1071,15 @@ func hud_markers() -> Array:
 	var out := []
 	match step:
 		"parts":
-			if zones.has("casse") and not sources.casse:
-				out.append(marker(zones.casse, "Casse Dugenou", C_ITEM))
-			if zones.has("annonce") and not sources.annonce:
-				out.append(marker(zones.annonce, "Annonce du père Bernard", C_ITEM))
-			if zones.has("shop"):
-				out.append(marker(zones.shop, "Auto Bling 27", C_PLACE))
-			if zones.has("dylan") and not sources.cour_dylan:
-				out.append(marker(zones.dylan, "Cour de Dylan", C_DANGER))
+			# Dans l'ordre : le garage une fois les pièces réunies, sinon la casse, l'annonce, puis le magasin.
 			if parts.size() >= required_parts and zones.has("garage"):
 				out.append(marker(zones.garage, "Garage de Kévin", C_GOAL))
+			elif zones.has("casse") and not sources.casse:
+				out.append(marker(zones.casse, "Casse Dugenou", C_ITEM))
+			elif zones.has("annonce") and not sources.annonce:
+				out.append(marker(zones.annonce, "Annonce du père Bernard", C_ITEM))
+			elif zones.has("shop"):
+				out.append(marker(zones.shop, "Auto Bling 27", C_PLACE))
 		"assembly":
 			if zones.has("garage"):
 				out.append(marker(zones.garage, "Garage de Kévin", C_GOAL))

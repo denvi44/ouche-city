@@ -720,12 +720,15 @@ func hud_gauges() -> Array:
 func hud_markers() -> Array:
 	var out := []
 	if step == "herd":
-		for c in cows:
-			if c.st != "pen":
-				var y: float = _ground.call(float(c.x), float(c.z)) if _ground.is_valid() else 0.0
-				out.append(marker(Vector3(float(c.x), y, float(c.z)), COW_NAMES[int(c.id) % COW_NAMES.size()], C_ITEM if int(c.id) != 0 else C_DANGER))
+		# La vache libre la plus proche du joueur, puis l'enclos (toujours utile : on y mène la vache).
+		var me := actor(local_peer())
+		var from := Vector2(me.global_position.x, me.global_position.z) if me else Vector2(zones.pen.x, zones.pen.z) if zones.has("pen") else Vector2.ZERO
+		var best: Dictionary = nearest_stray(from)
+		if not best.is_empty():
+			var y: float = _ground.call(float(best.x), float(best.z)) if _ground.is_valid() else 0.0
+			out.append(marker(Vector3(float(best.x), y, float(best.z)), COW_NAMES[int(best.id) % COW_NAMES.size()], C_ITEM if int(best.id) != 0 else C_DANGER))
 		if zones.has("pen"):
-			out.append(marker(zones.pen, "Enclos", C_GOAL))
+			out.append(marker(zones.pen, "Enclos", C_GOAL, true))
 	elif step == "gate":
 		out.append(marker(_front(Vector3(0, 0, PEN_HALF)), "Barrière", C_GOAL))
 	return out

@@ -486,7 +486,7 @@ func build_tile(data: Dictionary) -> Node3D:
 		hi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		root.add_child(hi)
 	var size := float(data.size)
-	add_ground_grid(Vector2(float(data.origin[0]), float(data.origin[1])), Vector2(size, size), size / 20.0, "sol")
+	add_ground_grid(Vector2(float(data.origin[0]), float(data.origin[1])), Vector2(size, size), size / float(maxi(int(data.ground.resolution) - 1, 1)), "sol")
 	var terrain := _commit()
 	var ti := MeshInstance3D.new()
 	ti.name = "Terrain"

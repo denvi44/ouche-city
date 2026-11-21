@@ -37,6 +37,7 @@ const ID_RADIO := -3
 const ID_KEVIN := -4
 
 const CRATE_POIS := ["cave_gege", "grange_pommiers", "poulailler_ginette", "fumier_tas"]
+const CRATE_ORDER := ["cave_gege", "poulailler_ginette", "grange_pommiers", "fumier_tas"]       # ordre de la tournée (balises une à une)
 const CRATE_NAMES := {"cave_gege": "la cave de Gégé", "grange_pommiers": "la grange", "poulailler_ginette": "le poulailler", "fumier_tas": "le tas de fumier"}
 
 # Paramètres issus du JSON.
@@ -1008,10 +1009,13 @@ func hud_markers() -> Array:
 	var out := []
 	match step:
 		"crates":
-			for id in crates:
-				if crates[id].state == "ground":
-					out.append(marker(crates[id].pos, str(CRATE_NAMES.get(id, "Caisse")).capitalize(), C_ITEM))
-			if van:
+			# Une seule balise : la camionnette quand on porte une caisse, sinon la prochaine caisse de la tournée.
+			if carried_by(local_peer()) == "":
+				for id in CRATE_ORDER:
+					if crates.has(id) and crates[id].state == "ground":
+						out.append(marker(crates[id].pos, str(CRATE_NAMES.get(id, "Caisse")).capitalize(), C_ITEM))
+						break
+			if out.is_empty() and van:
 				out.append(marker(van.global_position, "Camionnette", C_PLACE))
 		"road", "checkpoint":
 			if zones.has("barrage"):
