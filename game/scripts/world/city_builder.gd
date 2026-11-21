@@ -594,7 +594,8 @@ func build_signs(pois: Array) -> Node3D:
 ## Blockout des lieux de mission (POI v3 portant `step`) : balise lumineuse, libellé,
 ## et accessoire simple (`prop`). Aplats toon, aucun asset externe.
 const STEP_COLOR := {"crates": Color(0.95, 0.75, 0.2), "vehicle": Color(0.3, 0.6, 0.9), "checkpoint": Color(0.85, 0.25, 0.2), "fair": Color(0.4, 0.75, 0.35),
-	"parts": Color(0.95, 0.75, 0.2), "assembly": Color(0.7, 0.5, 0.9), "test_drive": Color(0.3, 0.6, 0.9), "meet": Color(0.95, 0.5, 0.7), "drag": Color(0.85, 0.25, 0.2)}
+	"parts": Color(0.95, 0.75, 0.2), "assembly": Color(0.7, 0.5, 0.9), "test_drive": Color(0.3, 0.6, 0.9), "meet": Color(0.95, 0.5, 0.7), "drag": Color(0.85, 0.25, 0.2),
+	"stage": Color(0.3, 0.8, 0.95), "rival": Color(0.9, 0.3, 0.6), "setup": Color(0.95, 0.75, 0.2)}
 
 
 func _toon(color: Color) -> ShaderMaterial:
@@ -659,6 +660,18 @@ func _add_prop(root: Node3D, prop: String) -> void:
 				_box(root, Vector3(0.62, 0.1, 1.5), Vector3(-1.55 + i * 0.62, 2.65, 0), Color(0.85, 0.22, 0.2) if i % 2 == 0 else Color(0.97, 0.95, 0.88))
 		"strip":
 			_add_strip(root)
+		"stage":
+			# Scène de sono : estrade, deux enceintes (HP_G, HP_D, qui pulsent au rythme), table de mixage, guirlande.
+			_box(root, Vector3(7.0, 0.4, 3.6), Vector3(0, 0.2, 0), Color(0.5, 0.36, 0.26))
+			for sx in [-1, 1]:
+				var hp := _box(root, Vector3(1.2, 2.0, 1.1), Vector3(sx * 2.7, 1.4, -0.4), Color(0.14, 0.13, 0.16))
+				hp.name = "HP_G" if sx < 0 else "HP_D"
+				_box(hp, Vector3(0.7, 0.7, 0.05), Vector3(0, 0.35, 0.56), Color(0.9, 0.85, 0.7))
+				_box(hp, Vector3(0.4, 0.4, 0.05), Vector3(0, -0.45, 0.56), Color(0.9, 0.85, 0.7))
+			_box(root, Vector3(1.8, 0.9, 0.8), Vector3(0, 0.85, 0.4), Color(0.85, 0.25, 0.3))
+			_box(root, Vector3(1.4, 0.06, 0.5), Vector3(0, 1.33, 0.4), Color(0.2, 0.9, 0.9)).name = "Pupitre"
+			for i in 7:
+				_box(root, Vector3(0.3, 0.3, 0.3), Vector3(-3.0 + i, 3.2, -0.6), [Color(0.95, 0.75, 0.2), Color(0.85, 0.25, 0.2), Color(0.3, 0.7, 0.9)][i % 3])
 		"junkyard":
 			# Tas de ferraille : carcasses rouillées, pneus, une porte de frigo.
 			for spec in [[Vector3(3.2, 1.0, 1.8), Vector3(-2.5, 0.5, 1.5), Color(0.55, 0.3, 0.2), 0.3], [Vector3(2.6, 0.8, 1.6), Vector3(2.8, 0.4, 2.8), Color(0.45, 0.5, 0.55), -0.5],

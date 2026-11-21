@@ -63,7 +63,7 @@ func idle() -> Dictionary:
 func think(delta: float) -> Dictionary:
 	_act_cooldown = maxf(_act_cooldown - delta, 0.0)
 	_clock += delta
-	if mission == null or mission.van == null or mission.step in ["done", "failed"]:
+	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03)):
 		status = "attend"
 		return idle()
 	match role:
@@ -79,6 +79,12 @@ func think(delta: float) -> Dictionary:
 			return _hold("meet_gege", "gagne le rendez-vous", "installe la sono", delta)
 		"chineuse":
 			return _errand_haggle(delta)
+		"electricien":
+			return _post_m03("groupe", "gagne le groupe électrogène", "veille sur le groupe", delta)
+		"videur":
+			return _post_m03("videur", "gagne les portes", "tient les portes", delta)
+		"saboteur":
+			return _post_m03("clos", "file chez les rivaux", "sabote la sono rivale", delta)
 	var me := body.peer_id
 	var pos := body.global_position
 	# 1. Une caisse sur l'épaule : direction la camionnette, puis chargement.
@@ -125,6 +131,21 @@ func _hold(spot_name: String, going: String, there: String, delta: float) -> Dic
 	var d := focus - pos
 	_last_yaw = atan2(-d.x, -d.z)
 	return {"move": Vector2.ZERO, "yaw": _last_yaw, "jump": false, "sprint": false}
+
+
+## Mission 03 : d'abord son objet à rapporter (caisson, rallonge ou groupe), puis son poste.
+func _post_m03(spot_name: String, going: String, there: String, delta: float) -> Dictionary:
+	var m := mission as MissionM03
+	var it := m.companion_item(body.peer_id)
+	if m.step == "setup" and it != "" and not m.item_taken(it):
+		var target: Vector3 = m.item_pos.get(it, Vector3.ZERO)
+		if target != Vector3.ZERO:
+			status = "va chercher %s" % MissionM03.ITEM_NAMES[it]
+			if _horizontal(body.global_position, target) < 2.2:
+				_try_interact(["item"])
+				return idle()
+			return _walk_to(target, delta)
+	return _hold(spot_name, going, there, delta)
 
 
 ## Course de Ginette : aller chez le père Bernard, proposer 60 % du prix (deux essais au plus).

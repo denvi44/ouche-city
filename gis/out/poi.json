@@ -1645,6 +1645,98 @@
    ],
    "step": "meet",
    "facing": 1.22
+  },
+  {
+   "id": "camp_pommiers",
+   "kind": "mission_target",
+   "label": "Sono du lotissement des Pommiers",
+   "position": [
+    1553.63,
+    1384.74
+   ],
+   "tile": "6_5",
+   "radius": 10.0,
+   "source": "design",
+   "missions": [
+    "m03_battle_sono"
+   ],
+   "step": "stage",
+   "facing": -0.92,
+   "prop": "stage",
+   "building": "b_19243"
+  },
+  {
+   "id": "camp_clos_fleuri",
+   "kind": "mission_target",
+   "label": "Sono du Clos Fleuri (rivaux)",
+   "position": [
+    1004.29,
+    1725.6
+   ],
+   "tile": "4_6",
+   "radius": 10.0,
+   "source": "design",
+   "missions": [
+    "m03_battle_sono"
+   ],
+   "step": "rival",
+   "facing": 2.9,
+   "prop": "stage",
+   "building": "b_5151"
+  },
+  {
+   "id": "item_caisson",
+   "kind": "mission_target",
+   "label": "Le caisson de la Fusée (chez Kévin)",
+   "position": [
+    1404.26,
+    1457.66
+   ],
+   "tile": "5_5",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m03_battle_sono"
+   ],
+   "step": "setup",
+   "facing": -1.48,
+   "building": "b_18721"
+  },
+  {
+   "id": "item_rallonge",
+   "kind": "mission_target",
+   "label": "La rallonge de Ginette",
+   "position": [
+    1386.9,
+    1596.76
+   ],
+   "tile": "5_6",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m03_battle_sono"
+   ],
+   "step": "setup",
+   "facing": -0.33,
+   "building": "b_17953"
+  },
+  {
+   "id": "item_groupe",
+   "kind": "mission_target",
+   "label": "Le groupe électrogène de Tonton Gégé",
+   "position": [
+    1320.27,
+    1198.57
+   ],
+   "tile": "5_4",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m03_battle_sono"
+   ],
+   "step": "setup",
+   "facing": -1.77,
+   "building": "b_20574"
   }
  ]
 }

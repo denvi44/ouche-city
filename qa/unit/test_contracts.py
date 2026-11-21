@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
@@ -139,3 +139,18 @@ def test_lieux_de_mission02():
     for i, p in enumerate(pts):
         for q in pts[i + 1:]:
             assert p.distance(q) > 2.0
+
+
+def test_lieux_de_mission03():
+    """La sono des Pommiers, celle du Clos Fleuri et les trois objets existent ; les camps sont loin l'un de l'autre."""
+    import math
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    for pid in ("camp_pommiers", "camp_clos_fleuri", "item_caisson", "item_rallonge", "item_groupe"):
+        assert pid in pois, f"lieu manquant : {pid}"
+        assert pois[pid]["missions"] == ["m03_battle_sono"]
+    assert pois["camp_pommiers"]["prop"] == "stage" and pois["camp_clos_fleuri"]["prop"] == "stage"
+    assert math.dist(pois["camp_pommiers"]["position"], pois["camp_clos_fleuri"]["position"]) > 200
+    ids = [pois[i]["position"] for i in ("camp_pommiers", "camp_clos_fleuri", "item_caisson", "item_rallonge", "item_groupe")]
+    for i, a in enumerate(ids):
+        for b in ids[i + 1:]:
+            assert math.dist(a, b) > 20

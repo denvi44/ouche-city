@@ -401,3 +401,81 @@ static func music_pommier() -> PackedFloat32Array:
 			for nn in c[1]:
 				_note(out, int(nn) - 12, t0 + beat * BEAT, BEAT * 0.6, 0.12, 0.004)
 	return normalized(out, 0.8)
+
+
+# --- Playlists de la battle de sono (mission 03) ------------------------------------------------------
+# Trois boucles originales à 120 pulsations par minute (1 temps = 0,5 s), 16 temps (8 s). Les coups de
+# grosse caisse tombent exactement sur les temps : le beat que le joueur doit suivre s'entend.
+
+const TRACK_BPM := 120.0
+const TRACK_BEATS := 16
+const TRACK_IDS := ["musette_remix", "techno_foraine", "tube_ete_2003"]
+
+
+static func BEAT_T() -> float:
+	return 60.0 / TRACK_BPM
+
+
+static func track_length() -> float:
+	return TRACK_BEATS * 60.0 / TRACK_BPM
+
+
+static func _kick(out: PackedFloat32Array, t0: float, gain := 0.9) -> void:
+	var i0 := int(t0 * RATE)
+	for k in int(0.22 * RATE):
+		if i0 + k >= out.size():
+			break
+		var s := float(k) / RATE
+		var f := 48.0 + 90.0 * exp(-s * 28.0)
+		out[i0 + k] += sin(TAU * f * s) * exp(-s * 12.0) * gain
+
+
+static func _hat(out: PackedFloat32Array, t0: float, gain := 0.25) -> void:
+	var i0 := int(t0 * RATE)
+	for k in int(0.05 * RATE):
+		if i0 + k >= out.size():
+			break
+		out[i0 + k] += _noise() * exp(-float(k) / RATE * 70.0) * gain
+
+
+static func _clap(out: PackedFloat32Array, t0: float, gain := 0.5) -> void:
+	var i0 := int(t0 * RATE)
+	for k in int(0.16 * RATE):
+		if i0 + k >= out.size():
+			break
+		var s := float(k) / RATE
+		out[i0 + k] += _noise() * (exp(-s * 40.0) + 0.6 * exp(-maxf(s - 0.02, 0.0) * 40.0)) * gain
+
+
+## Boucle de 8 s d'une playlist : « musette_remix », « techno_foraine » ou « tube_ete_2003 ».
+static func track(id: String) -> PackedFloat32Array:
+	_rng.seed = 303
+	var beat := 60.0 / TRACK_BPM
+	var out := _buf(track_length())
+	for b in TRACK_BEATS:
+		var t0 := b * beat
+		match id:
+			"musette_remix":
+				_kick(out, t0, 0.7)
+				if b % 2 == 1:
+					_hat(out, t0 + beat * 0.5, 0.18)
+				# Accordéon : accord la mineur / ré mineur / mi majeur, deux temps sur quatre.
+				var chord: Array = [[57, 60, 64], [62, 65, 69], [56, 59, 64], [57, 60, 64]][b / 4]
+				if b % 2 == 0:
+					for n in chord:
+						_note(out, int(n), t0, beat * 0.9, 0.16, 0.005)
+				_note(out, int(chord[0]) - 12, t0, beat * 0.45, 0.3, 0.002)
+			"techno_foraine":
+				_kick(out, t0, 1.0)
+				_hat(out, t0 + beat * 0.5, 0.3)
+				if b % 4 == 3:
+					_hat(out, t0 + beat * 0.25, 0.2)
+				_note(out, [33, 33, 36, 31][b / 4], t0 + beat * 0.5, beat * 0.4, 0.3, 0.012)
+			"tube_ete_2003":
+				_kick(out, t0, 0.6)
+				if b % 2 == 1:
+					_clap(out, t0, 0.4)
+				var arp := [69, 72, 76, 72, 67, 71, 74, 71, 65, 69, 72, 69, 67, 71, 74, 71]
+				_note(out, int(arp[b]) + 12, t0, beat * 0.9, 0.2, 0.004)
+				_note(out, int(arp[b]) + 12, t0 + beat * 0.5, beat * 0.4, 0.1, 0.004)
+	return normalized(out, 0.85)

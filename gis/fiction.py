@@ -443,3 +443,61 @@ def nom_commerce_generique(osm_id) -> str:
     categories = sorted(ENSEIGNES)
     noms = ENSEIGNES[categories[_h("cat", osm_id) % len(categories)]]
     return noms[_h("nom", osm_id) % len(noms)]
+
+
+# --- Mission 03 « Battle de sono » : lieux de blockout ----------------------------------------------
+M03 = "m03_battle_sono"
+LABELS_M03 = {
+    "camp_pommiers": "Sono du lotissement des Pommiers",
+    "camp_clos_fleuri": "Sono du Clos Fleuri (rivaux)",
+    "item_caisson": "Le caisson de la Fusée (chez Kévin)",
+    "item_rallonge": "La rallonge de Ginette",
+    "item_groupe": "Le groupe électrogène de Tonton Gégé",
+}
+
+
+def _poi3(pid, label, x, z, facing, taille, step, prop=None, building=None, radius=5.0):
+    p = _poi2(pid, "mission_target", label, x, z, facing, taille, step, prop=prop, building=building, radius=radius)
+    p["missions"] = [M03]
+    return p
+
+
+def lieux_mission03(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Lieux de la mission 03, posés sur la vraie carte.
+
+    - sono des Pommiers : maison de taille moyenne à 70-220 m de l'apparition ;
+    - sono du Clos Fleuri : maison à 220 m au moins de la précédente (le camp rival est loin) ;
+    - trois objets à rassembler (caisson, rallonge, groupe) : maisons voisines (80-300 m du camp), deux à deux écartées de 40 m.
+    """
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    batiments = [b for t in tuiles.values() for b in t["buildings"] if b["id"] not in utilises and b["typology"] in ("pavillon", "brique", "colombages") and 25 < Polygon(b["footprint"]).area < 180]
+    batiments.sort(key=lambda b: (_h("m03", b["id"]), b["id"]))
+
+    def centre(b):
+        c = Polygon(b["footprint"]).centroid
+        return c.x, c.y
+
+    def dist(a, b):
+        return math.hypot(a[0] - b[0], a[1] - b[1])
+
+    out: list[dict] = []
+    camp = next((b for b in batiments if 70 < dist(centre(b), spawn) < 220), None)
+    if camp is None:
+        return out
+    cc = centre(camp)
+    (x, z), f = emplacement_enseigne(camp["footprint"], routes)
+    out.append(_poi3("camp_pommiers", LABELS_M03["camp_pommiers"], x, z, f, taille, "stage", prop="stage", building=camp["id"], radius=10.0))
+    pris = [cc]
+    rival = next((b for b in batiments if b is not camp and dist(centre(b), cc) > 220), None)
+    if rival:
+        (x, z), f = emplacement_enseigne(rival["footprint"], routes)
+        out.append(_poi3("camp_clos_fleuri", LABELS_M03["camp_clos_fleuri"], x, z, f, taille, "rival", prop="stage", building=rival["id"], radius=10.0))
+        pris.append(centre(rival))
+    for pid in ("item_caisson", "item_rallonge", "item_groupe"):
+        b = next((b for b in batiments if b["id"] != camp["id"] and 80 < dist(centre(b), cc) < 300 and all(dist(centre(b), q) > 40 for q in pris)), None)
+        if b is None:
+            continue
+        (x, z), f = emplacement_enseigne(b["footprint"], routes)
+        out.append(_poi3(pid, LABELS_M03[pid], x, z, f, taille, "setup", building=b["id"], radius=3.0))
+        pris.append(centre(b))
+    return out

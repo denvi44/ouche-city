@@ -47,6 +47,12 @@ jobs:
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m02_companions.gd -- --mission=m02
       - name: Mission 02 en ligne (le serveur impose la mission)
         run: bash qa/integration/m02_online.sh
+      - name: Mission 03 de bout en bout (matériel, trois manches, sabotages, gendarmes, fins ratées)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m03_flow.gd -- --mission=m03 --no-companions
+      - name: Mission 03 avec compagnons (Kévin, Ginette, Gégé)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m03_companions.gd -- --mission=m03
+      - name: Mission 03 en ligne (le serveur impose la mission)
+        run: bash qa/integration/m03_online.sh
       - name: Captures (Compatibility, sans GPU)
         run: bash qa/screenshots/capture.sh "qa/screenshots/out/ci"
       - uses: actions/upload-artifact@v4

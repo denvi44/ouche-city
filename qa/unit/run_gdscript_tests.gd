@@ -192,6 +192,24 @@ func _run() -> void:
 		if sqrt(e / bar_len) < 0.05:
 			quiet_bars += 1
 	check(quiet_bars == 0, "musique : aucune mesure silencieuse")
+	# Playlists de la battle de sono : 8 s, grosse caisse sur chaque temps, trois boucles différentes.
+	var tracks := {}
+	for id in Synth.TRACK_IDS:
+		tracks[id] = Synth.track(id)
+		check(absf(tracks[id].size() / 22050.0 - Synth.track_length()) < 0.05, "playlist %s : %.1f s" % [id, tracks[id].size() / 22050.0])
+		var on_beat := 0.0
+		var between := 0.0
+		for tb in Synth.TRACK_BEATS:
+			var i0 := int(tb * Synth.BEAT_T() * 22050.0)
+			for k in 600:
+				on_beat += absf(tracks[id][i0 + k])
+				between += absf(tracks[id][i0 + int(0.3 * 22050.0) + k]) if i0 + int(0.3 * 22050.0) + k < tracks[id].size() else 0.0
+		check(on_beat > between, "playlist %s : la grosse caisse tombe sur le temps" % id)
+	check(tracks.musette_remix != tracks.techno_foraine and tracks.techno_foraine != tracks.tube_ete_2003, "les trois playlists sont différentes")
+	var M3 = load("res://scripts/world/mission_m03.gd")
+	check(is_equal_approx(M3.BEAT, 60.0 / Synth.TRACK_BPM), "rythme de la mission 3 = rythme des playlists (%.2f s)" % M3.BEAT)
+	check(M3.PERFECT < M3.GOOD and M3.GOOD < M3.BEAT / 2.0, "fenêtres de timing : parfait < bon < demi-temps")
+	check(is_equal_approx(M3.COUNT_TIME / M3.BEAT, round(M3.COUNT_TIME / M3.BEAT)), "le compte à rebours est un nombre entier de temps (boucle alignée)")
 	var wav: AudioStreamWAV = Synth.to_stream(eng, true)
 	check(wav.data.size() == eng.size() * 2 and wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.mix_rate == 22050, "flux WAV 16 bits mono, bouclé")
 	var Amb = load("res://scripts/audio/ambiance.gd")

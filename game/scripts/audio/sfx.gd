@@ -215,5 +215,38 @@ func _music_ready(samples: PackedFloat32Array) -> void:
 		_music_player.play()
 
 
+## Playlist de la battle de sono (mission 03) : boucle de 8 s, générée une fois puis gardée.
+const TRACK_CAPTIONS := {"musette_remix": "[Sono : musette remixée]", "techno_foraine": "[Sono : techno foraine]", "tube_ete_2003": "[Sono : tube de l'été 2003]"}
+var current_track := ""
+var _track_cache := {}
+var _track_player: AudioStreamPlayer
+
+
+func play_track(id: String) -> void:
+	current_track = id
+	var tag := "track_" + id
+	counts[tag] = counts.get(tag, 0) + 1
+	played.append(tag)
+	if Settings.subtitles and TRACK_CAPTIONS.has(id):
+		caption.emit(TRACK_CAPTIONS[id], 3.0)
+	if not enabled:
+		return
+	if _track_player == null:
+		_track_player = AudioStreamPlayer.new()
+		_track_player.bus = "Musique"
+		_track_player.volume_db = -4.0
+		add_child(_track_player)
+	if not _track_cache.has(id):
+		_track_cache[id] = Synth.to_stream(Synth.track(id), true)
+	_track_player.stream = _track_cache[id]
+	_track_player.play()
+
+
+func stop_track() -> void:
+	current_track = ""
+	if _track_player:
+		_track_player.stop()
+
+
 func toggle_radio() -> void:
 	set_radio(not radio_on)
