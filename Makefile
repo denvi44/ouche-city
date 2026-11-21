@@ -52,6 +52,8 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m07_companions.gd -- --mission=m07
 	bash qa/integration/m07_online.sh
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd
+	$(GODOT) --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/feasibility/audit.gd
 
 ## Captures 1920×1080 de la scène témoin (GPU conseillé ; sinon rendu Compatibility).

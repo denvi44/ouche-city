@@ -74,6 +74,7 @@ func _build() -> void:
 	_name.placeholder_text = "Votre nom"
 	_name.max_length = 24
 	box.add_child(_name)
+	_build_save_block(box)
 	_button(box, "Jouer en solo (mission 1 : le Calva de Tonton Gégé)", func():
 		Net.mission_id = "m01"
 		_solo())
@@ -142,7 +143,60 @@ func _build() -> void:
 	credit.add_theme_font_size_override("font_size", int(18 * Settings.text_scale))
 	credit.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(credit)
-	box.get_child(4).grab_focus()
+	for c in box.get_children():
+		if c is Button and not (c as Button).disabled:
+			(c as Button).grab_focus()
+			break
+
+
+const CHAIN := ["m01_calva_gege", "m02_tuning_samedi", "m03_battle_sono", "m04_mechoui_saint_jean", "m05_vaches_en_goguette", "m06_courses_de_8h", "m07_jus_de_pomme"]
+const MEDAL_TXT := {"": "–", "bronze": "bronze", "silver": "argent", "gold": "or"}
+
+
+## Prochaine mission à jouer : la première de la chaîne non terminée (m01 si rien n'est fait).
+static func next_mission_key() -> String:
+	var prog = Engine.get_main_loop().root.get_node("Progress")
+	for i in CHAIN.size():
+		if not prog.is_done(CHAIN[i]):
+			return "m%02d" % (i + 1)
+	return "m%02d" % CHAIN.size()
+
+
+## Résumé de la sauvegarde, « Continuer » et « Nouvelle partie » (avec confirmation).
+func _build_save_block(box: VBoxContainer) -> void:
+	var done := 0
+	var medals: PackedStringArray = []
+	for id in CHAIN:
+		if Progress.is_done(id):
+			done += 1
+			medals.append(MEDAL_TXT.get(Progress.medal_of(id), "–"))
+	var info := Label.new()
+	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if done == 0 and Progress.money() == 0:
+		info.text = "Aucune sauvegarde : une nouvelle partie commence."
+	else:
+		info.text = "Sauvegarde : %d / %d missions, %d €, médailles : %s." % [done, CHAIN.size(), Progress.money(), ", ".join(medals) if medals.size() > 0 else "aucune"]
+	box.add_child(info)
+	var key := next_mission_key()
+	var cont := Button.new()
+	cont.text = "Continuer (mission %d)" % int(key.substr(1)) if done > 0 else "Nouvelle partie (mission 1)"
+	cont.pressed.connect(func():
+		Net.mission_id = key
+		_solo())
+	box.add_child(cont)
+	if done > 0 or Progress.money() > 0:
+		var dlg := ConfirmationDialog.new()
+		dlg.dialog_text = "Effacer la sauvegarde et repartir de zéro ?"
+		dlg.ok_button_text = "Effacer"
+		dlg.cancel_button_text = "Garder"
+		dlg.confirmed.connect(func():
+			Progress.reset()
+			get_tree().reload_current_scene())
+		add_child(dlg)
+		var wipe := Button.new()
+		wipe.text = "Nouvelle partie (efface la sauvegarde)"
+		wipe.pressed.connect(func(): dlg.popup_centered())
+		box.add_child(wipe)
 
 
 func _button(parent: Node, text: String, cb: Callable) -> void:

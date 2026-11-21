@@ -9,6 +9,7 @@ const SPRINT_SPEED := 7.5
 const CARRY_FACTOR := 0.7             # une caisse de calva, ça pèse
 const JUMP_VELOCITY := 5.2
 const GRAVITY := 18.0
+const STEP_HEIGHT := 0.35                          # bordures, seuils, marches basses : franchis sans sauter
 const ACCEL := 35.0
 const PALETTE := [Color(0.85, 0.3, 0.25), Color(0.25, 0.5, 0.8), Color(0.95, 0.75, 0.2), Color(0.35, 0.65, 0.35),
 	Color(0.65, 0.4, 0.75), Color(0.95, 0.55, 0.25), Color(0.3, 0.7, 0.7), Color(0.8, 0.45, 0.6)]
@@ -199,6 +200,7 @@ func simulate(inp: Dictionary, delta: float) -> void:
 			velocity.y = JUMP_VELOCITY
 	else:
 		velocity.y = maxf(velocity.y - GRAVITY * delta, -50.0)
+	_step_up(delta)
 	move_and_slide()
 	if dir.length_squared() > 0.01:
 		facing = atan2(-dir.x, -dir.z)
@@ -206,6 +208,27 @@ func simulate(inp: Dictionary, delta: float) -> void:
 	if global_position.y < -30.0:
 		global_position = Vector3(global_position.x, 2.0, global_position.z)
 		velocity = Vector3.ZERO
+
+
+## Montée de marche : si un obstacle vertical bas (≤ STEP_HEIGHT) bloque la marche, on se hisse dessus.
+## Déterministe, donc identique sur le client (prédiction) et sur le serveur.
+func _step_up(delta: float) -> void:
+	if not is_on_floor() or velocity.y > 0.1:
+		return
+	var h := Vector3(velocity.x, 0.0, velocity.z) * delta
+	if h.length_squared() < 1e-6:
+		return
+	h = h.normalized() * maxf(h.length(), 0.12)
+	var t := global_transform
+	var col := KinematicCollision3D.new()
+	if not test_move(t, h, col) or col.get_normal().y > 0.8:
+		return
+	var up := Vector3.UP * STEP_HEIGHT
+	if test_move(t, up):
+		return
+	if test_move(t.translated(up), h):
+		return
+	global_position += Vector3.UP * STEP_HEIGHT
 
 
 func _physics_process(delta: float) -> void:

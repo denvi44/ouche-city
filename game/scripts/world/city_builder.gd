@@ -821,23 +821,24 @@ func build_mission_markers(pois: Array, mission_id := "") -> Node3D:
 		var color: Color = STEP_COLOR.get(p.step, Color.WHITE)
 		# Balise : cylindre translucide visible de loin.
 		var beam := CylinderMesh.new()
-		beam.top_radius = 0.6; beam.bottom_radius = 0.6; beam.height = 30.0; beam.radial_segments = 12
+		beam.top_radius = 0.8; beam.bottom_radius = 0.8; beam.height = 80.0; beam.radial_segments = 12
 		var bm := StandardMaterial3D.new()
 		bm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		bm.albedo_color = Color(color, 0.35)
+		bm.albedo_color = Color(color, 0.45)
 		bm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		bm.cull_mode = BaseMaterial3D.CULL_DISABLED
 		beam.material = bm
 		var bi := MeshInstance3D.new()
 		bi.mesh = beam
-		bi.position.y = 15.0
+		bi.position.y = 40.0
 		bi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		n.add_child(bi)
 		var label := Label3D.new()
-		label.text = "%s\n(%s)" % [p.label, p.step]
+		label.text = str(p.label)
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-		label.font_size = 56
-		label.pixel_size = 0.012
+		label.fixed_size = true                 # taille constante à l'écran : lisible de loin
+		label.font_size = 48
+		label.pixel_size = 0.0007
 		label.outline_size = 16
 		label.modulate = color.lightened(0.5)
 		label.outline_modulate = Color(0.12, 0.09, 0.08)
