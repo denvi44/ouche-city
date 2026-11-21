@@ -925,7 +925,7 @@ def _rect_orienté(footprint, facing: float):
 
 # Débordement du modèle hors de son rectangle (mesuré par qa/integration/landmarks_audit.gd) : (latéral, avant, arrière) en mètres.
 # « Avant » est le côté du cap, c'est-à-dire la rue : perron, cour de récréation, parking…
-MARGES_EDIFICE = {"mairie": (0.6, 4.7, 0.5), "ecole": (3.3, 14.2, 0.6), "hopital": (6.2, 12.0, 0.5), "usine": (6.2, 10.5, 0.5)}
+MARGES_EDIFICE = {"mairie": (0.6, 4.7, 0.5), "ecole": (3.3, 14.2, 0.6), "hopital": (6.2, 12.0, 0.5), "usine": (6.2, 15.0, 0.5)}
 # Dimensions minimales du modèle (il agrandit sinon son rectangle d'office).
 MINI_EDIFICE = {"mairie": (14.0, 9.0), "ecole": (8.0, 8.0), "hopital": (14.0, 18.0), "usine": (10.0, 16.0)}
 

@@ -1,7 +1,7 @@
 class_name CinematicDirector
 extends Node
 ## Metteur en scène (agent 08) : joue l'introduction de la mission au démarrage et la scène de fin (réussite ou échec) quand
-## l'étape passe à « done » / « failed ». Chaque joueur voit ses propres scènes, une seule fois par partie. Inactif en headless
+## l'étape passe à « done » / « failed » ; après une réussite, la scène de liaison vers la mission suivante (bridge) ou l'épilogue. Chaque joueur voit ses propres scènes, une seule fois par partie. Inactif en headless
 ## (tests, serveur dédié) et si le joueur a désactivé les cinématiques.
 
 var world: Node3D
@@ -50,6 +50,10 @@ func _on_changed() -> void:
 	if s == "done" or s == "failed":
 		await get_tree().create_timer(0.9).timeout
 		play("%s_%s" % [world.mission_key, s])
+		if s == "done":
+			# L'histoire continue : « à suivre » vers la mission suivante (missions 1 à 7) ou épilogue (mission 8).
+			play("%s_bridge" % world.mission_key)
+			play("%s_epilogue" % world.mission_key)
 
 
 func play(id: String) -> void:
