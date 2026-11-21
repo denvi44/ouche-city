@@ -243,6 +243,11 @@ func _chat_m06(delta: float) -> Dictionary:
 
 
 ## Mission 05, rabatteur : se place derrière la vache libre la plus proche (côté opposé à l'enclos) et siffle quand il est près.
+var _herd_cow := -1
+var _human_last := Vector2.ZERO
+var _human_active := 0.0
+
+
 func _herd_m05(delta: float) -> Dictionary:
 	var m = mission
 	if m.step != "herd":
@@ -250,11 +255,28 @@ func _herd_m05(delta: float) -> Dictionary:
 	var pos := body.global_position
 	var here := Vector2(pos.x, pos.z)
 	# Kévin prend la vache la plus éloignée du joueur (les retardataires) pour ne pas gêner celui qui rentre les plus proches.
-	var far: bool = m.humans() > 0
-	var target: Vector3 = m.herd_target(here, far)
-	if target == Vector3.ZERO:
+	# La vache choisie est gardée jusqu'à son entrée dans l'enclos (sinon la cible oscille au fil des déplacements).
+	# Un joueur immobile ne rabat rien : Kévin ne se réserve les retardataires que si un humain est actif.
+	var hp: Vector2 = m.human_pos()
+	if hp.distance_to(_human_last) > 0.5:
+		_human_active = 12.0
+		_human_last = hp
+	_human_active = maxf(0.0, _human_active - delta)
+	var far: bool = m.humans() > 0 and _human_active > 0.0
+	var stray: Dictionary = {}
+	if _herd_cow >= 0:
+		for c in m.cows:
+			if int(c.id) == _herd_cow and c.st != "pen":
+				stray = c
+	if stray.is_empty():
+		stray = m.farthest_stray(m.human_pos()) if far else m.nearest_stray(Vector2(m.zones.pen.x, m.zones.pen.z))
+		_herd_cow = int(stray.id) if not stray.is_empty() else -1
+	if stray.is_empty():
 		return idle()
-	var stray: Dictionary = m.farthest_stray(m.human_pos()) if far else m.nearest_stray(Vector2(m.zones.pen.x, m.zones.pen.z))
+	var cow_p := Vector2(stray.x, stray.z)
+	var away := (cow_p - Vector2(m.zones.pen.x, m.zones.pen.z)).normalized()
+	var tp := cow_p + away * 7.0
+	var target := Vector3(tp.x, 0.0, tp.y)
 	status = "rabat %s" % MissionM05.COW_NAMES[int(stray.id) % MissionM05.COW_NAMES.size()]
 	if _horizontal(pos, target) < 3.0:
 		# En place : on avance vers la vache pour la pousser, et on siffle si elle est loin.
