@@ -374,7 +374,7 @@ func _try_interact(allowed: Array) -> void:
 ## mobiles — joueurs, camionnette — ne bloquent pas).
 func _clear(a: Vector2, b: Vector2) -> bool:
 	# Deux hauteurs : bas (jardinières, bancs, bornes) et poitrine (murs, mâts).
-	return _clear_at(a, b, 0.45) and _clear_at(a, b, 1.2)
+	return _clear_at(a, b, 0.9)
 
 
 func _clear_at(a: Vector2, b: Vector2, h: float) -> bool:

@@ -101,7 +101,7 @@ static func build_tile(data: Dictionary, height_at: Callable, avoid: Array = [])
 	root.name = "Mobilier"
 	var spots := lamp_spots(data, height_at, avoid)
 	_multimesh(root, "Lampadaires", kit("lamp"), spots)
-	_collisions(root, spots, Vector3(0.0, 2.0, 0.0), null, Vector2(0.14, 4.0))
+	# Pas de collision pour les mâts : fins (28 cm), ils coinçaient les compagnons IA sur les routes de campagne (bissection m05).
 	return root
 
 
