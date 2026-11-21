@@ -130,6 +130,99 @@ func _run() -> void:
 	van.forced_input = {"move": Vector2.ZERO, "jump": true}
 	await frames(60)
 
+	# --- Événements de route : nids-de-poule, tracteur, vaches ---------------------------------------
+	mission.step = "road"
+	mission.cargo = 20
+	van.forced_input = {"move": Vector2.ZERO, "jump": true}
+	check(mission.hazards_ready and mission.potholes.size() == 5, "5 nids-de-poule posés sur l'itinéraire")
+	check(mission.route_length > 150.0 and mission.route_length < 800.0, "itinéraire de la camionnette au barrage : %.0f m" % mission.route_length)
+	var ground_y := func(p: Vector2) -> float: return world.builder.height_at(p.x, p.y) + 0.6
+	# On repart d'un état propre (la camionnette a pu réveiller le tracteur pendant les essais de conduite).
+	mission.tractor_active = false
+	mission.tractor_done = false
+	mission.tractor.set_active(false)
+	mission.tractor.teleport(Vector3(mission.tractor_start.x, mission.tractor.global_position.y, mission.tractor_start.y), mission.tractor.yaw)
+	mission.tractor.start_route(mission._tractor_path)
+	check(not mission.cows_active, "vaches endormies avant l'approche")
+	# Au départ de l'itinéraire, le tracteur dort encore.
+	place(van, Vector3(mission.route[0].x, ground_y.call(mission.route[0]), mission.route[0].y))
+	van.speed = 0.0
+	await frames(5)
+	check(not mission.tractor_active and not mission.tractor.visible, "tracteur inactif et invisible tant qu'on est loin")
+	# Nid-de-poule pris vite : 12 m/s => 2 bouteilles de moins et une secousse.
+	var jolts0: int = mission.jolt_serial
+	var p0: Vector2 = mission.potholes[0]
+	place(van, Vector3(p0.x, ground_y.call(p0), p0.y))
+	van.speed = 12.0
+	await frames(3)
+	check(mission.cargo == 18, "nid-de-poule à 43 km/h : 2 bouteilles perdues (%d → %d)" % [20, mission.cargo])
+	check(mission.jolt_serial == jolts0 + 1, "secousse de la caisse signalée")
+	# Pris doucement : rien de cassé.
+	var p1: Vector2 = mission.potholes[1]
+	place(van, Vector3(p1.x, ground_y.call(p1), p1.y))
+	van.speed = 2.0
+	await frames(3)
+	check(mission.cargo == 18, "nid-de-poule à 7 km/h : rien de cassé")
+	var soft := false
+	for m in mission.messages:
+		soft = soft or m.contains("doucement")
+	check(soft, "message : « vous passez doucement »")
+	# Le même nid-de-poule ne frappe pas deux fois de suite (délai de 2,5 s).
+	place(van, Vector3(p1.x, ground_y.call(p1), p1.y))
+	van.speed = 12.0
+	await frames(3)
+	check(mission.cargo == 18, "même nid-de-poule, 3 images plus tard : pas de double peine")
+
+	# Tracteur : se réveille à l'approche, roule à ~3 m/s, rentre à la ferme.
+	var t_pos: Vector2 = mission.route_at(mission.route_length * mission.TRACTOR_FROM - 40.0).pos
+	place(van, Vector3(t_pos.x, ground_y.call(t_pos), t_pos.y))
+	van.speed = 0.0
+	await frames(5)
+	check(mission.tractor_active and mission.tractor.visible, "tracteur réveillé à 40 m")
+	var tr0: Vector3 = mission.tractor.global_position
+	await frames(300)
+	var tr_d := Vector2(mission.tractor.global_position.x - tr0.x, mission.tractor.global_position.z - tr0.z).length()
+	check(tr_d > 10.0 and tr_d < 18.0, "le tracteur avance de %.1f m en 5 s (≈ 3 m/s)" % tr_d)
+	check(mission.tractor.speed_now > 2.5 and mission.tractor.speed_now < 3.2, "vitesse du tracteur : %.1f m/s" % mission.tractor.speed_now)
+	mission.tractor.finished = true
+	await frames(5)
+	check(not mission.tractor_active and mission.tractor_done and not mission.tractor.visible, "le tracteur quitte la route")
+
+	# Vaches : traversée, arrêt au milieu, klaxon.
+	var cp: Vector2 = Vector2.ZERO
+	for rp in mission.route:
+		if rp.distance_to(mission.cow_center) >= 35.0 and rp.distance_to(mission.cow_center) < 48.0:
+			cp = rp
+			break
+	check(cp != Vector2.ZERO, "un point de l'itinéraire à ~40 m des vaches")
+	place(van, Vector3(cp.x, ground_y.call(cp), cp.y))
+	van.speed = 0.0
+	await frames(5)
+	check(mission.cows_active and mission.cows.size() == 3, "3 vaches se mettent à traverser")
+	await frames(780)
+	var grazing := 0
+	var in_place := true
+	for cw in mission.cows:
+		if cw.state == "grazing":
+			grazing += 1
+		var off: float = (Vector2(cw.global_position.x, cw.global_position.z) - cw.origin).dot(cw.across)
+		in_place = in_place and absf(off - cw.rest_offset) < 1.0
+	check(grazing == 3, "les 3 vaches broutent au milieu de la route")
+	check(in_place, "chacune à sa place (barrent la chaussée en zigzag)")
+	mission.horn()
+	await frames(10)
+	var startled := true
+	for cw in mission.cows:
+		startled = startled and cw.state == "leaving"
+	check(startled, "le klaxon les fait partir")
+	check(mission.messages[-1].contains("détalent"), "message : « Les vaches détalent »")
+	await frames(900)
+	var gone := true
+	for cw in mission.cows:
+		gone = gone and cw.state == "gone"
+	check(gone and mission.cows_done, "les vaches ont dégagé la route")
+	mission.cargo = 18
+
 	# --- Barrage : choix d'équipe (sans compagnons : ni Ginette ni Kévin sur place) ---------------------
 	var barrier = world.city.get_node_or_null("LieuxDeMission/Lieu_barrage_bosc_tenney/Collision")
 	check(barrier != null and barrier.collision_layer == 1, "la barrière du barrage est solide")

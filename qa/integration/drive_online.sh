@@ -19,6 +19,7 @@ sleep 1
 wait $SERVER
 sleep 1
 
+grep -l "SCRIPT ERROR" "$LOG"/*.log >/dev/null 2>&1 && { echo "ÉCHEC : erreur de script dans les journaux"; grep -h "SCRIPT ERROR" -A2 "$LOG"/*.log | head; exit 1; }
 python3 - "$LOG" <<'PY'
 import re, sys, math
 log = sys.argv[1]
@@ -40,6 +41,15 @@ srv_max = max(dist(start, v) for v in srv)
 print(f"serveur : camionnette déplacée de {srv_max:.0f} m, conducteur {srv[-1][2]}")
 if srv_max < 25: fail("la camionnette n'a pas avancé côté serveur")
 if not any(v[2] != 0 for v in srv): fail("aucun conducteur côté serveur")
+def nids(path):
+    for l in reversed(open(path).readlines()):
+        m = re.search(r"nids=(\d+) tracteur=(\w+)", l)
+        if m and "joueurs=2" in l: return int(m[1]), m[2]
+    return None
+ns, nw = nids(f"{log}/server.log"), nids(f"{log}/watcher.log")
+print(f"aléas de route : serveur {ns}, spectateur {nw}")
+if not ns or ns[0] != 5: fail("le serveur n'a pas posé les 5 nids-de-poule")
+if not nw or nw[0] != 5 or nw[1] != "true": fail("le spectateur n'a pas reçu les aléas de route (nids-de-poule, tracteur)")
 if not wat: fail("le spectateur n'a pas de rapport")
 else:
     wat_max = max(dist(start, v) for v in wat)

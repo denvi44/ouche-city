@@ -111,6 +111,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		for i in 3:
 			if event.is_action_pressed("choose_%d" % (i + 1)):
 				mission.request_choice(MissionM01.OPTIONS[i])
+	if event.is_action_pressed("horn") and mission and van and van.driver == multiplayer.get_unique_id():
+		mission.request_horn()
 	if event.is_action_pressed("interact") and mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
 		mission.request_interact()
 
@@ -231,8 +233,8 @@ func _client_ready() -> void:
 	for other in Net.ready_peers():
 		_spawn_remote.rpc_id(other, id, pname, pos)
 	_set_hour.rpc_id(id, day_night.hour)
+	mission.send_full_state(id)      # aléas (tracteur, vaches, nids-de-poule) puis état, avant « prêt »
 	Net.players[id].ready = true
-	mission.send_full_state(id)
 	print("[monde] joueur %d (%s) apparu en %s" % [id, pname, pos])
 
 
@@ -270,7 +272,7 @@ func _qa_report() -> void:
 	var parts := []
 	for p in players_root.get_children():
 		parts.append("%d@%.1f,%.1f,%.1f" % [p.peer_id, p.global_position.x, p.global_position.y, p.global_position.z])
-	var vinfo := "van=%.1f,%.1f,%.1f conducteur=%d etape=%s" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step] if van else "van=-"
+	var vinfo := "van=%.1f,%.1f,%.1f conducteur=%d etape=%s nids=%d tracteur=%s" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step, mission.potholes.size(), mission.tractor != null] if van else "van=-"
 	print("[qa] mode=%s joueurs=%d %s positions=%s" % [Net.Mode.keys()[Net.mode], players_root.get_child_count(), vinfo, " ".join(parts)])
 
 

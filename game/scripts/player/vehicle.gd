@@ -33,6 +33,7 @@ var _steer_visual := 0.0
 var _last_input := {"move": Vector2.ZERO, "jump": false}
 ## Entrée imposée (tests QA) : remplace celle du clavier.
 var forced_input := {}
+var _jolt := 0.0                 # secousse visuelle (nid-de-poule), décroît seule
 
 
 func _ready() -> void:
@@ -129,8 +130,16 @@ func simulate(inp: Dictionary, delta: float) -> void:
 		speed = 0.0
 
 
+## Secousse de la caisse (nid-de-poule) : visuel seulement.
+func jolt() -> void:
+	_jolt = 1.0
+
+
 func _process(delta: float) -> void:
 	super._process(delta)
+	if _body_visual:
+		_jolt = maxf(_jolt - delta * 2.5, 0.0)
+		_body_visual.position.y = sin(Time.get_ticks_msec() * 0.045) * 0.13 * _jolt
 	# Roues avant braquées, roues qui tournent (cosmétique).
 	for w in _front_wheels:
 		w.rotation.y = lerp_angle(w.rotation.y, -_steer_visual, clampf(10.0 * delta, 0.0, 1.0))

@@ -13,16 +13,19 @@ var astar := AStar2D.new()
 var _ids := {}
 
 
-static func load_default() -> RoadNav:
+## `vehicles` : ne garde que les routes carrossables (ni sentiers, ni escaliers, ni voies piétonnes).
+static func load_default(vehicles := false) -> RoadNav:
 	var nav := RoadNav.new()
 	var data = CityBuilder.read_json(GRAPH_PATH)
 	if data is Dictionary:
-		nav.build(data.get("edges", []))
+		nav.build(data.get("edges", []), ["primary", "secondary", "tertiary", "residential", "service"] if vehicles else [])
 	return nav
 
 
-func build(edges: Array) -> void:
+func build(edges: Array, kinds: Array = []) -> void:
 	for e in edges:
+		if not kinds.is_empty() and not (e.get("kind", "") in kinds):
+			continue
 		var prev := -1
 		var last := Vector2.ZERO
 		for i in e.points.size():

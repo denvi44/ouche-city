@@ -35,8 +35,8 @@ jobs:
           godot --headless --path game -s ../qa/unit/run_gdscript_tests.gd
       - name: Test réseau (serveur dédié + 2 bots)
         run: bash qa/integration/two_players.sh
-      - name: Mission 01 de bout en bout (caisses, conduite, choc, livraison)
-        run: godot --headless --path game -s ../qa/integration/m01_flow.gd -- --no-companions
+      - name: Mission 01 de bout en bout (caisses, conduite, aléas de route, barrage, livraison)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m01_flow.gd -- --no-companions
       - name: Compagnon IA (Gégé charge les 4 caisses seul)
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/companion_flow.gd -- --sec=600 --need=4
       - name: Conduite en ligne (serveur + conducteur + spectateur)
