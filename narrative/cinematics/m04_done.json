@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "m04_done",
+  "mission": "m04",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "place_fete",
+        "off": [
+          8,
+          2.4,
+          9
+        ]
+      },
+      "look": {
+        "at": "place_fete",
+        "off": [
+          0,
+          1.2,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "place_fete",
+        "off": [
+          5.5,
+          2.0,
+          6.5
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "Quatre tables servies et pas un gigot volé. Un record cantonal."
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "bucher",
+        "off": [
+          14,
+          4.0,
+          14
+        ]
+      },
+      "look": {
+        "at": "bucher",
+        "off": [
+          0,
+          2.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "bucher",
+        "off": [
+          10,
+          3.5,
+          10
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Les flammes montent, les chiens dorment enfin."
+      }
+    }
+  ]
+}

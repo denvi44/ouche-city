@@ -1,0 +1,29 @@
+// Les vaches sont de sortie — dialogues de la mission 05.
+title: m05_intro
+---
+Ginette: Mémé Odette a laissé la barrière ouverte. Huit vaches se baladent dans le pré. #line:m05_intro_01
+Kévin: Huit ! Elles sont au moins quarante dans mon rêve. #line:m05_intro_02
+Gégé: Tu rêves toujours de vaches ? Allez, rabats-moi ça avant le laitier. #line:m05_intro_03
+===
+title: m05_herd
+---
+Ginette: Elles vous fuient si vous courez dessus. Placez-vous derrière elles, et sifflez ! #line:m05_herd_01 #onoma:FIIIIIT !
+Marguerite: Meuuuh. (Je ne rentre pas.) #line:m05_herd_02 #onoma:MEUUUH !
+===
+title: m05_gate
+---
+Gégé: Fermez la barrière, que Mémé Odette ne nous cherche pas des noises. #line:m05_gate_01
+===
+title: m05_done
+---
+Ginette: Toutes rentrées, jusqu'à Marguerite ! Quel troupeau, mes amis. #line:m05_done_01 #onoma:MEUUUH !
+===
+title: m05_cow_in
+---
+Kévin: Une de plus à l'abri. Et elle n'a même pas dit merci. #line:m05_cow_in_01
+===
+
+title: m05_guide
+---
+Ginette: Les vaches sont de ce côté ! Place-toi derrière elles et siffle. #line:m05_guide_01
+===

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m08_failed",
+  "mission": "m08",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "passage_niveau",
+        "off": [
+          10,
+          2.8,
+          -12
+        ]
+      },
+      "look": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "passage_niveau",
+        "off": [
+          7,
+          2.4,
+          -9
+        ]
+      },
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Il est passé. Les oies ont boudé jusqu'à l'apéro."
+      }
+    }
+  ]
+}

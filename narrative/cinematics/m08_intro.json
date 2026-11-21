@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "id": "m08_intro",
+  "mission": "m08",
+  "when": "intro",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "etang_oies",
+        "off": [
+          0,
+          44,
+          16
+        ]
+      },
+      "look": {
+        "at": "etang_oies",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "etang_oies",
+        "off": [
+          0,
+          28,
+          10
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Vendredi, dix-sept heures : le Train des Vacances ramène les Parisiens. Les oies de Mémé Odette ont un projet."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "etang_oies",
+        "off": [
+          10,
+          2.4,
+          14
+        ]
+      },
+      "look": {
+        "at": "etang_oies",
+        "off": [
+          0,
+          0.8,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "etang_oies",
+        "off": [
+          7,
+          2.0,
+          10
+        ]
+      },
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Mes oies font grève, mon p'tit. Et c'est toi qui les mènes."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "gare_pays_frouch",
+        "off": [
+          30,
+          22,
+          -36
+        ]
+      },
+      "cam_to": {
+        "at": "gare_pays_frouch",
+        "off": [
+          20,
+          15,
+          -24
+        ]
+      },
+      "look": {
+        "at": "gare_pays_frouch",
+        "off": [
+          -8,
+          0,
+          0
+        ]
+      },
+      "fov": 58,
+      "caption": {
+        "who": "Gégé",
+        "text": "La gare du Pays de Frouch : trois quais imaginaires et un seul vrai. Le train s'y arrête rarement. Aujourd'hui, il n'aura pas le choix."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          34,
+          -20
+        ]
+      },
+      "look": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          22,
+          -14
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "Dix-sept heures quarante-deux, au passage à niveau. Pas une minute de retard."
+      }
+    }
+  ],
+  "title": "Les oies font grève",
+  "subtitle": "Vendredi · 17 h 00 · la mare de Mémé Odette"
+}

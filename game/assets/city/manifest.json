@@ -1,0 +1,52 @@
+{
+ "sources": [
+  {
+   "source": "IGN BD TOPO V3 via Géoplateforme (WFS)",
+   "licence": "Licence Ouverte Etalab 2.0 — Source : IGN",
+   "extrait_le": "2026-11-20",
+   "entites": {
+    "batiment": 3776,
+    "route": 1033,
+    "vegetation": 191,
+    "eau": 41
+   }
+  }
+ ],
+ "attribution": [
+  "Source : IGN — BD TOPO, RGE ALTI (Licence Ouverte Etalab 2.0)"
+ ],
+ "tiles": [
+  "3_4",
+  "3_5",
+  "3_6",
+  "3_7",
+  "4_3",
+  "4_4",
+  "4_5",
+  "4_6",
+  "4_7",
+  "4_8",
+  "5_3",
+  "5_4",
+  "5_5",
+  "5_6",
+  "5_7",
+  "5_8",
+  "6_3",
+  "6_4",
+  "6_5",
+  "6_6",
+  "6_7",
+  "6_8",
+  "7_4",
+  "7_5",
+  "7_6",
+  "7_7"
+ ],
+ "tileSize": 250.0,
+ "pocCentre": [
+  1399.26,
+  1462.43
+ ],
+ "altitudeReference": 143.1
+}

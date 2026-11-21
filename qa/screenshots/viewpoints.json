@@ -1,0 +1,186 @@
+{
+  "description": "Points de vue nommés de la scène témoin. Types : along_road (caméra posée sur la rue nommée, regard dans l'axe), anchor (POI + décalage). Un point de vue dont l'ancre n'est pas dans les tuiles chargées est ignoré et signalé. Type sign : face à l'enseigne d'un POI fictif. Type sign accepte lookHeight. Les points de vue mission01_* montrent les lieux de la mission 01 (blockout).",
+  "hours": [
+    12,
+    21
+  ],
+  "resolution": [
+    1920,
+    1080
+  ],
+  "viewpoints": [
+    {
+      "id": "rue_sainte_foy",
+      "type": "along_road",
+      "road": "Rue Sainte-Foy",
+      "eyeHeight": 1.7,
+      "lookAhead": 40
+    },
+    {
+      "id": "rue_sainte_foy_drone",
+      "type": "anchor",
+      "anchor": "spawn_rue_sainte_foy",
+      "offset": [
+        -60,
+        45,
+        70
+      ],
+      "lookOffset": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "enseigne_auto_bling",
+      "type": "sign",
+      "anchor": "auto_bling_27",
+      "distance": 4.5,
+      "eyeHeight": 1.8
+    },
+    {
+      "id": "parvis_eglise",
+      "type": "anchor",
+      "anchor": "eglise",
+      "offset": [
+        0,
+        1.7,
+        35
+      ],
+      "lookOffset": [
+        0,
+        12,
+        0
+      ]
+    },
+    {
+      "id": "haut_du_donjon",
+      "type": "anchor",
+      "anchor": "donjon",
+      "offset": [
+        0,
+        22,
+        0
+      ],
+      "lookOffset": [
+        -80,
+        0,
+        40
+      ]
+    },
+    {
+      "id": "avenue_bosc_tenney",
+      "type": "along_road",
+      "road": "Avenue du Bosc Tenney",
+      "eyeHeight": 1.7,
+      "lookAhead": 50
+    },
+    {
+      "id": "place_de_la_foire",
+      "type": "along_road",
+      "road": "Place Carnot",
+      "eyeHeight": 1.7,
+      "lookAhead": 30
+    },
+    {
+      "id": "mission01_vue_ensemble",
+      "type": "anchor",
+      "anchor": "van_gege",
+      "offset": [
+        -40,
+        230,
+        330
+      ],
+      "lookOffset": [
+        -60,
+        0,
+        -250
+      ]
+    },
+    {
+      "id": "mission01_cave",
+      "type": "sign",
+      "anchor": "cave_gege",
+      "distance": 14,
+      "eyeHeight": 2.5,
+      "lookHeight": 3.5
+    },
+    {
+      "id": "mission01_grange",
+      "type": "sign",
+      "anchor": "grange_pommiers",
+      "distance": 22,
+      "eyeHeight": 4.0,
+      "lookHeight": 3.0
+    },
+    {
+      "id": "mission01_fumier",
+      "type": "anchor",
+      "anchor": "fumier_tas",
+      "offset": [
+        -12,
+        6,
+        -12
+      ],
+      "lookOffset": [
+        0,
+        0.5,
+        0
+      ]
+    },
+    {
+      "id": "mission01_poulailler",
+      "type": "sign",
+      "anchor": "poulailler_ginette",
+      "distance": 14,
+      "eyeHeight": 2.5,
+      "lookHeight": 1.5
+    },
+    {
+      "id": "mission01_camionnette",
+      "type": "sign",
+      "anchor": "van_gege",
+      "distance": 11,
+      "eyeHeight": 2.2,
+      "lookHeight": 3.5
+    },
+    {
+      "id": "mission01_barrage",
+      "type": "sign",
+      "anchor": "barrage_bosc_tenney",
+      "distance": 18,
+      "eyeHeight": 2.2,
+      "lookHeight": 1.5
+    },
+    {
+      "id": "mission01_stand",
+      "type": "sign",
+      "anchor": "stand_comite",
+      "distance": 12,
+      "eyeHeight": 2.2,
+      "lookHeight": 1.5
+    },
+    {
+      "id": "facades_gros_plan",
+      "type": "along_road",
+      "road": "Rue Sainte-Foy",
+      "eyeHeight": 1.7,
+      "lookAhead": 12
+    },
+    {
+      "id": "facades_eglise",
+      "type": "anchor",
+      "anchor": "eglise",
+      "offset": [
+        -6,
+        2.0,
+        26
+      ],
+      "lookOffset": [
+        0,
+        7,
+        0
+      ]
+    }
+  ]
+}

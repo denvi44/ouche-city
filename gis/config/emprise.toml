@@ -1,0 +1,21 @@
+# Emprise de Frouch City — Conches-en-Frouch (Eure)
+# Toutes les coordonnées sont en WGS84 (degrés). Projection de travail : Lambert-93 (EPSG:2154).
+
+[ville]
+nom = "Conches-en-Frouch"
+centre = [48.9614, 0.9433]          # lat, lon
+demi_cote_m = 1500                   # emprise 3 × 3 km
+taille_tuile_m = 250
+
+# Centre médiéval à l'échelle 1:1 ; tout le reste est compressé 1:2 (appliqué au jalon M1).
+[zones.centre_medieval]
+echelle = 1.0
+rayon_m = 450
+
+[zones.peripherie]
+echelle = 0.5
+
+# Premier ticket M0 : la rue Sainte-Foy et ses abords.
+[poc]
+rue = "Rue Sainte-Foy"
+rayon_m = 560

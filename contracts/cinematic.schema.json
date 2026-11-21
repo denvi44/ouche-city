@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://frouch-city/contracts/cinematic.schema.json",
+  "title": "Cinématique Frouch City",
+  "description": "Scène d'introduction, de fin ou de liaison entre missions (bridge : « à suivre », jouée après la réussite ; epilogue : fin de l'histoire, mission 8) : suite de plans de caméra ancrés sur des points d'intérêt (poi.json). Repère local d'un lieu : +Z vers la rue, +X à droite, +Y en haut, origine au sol du point. Narration uniquement (agent 08) ; lecture par game/scripts/cinematic/. v2.",
+  "version": 2,
+  "type": "object",
+  "required": ["schemaVersion", "id", "mission", "when", "shots"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^m0[1-9]_(intro|done|failed|bridge|epilogue)$" },
+    "mission": { "type": "string", "pattern": "^m0[1-9]$" },
+    "when": { "type": "string", "enum": ["intro", "done", "failed", "bridge", "epilogue"], "description": "intro : au démarrage ; done / failed : quand l'étape de la mission passe à cet état ; bridge : enchaînée après done, annonce la mission suivante (peut ancrer sur les lieux de la suivante) ; epilogue : après done de la dernière mission." },
+    "title": { "type": "string", "maxLength": 60 },
+    "subtitle": { "type": "string", "maxLength": 80 },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["dur", "cam", "look"],
+        "additionalProperties": false,
+        "properties": {
+          "dur": { "type": "number", "minimum": 2.5, "maximum": 8 },
+          "fov": { "type": "number", "minimum": 30, "maximum": 85 },
+          "cam": { "$ref": "#/$defs/ref" },
+          "cam_to": { "$ref": "#/$defs/ref", "description": "Fin du travelling (même lieu que cam)." },
+          "look": { "$ref": "#/$defs/ref" },
+          "look_to": { "$ref": "#/$defs/ref" },
+          "caption": {
+            "type": "object",
+            "required": ["who", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "who": { "type": "string", "maxLength": 30 },
+              "text": { "type": "string", "maxLength": 170 }
+            }
+          },
+          "onoma": { "type": "string", "maxLength": 30 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ref": {
+      "type": "object",
+      "required": ["at", "off"],
+      "additionalProperties": false,
+      "properties": {
+        "at": { "type": "string", "pattern": "^[a-z0-9_]+$", "description": "Identifiant d'un POI." },
+        "off": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 }
+      }
+    }
+  }
+}

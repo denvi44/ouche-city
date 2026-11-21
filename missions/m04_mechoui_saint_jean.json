@@ -1,0 +1,23 @@
+{
+  "id": "m04_mechoui_saint_jean",
+  "title": "Le méchoui de la Saint-Jean",
+  "requires": ["m03_battle_sono"],
+  "players": { "min": 1, "max": 4 },
+  "summary": "Le Comité des fêtes compte sur vous : un agneau à la broche pour huit convives, le feu de la Saint-Jean à allumer, et des chiens du quartier qui ont flairé la bonne affaire.",
+  "roles": ["cuisinier", "serveur", "gardien", "allumeur"],
+  "companions": { "cuisinier": "gege", "serveur": "ginette", "gardien": "kevin" },
+  "guests": { "tables": 4, "perTable": 2 },
+  "fire": { "bandMin": 0.45, "bandMax": 0.72, "cookSec": 60, "burnAbove": 0.85, "pumpGain": 0.1 },
+  "dogs": { "solo": 3, "coop": 5, "stealPenalty": 0.1 },
+  "steps": [
+    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
+    { "id": "gather", "type": "collect", "items": ["agneau", "broche", "charbon"], "timeLimitSec": 240 },
+    { "id": "fire", "type": "minigames", "minigame": "tend_fire" },
+    { "id": "dogs", "type": "event", "events": ["chiens_errants"] },
+    { "id": "serve", "type": "deliver_on_foot", "timeLimitSec": 150 },
+    { "id": "bonfire", "type": "free" },
+    { "id": "outro", "type": "cutscene", "variants": ["gold", "win", "default"] }
+  ],
+  "medals": { "gold": { "satisfaction": 85 }, "silver": { "satisfaction": 65 }, "bronze": { "satisfaction": 40 } },
+  "rewards": { "reputation": { "comite_fetes": 1 }, "unlocks": ["m05_vaches_en_goguette"] }
+}

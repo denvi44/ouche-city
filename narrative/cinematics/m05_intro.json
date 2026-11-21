@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m05_intro",
+  "mission": "m05",
+  "when": "intro",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "pre_vaches",
+        "off": [
+          30,
+          36,
+          30
+        ]
+      },
+      "look": {
+        "at": "pre_vaches",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "pre_vaches",
+        "off": [
+          16,
+          24,
+          18
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Alerte à Conches : huit vaches se sont fait la malle pendant la nuit."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "enclos_odette",
+        "off": [
+          8,
+          2.6,
+          10
+        ]
+      },
+      "look": {
+        "at": "enclos_odette",
+        "off": [
+          0,
+          1.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "enclos_odette",
+        "off": [
+          5.5,
+          2.2,
+          7.5
+        ]
+      },
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Ma barrière était ouverte ! Elles sont parties prendre l'air."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "pre_vaches",
+        "off": [
+          12,
+          3.2,
+          12
+        ]
+      },
+      "look": {
+        "at": "pre_vaches",
+        "off": [
+          0,
+          1.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "pre_vaches",
+        "off": [
+          8,
+          2.8,
+          8
+        ]
+      },
+      "caption": {
+        "who": "Kévin",
+        "text": "Huit vaches, un sifflet et du courage. On y va."
+      }
+    }
+  ],
+  "title": "Les vaches sont de sortie",
+  "subtitle": "Mardi · 4 h 00 · la ferme de Mémé Odette"
+}

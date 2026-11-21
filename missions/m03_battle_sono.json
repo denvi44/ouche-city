@@ -11,7 +11,7 @@
     { "id": "tube_ete_2003", "rallies": "tous", "rallyMultiplier": 0.7 }
   ],
   "roles": ["dj", "saboteur", "electricien", "videur"],
-  "companions": { "electricien": "gege", "videur": "ginette" },
+  "companions": { "saboteur": "kevin", "electricien": "gege", "videur": "ginette" },
   "steps": [
     { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
     { "id": "setup", "type": "collect", "items": ["caisson_fusee", "rallonge_ginette", "groupe_electrogene"], "timeLimitSec": 300 },

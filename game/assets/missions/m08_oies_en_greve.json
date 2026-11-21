@@ -1,0 +1,21 @@
+{
+  "id": "m08_oies_en_greve",
+  "title": "Les oies font grève",
+  "requires": ["m07_jus_de_pomme"],
+  "players": { "min": 1, "max": 4 },
+  "summary": "Vendredi, 17 h : le Train des Vacances ramène les Parisiens à 17 h 42. Les oies de Mémé Odette ont décidé de leur réserver un accueil… bloquant. Vous êtes l'oie meneuse : un « HONK ! » rassemble la basse-cour, un autre la rassure, et un troisième fait reculer le garde-barrière. Le train s'arrête toujours : personne n'est blessé, tout le monde finit par prendre des photos.",
+  "roles": ["meneuse", "rabatteuse", "sentinelle", "ferme_file"],
+  "companions": { "rabatteuse": "kevin", "sentinelle": "ginette", "ferme_file": "gege" },
+  "flock": { "geese": 12, "timeLimitSec": 480 },
+  "honk": { "range": 20, "cooldownSec": 2 },
+  "train": { "arrivalSec": 120, "speedMs": 15, "holdSec": 30, "minBlockers": 5 },
+  "stationmaster": { "delaySec": 8, "stunSec": 9 },
+  "steps": [
+    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
+    { "id": "gather", "type": "escort", "target": "etang_oies" },
+    { "id": "block", "type": "event", "events": ["tenir_la_voie", "garde_barriere", "klaxon_du_train"] },
+    { "id": "outro", "type": "cutscene", "variants": ["gold", "silver", "bronze", "lose"] }
+  ],
+  "medals": { "gold": { "avgGeese": 10 }, "silver": { "avgGeese": 8 }, "bronze": { "avgGeese": 5 } },
+  "rewards": { "reputation": { "campagne": 2 }, "unlocks": [] }
+}

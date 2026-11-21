@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m02_failed",
+  "mission": "m02",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "parc_rdv",
+        "off": [
+          8,
+          2.6,
+          10
+        ]
+      },
+      "look": {
+        "at": "parc_rdv",
+        "off": [
+          0,
+          1.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "parc_rdv",
+        "off": [
+          6,
+          2.2,
+          7
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "La Fusée cale au feu vert. Dylan applaudit poliment."
+      }
+    }
+  ]
+}

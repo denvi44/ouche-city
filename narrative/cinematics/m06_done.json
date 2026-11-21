@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m06_done",
+  "mission": "m06",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          0,
+          3.0,
+          21
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          2.0,
+          8.5
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          0,
+          2.6,
+          16
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Courses faites, caddie plein, il est presque midi. C'est la gloire."
+      }
+    }
+  ]
+}

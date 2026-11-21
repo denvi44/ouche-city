@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "m02_done",
+  "mission": "m02",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "drag_depart",
+        "off": [
+          9,
+          2.4,
+          10
+        ]
+      },
+      "look": {
+        "at": "drag_depart",
+        "off": [
+          0,
+          1.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "drag_depart",
+        "off": [
+          6,
+          2.0,
+          7
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Verdict du jury : la Fusée est officiellement la plus bruyante du canton."
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "parc_rdv",
+        "off": [
+          26,
+          30,
+          26
+        ]
+      },
+      "look": {
+        "at": "parc_rdv",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "parc_rdv",
+        "off": [
+          16,
+          21,
+          17
+        ]
+      },
+      "caption": {
+        "who": "Kévin",
+        "text": "Dylan a promis sa revanche. Dimanche, après la messe."
+      }
+    }
+  ]
+}

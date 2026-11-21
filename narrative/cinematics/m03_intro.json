@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m03_intro",
+  "mission": "m03",
+  "when": "intro",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "camp_pommiers",
+        "off": [
+          32,
+          40,
+          36
+        ]
+      },
+      "look": {
+        "at": "camp_pommiers",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "camp_pommiers",
+        "off": [
+          15,
+          26,
+          20
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Battle de sono entre les Pommiers et le Clos Fleuri : trois manches, tapage nocturne tout juste toléré."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "camp_pommiers",
+        "off": [
+          7,
+          2.6,
+          9
+        ]
+      },
+      "look": {
+        "at": "camp_pommiers",
+        "off": [
+          0,
+          1.6,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "camp_pommiers",
+        "off": [
+          5,
+          2.2,
+          6
+        ]
+      },
+      "caption": {
+        "who": "Kévin",
+        "text": "Les enceintes sont prêtes. Les voisins, un peu moins."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "camp_clos_fleuri",
+        "off": [
+          9,
+          3.0,
+          11
+        ]
+      },
+      "look": {
+        "at": "camp_clos_fleuri",
+        "off": [
+          0,
+          1.6,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "camp_clos_fleuri",
+        "off": [
+          6,
+          2.6,
+          8
+        ]
+      },
+      "caption": {
+        "who": "Ginette",
+        "text": "Ils osent venir avec cette musique ? Dans notre lotissement ?"
+      }
+    }
+  ],
+  "title": "Battle de sono",
+  "subtitle": "Dimanche · 14 h 00 · lotissement des Pommiers"
+}

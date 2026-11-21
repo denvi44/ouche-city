@@ -1,0 +1,86 @@
+// Le Calva de Tonton Gégé — dialogues de la mission 01. Une réplique = « Locuteur: texte #line:id [#onoma:…] ».
+title: m01_intro
+---
+Gégé: Mon p'tit, vingt-quatre bouteilles de calva de dix-huit ans d'âge, et la foire ouvre à six heures ! #line:m01_intro_01
+Ginette: Et pas une de cassée, hein ! Ma cousine Odette l'a dit : « le calva, ça se transporte comme un nouveau-né. » #line:m01_intro_02
+Kévin: Moi je fais diversion si les gendarmes s'en mêlent. J'ai un fanion. #line:m01_intro_03
+Gégé: Un fanion ? Mais qu'est-ce que tu veux faire avec un fanion ? #line:m01_intro_04
+Kévin: Je ne sais pas encore. Mais il est très grand. #line:m01_intro_05
+===
+title: m01_crates
+---
+Gégé: Les caisses sont dans la cave, la grange, le poulailler et… oui, le fumier. Ne me regarde pas comme ça. #line:m01_crates_01
+Kévin Radio: Ici Radio Pommiers, il est dix-sept heures. Le fumier, c'est très bon pour le bouquet. #line:m01_crates_02 #onoma:KSSSH…
+===
+title: m01_road
+---
+Gégé: Doucement dans les nids-de-poule, mon gars. Un cahot, et c'est une bouteille qui se meurt. #line:m01_road_01
+Ginette: Il roule comme ma belle-mère en solex ! #line:m01_road_02
+===
+title: m01_checkpoint
+---
+Ginette: Un barrage ! De l'avenue du Bosc-Tenney ! On est cuits. #line:m01_checkpoint_01
+Kévin: Ou alors on fait diversion. Je sors mon fanion. #line:m01_checkpoint_02
+Gégé: Surtout pas le fanion. #line:m01_checkpoint_03
+===
+title: m01_fair
+---
+Gégé: Voilà la foire ! Plus que le stand du Comité, et qu'on ne nous voie pas. #line:m01_fair_01
+===
+title: m01_done
+---
+Gégé: Alors, ça c'est de la livraison ! Le Comité des fêtes va nous porter en triomphe. #line:m01_done_01 #onoma:TADAAAA !
+Ginette: Du calme, Gégé, c'est le calva qui parle. #line:m01_done_02
+===
+title: m01_failed
+---
+Gégé: Ben… on dira que c'était pour la science. #line:m01_failed_01 #onoma:OUPS…
+===
+title: m01_pothole_hit
+---
+Gégé: Aïe ! Une bouteille de moins. Ça fait mal comme une dent. #line:m01_pothole_hit_01 #onoma:CLING !
+Ginette: Ralentis, mon garçon ! #line:m01_pothole_hit_02
+===
+title: m01_tractor
+---
+Gégé: Un tracteur. À cette vitesse-là, on est à la foire pour la Toussaint. #line:m01_tractor_01
+Kévin: On le double ? #line:m01_tractor_02
+Gégé: Avec un chargement fragile ? Patience, mon gars, patience. #line:m01_tractor_03
+===
+title: m01_cows
+---
+Ginette: Des vaches ! Normandes, en plus. Elles ont le droit de passer, c'est leur route. #line:m01_cows_01 #onoma:MEUUUH !
+Kévin: Je klaxonne ? #line:m01_cows_02
+===
+title: m01_horn
+---
+Kévin: Pouet pouet ! Ça marche, elles filent ! #line:m01_horn_01
+===
+title: m01_bluff_ok
+---
+Ginette: Bonjour, monsieur l'agent ! C'est pour la bonne cause ! #line:m01_bluff_ok_01
+Gendarme: Allez, circulez, et bonne foire à tous. #line:m01_bluff_ok_02
+===
+title: m01_bluff_fail
+---
+Gendarme: Je goûte pour vérifier. Pour la science, vous comprenez. #line:m01_bluff_fail_01 #onoma:GLOU GLOU
+Gégé: Mon calva… #line:m01_bluff_fail_02
+===
+title: m01_diversion
+---
+Kévin: AU FEU ! AU FEU ! Je ne sais pas où, mais au feu ! #line:m01_diversion_01 #onoma:FIIIIIT !
+Gendarme: Où ça ?! Où ça ?! #line:m01_diversion_02
+===
+title: m01_bottles_broken
+---
+Gégé: Ça sent le calva jusqu'à Lisieux. #line:m01_bottles_broken_01 #onoma:CRAAAC !
+===
+title: m01_crate_pickup
+---
+Gégé: Ça pèse comme un nouveau-né, mais ça se transporte mieux. #line:m01_crate_pickup_01
+===
+
+title: m01_guide
+---
+Gégé: Suis la balise, mon p'tit : on y va ensemble, mais c'est toi qui portes ! #line:m01_guide_01
+===

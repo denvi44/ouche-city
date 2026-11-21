@@ -1,0 +1,52 @@
+// Le méchoui de la Saint-Jean — dialogues de la mission 04.
+title: m04_intro
+---
+Gégé: Le Comité des fêtes veut un méchoui pour la Saint-Jean. Huit convives, un agneau, pas un de raté. #line:m04_intro_01
+Ginette: Moi je sers. Ma serviette sur le bras, et le sourire jusqu'aux oreilles. #line:m04_intro_02
+Kévin: Moi je garde le feu des chiens. Enfin, les chiens du feu. Enfin, vous voyez. #line:m04_intro_03
+===
+title: m04_gather
+---
+Gégé: L'agneau à la ferme, la broche chez moi, le charbon chez Lebrun-Dupré. Rien que de très simple. #line:m04_gather_01
+===
+title: m04_fire
+---
+Gégé: Le secret, c'est la braise. Ni trop chaude, ni trop froide. Comme un bon café. #line:m04_fire_01 #onoma:TSSSSS
+===
+title: m04_serve
+---
+Ginette: À table ! À table, mesdames et messieurs, c'est tout chaud ! #line:m04_serve_01 #onoma:MIAM !
+===
+title: m04_bonfire
+---
+Gégé: Et maintenant, le bûcher ! Un grand feu pour saluer l'été ! #line:m04_bonfire_01
+===
+title: m04_done
+---
+Ginette: Quel méchoui ! Même Mémé Odette a demandé du rab. #line:m04_done_01 #onoma:BOUM ! PSCHIIIT
+===
+title: m04_failed_burnt
+---
+Gégé: Il est… noir. Noir comme mon chapeau. #line:m04_failed_burnt_01 #onoma:COUIC…
+===
+title: m04_failed_late
+---
+Ginette: Trop tard. Les invités ont pris des sandwichs. #line:m04_failed_late_01
+===
+title: m04_dog_comes
+---
+Kévin: Un chien ! Il a flairé l'agneau ! #line:m04_dog_comes_01 #onoma:OUAF OUAF !
+===
+title: m04_dog_shooed
+---
+Kévin: Fous le camp, saucisson ! #line:m04_dog_shooed_01 #onoma:HOP !
+===
+title: m04_dog_stole
+---
+Gégé: Mon gigot ! Il s'est enfui avec mon gigot ! #line:m04_dog_stole_01 #onoma:SCHLOUP !
+===
+
+title: m04_guide
+---
+Gégé: Suis la balise, je marche devant. Le méchoui, c'est toi qui le fais ! #line:m04_guide_01
+===

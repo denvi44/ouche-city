@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m04_bridge",
+  "mission": "m04",
+  "when": "bridge",
+  "title": "À suivre…",
+  "subtitle": "Chapitre 5 · Les vaches sont de sortie",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "place_fete",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "place_fete",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Votre méchoui sentait si bon que mes vaches ont voulu goûter. J'ai laissé la barrière ouverte une minute, mon p'tit. Une minute."
+      },
+      "cam_to": {
+        "at": "place_fete",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "pre_vaches",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "pre_vaches",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Ginette",
+        "text": "Huit vaches dans le pré avant l'aube. L'inspectrice adore la campagne, tant que la campagne reste de l'autre côté de la barrière."
+      },
+      "cam_to": {
+        "at": "pre_vaches",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "enclos_odette",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "enclos_odette",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin",
+        "text": "Je les garde en rêve. Vous, rabattez-les en vrai."
+      },
+      "cam_to": {
+        "at": "enclos_odette",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    }
+  ]
+}

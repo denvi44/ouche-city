@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m03_bridge",
+  "mission": "m03",
+  "when": "bridge",
+  "title": "À suivre…",
+  "subtitle": "Chapitre 4 · Le méchoui de la Saint-Jean",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "camp_pommiers",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "camp_pommiers",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Résultat de la battle : les Pommiers l'emportent. Le Clos Fleuri promet de ne plus jamais prêter ses baffles."
+      },
+      "cam_to": {
+        "at": "camp_pommiers",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "bucher",
+        "off": [
+          0,
+          40,
+          30
+        ]
+      },
+      "look": {
+        "at": "bucher",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Gégé",
+        "text": "L'inspectrice aime la bonne table, paraît-il. Le Comité des fêtes organise un méchoui pour la Saint-Jean !"
+      },
+      "cam_to": {
+        "at": "bucher",
+        "off": [
+          0,
+          26,
+          20
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "place_fete",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "place_fete",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Ginette",
+        "text": "Un agneau entier, une broche, du charbon. Le village va sentir bon jusqu'à Paris."
+      },
+      "cam_to": {
+        "at": "place_fete",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    }
+  ]
+}

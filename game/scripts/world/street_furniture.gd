@@ -1,0 +1,207 @@
+class_name StreetFurniture
+extends RefCounted
+## Mobilier de rue posé automatiquement (agent 04) : lampadaires le long des routes carrossables, bancs, jardinières et
+## bornes devant les commerces. Déterministe (aucun hasard non semé), instancié en MultiMesh : un appel de dessin par
+## accessoire et par tuile.
+
+const LAMP_SPACING := 46.0
+const KINDS := ["secondary", "tertiary", "residential", "primary", "service"]
+
+static var _kits := {}
+
+
+const LAYER_FURNITURE := 2
+const AVOID_RADIUS := 4.8                       # m : pas de lampadaire devant une enseigne
+
+
+static func kit(name: String) -> PropKit:
+	if not _kits.has(name):
+		_kits[name] = Callable(PropKit, name).call()
+	return _kits[name]
+
+
+static func _inside_building(p: Vector2, rings: Array) -> bool:
+	for ring in rings:
+		var poly: PackedVector2Array = ring
+		if Geometry2D.is_point_in_polygon(p, poly):
+			return true
+	return false
+
+
+## Points de pose des lampadaires d'une tuile : [Transform3D, ...] (cap vers la chaussée).
+## `avoid` : centres (Vector2) des enseignes à ne pas masquer ; aucun lampadaire à moins de AVOID_RADIUS.
+static func lamp_spots(data: Dictionary, height_at: Callable, avoid: Array = []) -> Array:
+	var rings := []
+	for b in data.buildings:
+		var ring := PackedVector2Array()
+		for v in b.footprint:
+			ring.append(Vector2(v[0], v[1]))
+		rings.append(ring)
+	var out := []
+	var side := 1.0
+	for r in data.roads:
+		if not (r.kind in KINDS):
+			continue
+		var pts := PackedVector2Array()
+		for v in r.points:
+			pts.append(Vector2(v[0], v[1]))
+		var carry := LAMP_SPACING * 0.5
+		for i in pts.size() - 1:
+			var a := pts[i]
+			var b := pts[i + 1]
+			var seg := a.distance_to(b)
+			if seg < 0.01:
+				continue
+			var dir := (b - a) / seg
+			var normal := Vector2(-dir.y, dir.x)
+			var d := carry
+			while d < seg:
+				var p := a + dir * d
+				var off := normal * side * (float(r.width) / 2.0 + 1.1)
+				var q := p + off
+				var ok := not _inside_building(q, rings)
+				for k in 4:
+					var probe := q + Vector2.from_angle(k * PI / 2.0) * 0.9
+					ok = ok and not _inside_building(probe, rings)
+				for sp in avoid:
+					if q.distance_to(sp) < AVOID_RADIUS:
+						ok = false
+						break
+				if ok:
+					var to_road := -off.normalized()
+					var yaw := atan2(to_road.x, to_road.y)
+					out.append(Transform3D(Basis(Vector3.UP, yaw), Vector3(q.x, height_at.call(q.x, q.y), q.y)))
+				side = -side
+				d += LAMP_SPACING
+			carry = d - seg
+	return out
+
+
+static func _multimesh(root: Node3D, name: String, k: PropKit, xfs: Array) -> void:
+	if xfs.is_empty():
+		return
+	for pass_name in ["Corps", "Contour"]:
+		var mm := MultiMesh.new()
+		mm.transform_format = MultiMesh.TRANSFORM_3D
+		mm.mesh = k.mesh() if pass_name == "Corps" else k.outline_mesh()
+		mm.instance_count = xfs.size()
+		for i in xfs.size():
+			mm.set_instance_transform(i, xfs[i])
+		var mi := MultiMeshInstance3D.new()
+		mi.name = "%s_%s" % [name, pass_name]
+		mi.multimesh = mm
+		if pass_name == "Contour":
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(mi)
+
+
+## Mobilier d'une tuile : lampadaires. (Les commerces ont le leur : `shop_furniture`.)
+static func build_tile(data: Dictionary, height_at: Callable, avoid: Array = []) -> Node3D:
+	var root := Node3D.new()
+	root.name = "Mobilier"
+	var spots := lamp_spots(data, height_at, avoid)
+	_multimesh(root, "Lampadaires", kit("lamp"), spots)
+	# Pas de collision pour les mâts : fins (28 cm), ils coinçaient les compagnons IA sur les routes de campagne (bissection m05).
+	return root
+
+
+## Collisions du mobilier : une seule StaticBody3D, une forme par objet (les MultiMesh n'en ont pas).
+static func _collisions(root: Node3D, xfs: Array, offset: Vector3, box: Variant, dims: Vector2) -> void:
+	if xfs.is_empty():
+		return
+	var body := StaticBody3D.new()
+	body.name = "Collisions"
+	body.collision_layer = LAYER_FURNITURE      # les piétons les heurtent, pas les véhicules (qui roulent parfois à côté)
+	body.collision_mask = 0
+	for xf in xfs:
+		var cs := CollisionShape3D.new()
+		if box != null:
+			var bs := BoxShape3D.new()
+			bs.size = box
+			cs.shape = bs
+		else:
+			var c := CylinderShape3D.new()
+			c.radius = dims.x
+			c.height = dims.y
+			cs.shape = c
+		cs.transform = Transform3D(xf.basis, xf.origin + xf.basis * offset)
+		body.add_child(cs)
+	root.add_child(body)
+
+
+## Devant chaque commerce (POI portant `building` et `facing`, genre « shop ») : deux jardinières de part et d'autre de
+## la porte, un banc pour un commerce sur trois et une borne à chaque extrémité.
+static func shop_spots(pois: Array, height_at: Callable, rings: Array = [], roads: Array = []) -> Dictionary:
+	var out := {"planter": [], "bench": [], "bollard": []}
+	var n := 0
+	# Rien sur l'emplacement des véhicules et accessoires de mission (camionnette, voiture, barrage…).
+	var clear: Array = []
+	for p in pois:
+		if p.has("prop"):
+			clear.append(Vector2(float(p.position[0]), float(p.position[1])))
+	for p in pois:
+		if p.get("kind", "") != "shop" or not p.has("facing") or p.has("prop"):
+			continue
+		var x := float(p.position[0])
+		var z := float(p.position[1])
+		var f := float(p.facing)
+		var fwd := Vector2(sin(f), cos(f))
+		var side := Vector2(fwd.y, -fwd.x)
+		var yaw := Basis(Vector3.UP, f)
+		for s in [-1.0, 1.0]:
+			var q: Vector2 = Vector2(x, z) + fwd * 0.45 + side * s * 1.7
+			if not _near_any(q, clear) and not blocked(q, side, 0.5, rings, roads):
+				out.planter.append(Transform3D(yaw, Vector3(q.x, height_at.call(q.x, q.y), q.y)))
+			var c: Vector2 = Vector2(x, z) + fwd * 1.0 + side * s * 3.4
+			if not _near_any(c, clear) and not blocked(c, side, 0.0, rings, roads):
+				out.bollard.append(Transform3D(yaw, Vector3(c.x, height_at.call(c.x, c.y), c.y)))
+		if n % 3 == 0:
+			var q2 := Vector2(x, z) + fwd * 1.1 + side * 4.6
+			if not _near_any(q2, clear) and not blocked(q2, side, 0.9, rings, roads):
+				out.bench.append(Transform3D(yaw, Vector3(q2.x, height_at.call(q2.x, q2.y), q2.y)))
+		n += 1
+	return out
+
+
+## Un objet de rue (centre `p`, demi-largeur `half` le long de `side`) est-il dans un mur, contre un mur voisin ou sur la chaussée ?
+## `rings` : contours de bâtiments (PackedVector2Array) ; `roads` : [PackedVector2Array, demi-largeur] des routes carrossables.
+static func blocked(p: Vector2, side: Vector2, half: float, rings: Array, roads: Array) -> bool:
+	if rings.is_empty() and roads.is_empty():
+		return false
+	for k in [-1.0, 0.0, 1.0]:
+		var q: Vector2 = p + side * k * half
+		for ring: PackedVector2Array in rings:
+			if Geometry2D.is_point_in_polygon(q, ring):
+				return true
+			for i in ring.size():
+				if Geometry2D.get_closest_point_to_segment(q, ring[i], ring[(i + 1) % ring.size()]).distance_to(q) < 0.2:
+					return true
+		for r in roads:
+			var pts: PackedVector2Array = r[0]
+			for i in pts.size() - 1:
+				if Geometry2D.get_closest_point_to_segment(q, pts[i], pts[i + 1]).distance_to(q) < float(r[1]) - 0.1:
+					return true
+	return false
+
+
+const CLEAR_RADIUS := 6.0                       # m : dégagement autour des accessoires de mission
+
+
+static func _near_any(p: Vector2, pts: Array) -> bool:
+	for c in pts:
+		if p.distance_to(c) < CLEAR_RADIUS:
+			return true
+	return false
+
+
+static func build_shops(pois: Array, height_at: Callable, rings: Array = [], roads: Array = []) -> Node3D:
+	var root := Node3D.new()
+	root.name = "MobilierCommerces"
+	var spots := shop_spots(pois, height_at, rings, roads)
+	for name in spots:
+		_multimesh(root, name.capitalize(), kit(name), spots[name])
+	# On ne traverse ni les jardinières, ni les bancs, ni les bornes.
+	_collisions(root, spots.planter, Vector3(0, 0.45, 0), Vector3(1.0, 0.9, 0.5), Vector2.ZERO)
+	_collisions(root, spots.bench, Vector3(0, 0.45, 0), Vector3(1.75, 0.9, 0.6), Vector2.ZERO)
+	_collisions(root, spots.bollard, Vector3(0, 0.42, 0), null, Vector2(0.18, 0.85))
+	return root

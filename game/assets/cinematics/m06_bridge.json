@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m06_bridge",
+  "mission": "m06",
+  "when": "bridge",
+  "title": "À suivre…",
+  "subtitle": "Chapitre 7 · Le jus de pomme de Tonton Gégé",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          10,
+          2.4,
+          20
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          1.6,
+          8.5
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Josette",
+        "text": "Courses faites, caddie plein. Dites à Gégé que la caisse dix reste ouverte pour les héros du banquet."
+      },
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          6,
+          2.1,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "fete_pomme",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "fete_pomme",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Gégé",
+        "text": "Pour fêter ça, ma cuvée spéciale de jus de pomme. Un petit verre, juste pour goûter, hein !"
+      },
+      "cam_to": {
+        "at": "fete_pomme",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "chez_soi",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "chez_soi",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Ginette",
+        "text": "Moi, je garde la clé de secours. On ne sait jamais."
+      },
+      "cam_to": {
+        "at": "chez_soi",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    }
+  ]
+}

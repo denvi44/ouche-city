@@ -13,7 +13,7 @@
     { "id": "cour_dylan", "cost": 0, "wanted": 1, "flags": ["dylan_recognizes_parts"] }
   ],
   "roles": ["pilote", "chineur", "mecano", "ambianceur"],
-  "companions": { "mecano": "kevin", "ambianceur": "gege" },
+  "companions": { "chineur": "ginette", "mecano": "kevin", "ambianceur": "gege" },
   "steps": [
     { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
     { "id": "parts", "type": "collect_parallel" },

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "m01_done",
+  "mission": "m01",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "stand_comite",
+        "off": [
+          -9,
+          3.2,
+          10
+        ]
+      },
+      "look": {
+        "at": "stand_comite",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "stand_comite",
+        "off": [
+          -6,
+          2.6,
+          7
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "Livraison faite, sans une bouteille de trop. Le Comité des fêtes va nous porter en triomphe."
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "stand_comite",
+        "off": [
+          -22,
+          32,
+          26
+        ]
+      },
+      "look": {
+        "at": "stand_comite",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "stand_comite",
+        "off": [
+          -14,
+          22,
+          18
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Et sur Radio Pommiers : merci Gégé. Enfin, merci le calva."
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+// Tuning du samedi soir — dialogues de la mission 02.
+title: m02_intro
+---
+Kévin: La Fusée, c'est ma bête, mais là elle est pas prête pour le samedi soir. #line:m02_intro_01
+Gégé: Dylan t'a défié ? Dylan, le fils du garagiste, avec sa Sapristi GT ? #line:m02_intro_02
+Kévin: Quatre cents mètres. À vingt et une heures sur la piste. Il me faut des jantes, un pot, des néons… #line:m02_intro_03
+Ginette: Et du bon goût, surtout. Je te marchande ça en deux coups de cuillère à pot. #line:m02_intro_04
+===
+title: m02_parts
+---
+Ginette: La casse Dugenou, le père Bernard, le magasin Auto Bling. Et la cour de Dylan, mais ça, c'est entre nous. #line:m02_parts_01
+===
+title: m02_assembly
+---
+Kévin: Pas de panique, j'ai le cric. Et un bout de ficelle, au cas où. #line:m02_assembly_01 #onoma:CLAC !
+===
+title: m02_test_drive
+---
+Kévin: Doucement devant le radar, c'est un coin à retraités. Soixante, pas un de plus ! #line:m02_test_drive_01
+===
+title: m02_drag
+---
+Dylan: Alors, Kévin, ta tondeuse démarre ? #line:m02_drag_01 #onoma:VROUM !
+Kévin: Elle ronronne, Dylan. Elle ronronne. #line:m02_drag_02
+===
+title: m02_done_win
+---
+Kévin: On a gagné ! On a gagné contre Dylan ! #line:m02_done_win_01 #onoma:TADAAAA !
+Gégé: Quel bel engin. Et dire que c'était une tondeuse. #line:m02_done_win_02
+===
+title: m02_done_lose
+---
+Dylan: Retourne à la ferme, Kévin ! #line:m02_done_lose_01
+Kévin: La prochaine fois, c'est moi qui ris. #line:m02_done_lose_02
+===
+title: m02_failed
+---
+Kévin: Vingt et une heures, et la Fusée dort au garage. Ça m'apprendra à fouiller dans les casses. #line:m02_failed_01 #onoma:OUPS…
+===
+title: m02_haggle_ok
+---
+Ginette: Tope là, père Bernard ! Et un pot pour la route ! #line:m02_haggle_ok_01 #onoma:CLING !
+===
+title: m02_haggle_no
+---
+Père Bernard: Pour ce prix-là, je le garde, mon pot. #line:m02_haggle_no_01 #onoma:HMPF
+===
+title: m02_steal
+---
+Kévin: Les néons de Dylan ! Ils vont lui manquer, hein. #line:m02_steal_01
+Ginette: Kévin, on ne vole pas, on emprunte. #line:m02_steal_02
+===
+title: m02_casse_bingo
+---
+Kévin: Des jantes quasi neuves ! Personne dans la casse, personne ne saura. #line:m02_casse_bingo_01 #onoma:CHUT !
+===
+title: m02_assembly_fail
+---
+Kévin: Elle est de travers. Un peu. Elle a un petit côté artisanal. #line:m02_assembly_fail_01 #onoma:BOING !
+===
+title: m02_flash
+---
+Gégé: Flash ! Un radar ! Ben mon vieux, c'est la Fusée ou le TGV ? #line:m02_flash_01 #onoma:FLASH !
+===
+title: m02_jury
+---
+Ginette: Le jury délibère. Je me tiens bien droite, au cas où. #line:m02_jury_01
+===
+title: m02_turbo_early
+---
+Kévin: Mon moteur ! Il a fait « pfffffff » ! #line:m02_turbo_early_01 #onoma:PFFFFF…
+===
+
+title: m02_guide
+---
+Ginette: Par ici, mon grand ! La balise te montre le chemin, moi je te suis. #line:m02_guide_01
+===

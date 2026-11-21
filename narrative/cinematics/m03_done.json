@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m03_done",
+  "mission": "m03",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "camp_pommiers",
+        "off": [
+          8,
+          2.4,
+          10
+        ]
+      },
+      "look": {
+        "at": "camp_pommiers",
+        "off": [
+          0,
+          1.6,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "camp_pommiers",
+        "off": [
+          5,
+          2.0,
+          7
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Les Pommiers l'emportent. Les poules du Clos Fleuri applaudissent, par politesse."
+      }
+    }
+  ]
+}

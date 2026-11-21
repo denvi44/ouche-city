@@ -1,0 +1,19 @@
+{
+  "id": "m05_vaches_en_goguette",
+  "title": "Les vaches sont de sortie",
+  "requires": ["m04_mechoui_saint_jean"],
+  "players": { "min": 1, "max": 4 },
+  "summary": "Au petit matin, la barrière de Mémé Odette est restée ouverte : huit vaches normandes se promènent dans le pré. Il faut les rabattre dans l'enclos avant que le laitier ne passe.",
+  "roles": ["berger", "rabatteur", "guetteur", "barriere"],
+  "companions": { "rabatteur": "kevin", "guetteur": "ginette", "barriere": "gege" },
+  "herd": { "cows": 8, "timeLimitSec": 480, "fleeRange": 10, "marguerite": { "speedFactor": 1.4, "rangeFactor": 1.3 } },
+  "whistle": { "range": 16, "cooldownSec": 3 },
+  "steps": [
+    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
+    { "id": "herd", "type": "escort", "target": "enclos_odette" },
+    { "id": "gate", "type": "event", "events": ["fermer_la_barriere"] },
+    { "id": "outro", "type": "cutscene", "variants": ["gold", "win", "default"] }
+  ],
+  "medals": { "gold": { "penned": 8 }, "silver": { "penned": 6 }, "bronze": { "penned": 4 } },
+  "rewards": { "reputation": { "campagne": 1 }, "unlocks": ["m06_courses_de_8h"] }
+}

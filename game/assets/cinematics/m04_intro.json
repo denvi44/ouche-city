@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m04_intro",
+  "mission": "m04",
+  "when": "intro",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "place_fete",
+        "off": [
+          30,
+          38,
+          34
+        ]
+      },
+      "look": {
+        "at": "place_fete",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "place_fete",
+        "off": [
+          14,
+          25,
+          19
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Saint-Jean : méchoui géant sur la place. L'agneau est à la ferme, le charbon chez Lebrun-Dupré."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "place_fete",
+        "off": [
+          7,
+          2.6,
+          9
+        ]
+      },
+      "look": {
+        "at": "place_fete",
+        "off": [
+          0,
+          1.2,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "place_fete",
+        "off": [
+          5,
+          2.2,
+          6.5
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "Ça sent déjà bon. Surtout, ne rien laisser brûler."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "bucher",
+        "off": [
+          0,
+          6.5,
+          13
+        ]
+      },
+      "look": {
+        "at": "bucher",
+        "off": [
+          0,
+          1.8,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "bucher",
+        "off": [
+          0,
+          5.5,
+          10
+        ]
+      },
+      "caption": {
+        "who": "Ginette",
+        "text": "Et le bûcher, on l'allume à la fin. À la fin, Gégé."
+      }
+    }
+  ],
+  "title": "Le méchoui de la Saint-Jean",
+  "subtitle": "Lundi · 18 h 00 · la place de la fête"
+}

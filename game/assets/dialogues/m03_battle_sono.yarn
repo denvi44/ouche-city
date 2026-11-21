@@ -1,0 +1,55 @@
+// Battle de sono — dialogues de la mission 03.
+title: m03_intro
+---
+Gégé: Le Clos Fleuri veut nous couper le son ! Cette année, on gagne la battle de sono. #line:m03_intro_01
+Ginette: J'ai ma rallonge de vingt mètres, et mon tablier de combat. #line:m03_intro_02
+Kévin: Moi j'ai le caisson de la Fusée. Il fait vibrer les verres, c'est dire. #line:m03_intro_03
+===
+title: m03_setup
+---
+Gégé: Un caisson, une rallonge, un groupe électrogène. Rien d'autre, pas de baguette magique. #line:m03_setup_01
+===
+title: m03_round
+---
+Gégé: Allez les jeunes, on balance la musette ! Les anciens suivent, les jeunes aussi, si on est bons. #line:m03_round_01 #onoma:BOUM BOUM BOUM
+Gégé: Écoute bien : tu choisis la musique avec 1, 2 ou 3, puis tu tapes E pile sur la grosse caisse. #line:m03_round_02
+Ginette: Et tu restes près de la sono, sinon personne n'entend ! Joue pour le public que le Clos Fleuri oublie : ça rapporte plus. #line:m03_round_03
+===
+title: m03_done_win
+---
+Gégé: Le Clos Fleuri range ses enceintes ! Victoire pour le lotissement des Pommiers ! #line:m03_done_win_01 #onoma:TADAAAA !
+===
+title: m03_done_lose
+---
+Ginette: Ils nous ont eus. Mais on a bien rigolé. #line:m03_done_lose_01
+===
+title: m03_failed_seized
+---
+Gendarme: Je saisis la sono. Au nom de la tranquillité, de la loi et de la sieste. #line:m03_failed_seized_01 #onoma:KLAC !
+===
+title: m03_failed_late
+---
+Gégé: Trop tard. La nuit est tombée, pas la sono. #line:m03_failed_late_01
+===
+title: m03_sabotage_blocked
+---
+Ginette: Pas touche à ma rallonge ! #line:m03_sabotage_blocked_01 #onoma:PAF !
+===
+title: m03_sabotage_hit
+---
+Kévin: C'est quoi, cette fausse note ? On dirait un accordéon qui se rhume. #line:m03_sabotage_hit_01 #onoma:POUÏÏÏK !
+===
+title: m03_lemoine
+---
+Lemoine: Il est dix heures du soir ! Les gens normaux dorment ! #line:m03_lemoine_01 #onoma:BLAM !
+===
+title: m03_police
+---
+Gendarme: On nous a signalé du bruit. Beaucoup de bruit. Une sono très… musette. #line:m03_police_01
+Gégé: Un barbecue, monsieur le gendarme ? Les merguez sont bien chaudes. #line:m03_police_02 #onoma:TSSSSS
+===
+
+title: m03_guide
+---
+Kévin: La balise, là-bas ! Je te montre, mais c'est toi le DJ. #line:m03_guide_01
+===

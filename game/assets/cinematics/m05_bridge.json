@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m05_bridge",
+  "mission": "m05",
+  "when": "bridge",
+  "title": "À suivre…",
+  "subtitle": "Chapitre 6 · Les courses de 8 h",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "enclos_odette",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "enclos_odette",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Merci, les enfants. En remerciement, voilà un camembert qui marche tout seul. Ne le laissez pas près de l'inspectrice."
+      },
+      "cam_to": {
+        "at": "enclos_odette",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Ginette",
+        "text": "Pour le banquet d'accueil, il faut des courses. Le Panier de Frouch ouvre à huit heures, avec Josette et sa file."
+      },
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Gégé",
+        "text": "À deux à l'heure, sans courir. Comme Mme Hubert qui cause devant les yaourts."
+      },
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    }
+  ]
+}

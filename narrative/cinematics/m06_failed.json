@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m06_failed",
+  "mission": "m06",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          4,
+          3.0,
+          21
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          2.0,
+          8.5
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          2,
+          2.6,
+          16
+        ]
+      },
+      "caption": {
+        "who": "Ginette",
+        "text": "Le magasin ferme. Le frigo attendra demain."
+      }
+    }
+  ]
+}
