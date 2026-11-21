@@ -391,7 +391,14 @@ func herd_target(_from: Vector2, far := false) -> Vector3:
 	if c.is_empty():
 		return Vector3.ZERO
 	var cow_p := Vector2(c.x, c.z)
-	var away := (cow_p - Vector2(zones.pen.x, zones.pen.z)).normalized()
+	# But de la poussée : le centre de l'enclos si la vache est devant la porte, sinon le devant de la porte
+	# (sans cela, une vache collée au côté de la clôture y reste coincée).
+	var goal := Vector2(zones.pen.x, zones.pen.z)
+	var l := to_pen(cow_p)
+	if not (l.y > PEN_HALF - 1.0 and absf(l.x) < GATE_HALF + 2.0):
+		var a := _front(Vector3(0, 0, PEN_HALF + 6.0))
+		goal = Vector2(a.x, a.z)
+	var away := (cow_p - goal).normalized()
 	var p := cow_p + away * 7.0
 	var y: float = _ground.call(p.x, p.y) if _ground.is_valid() else 0.0
 	return Vector3(p.x, y, p.y)

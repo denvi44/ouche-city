@@ -455,6 +455,10 @@ func scenario_m08(companions: bool) -> void:
 	await shutdown()
 
 
+func want(id: String) -> bool:
+	return only == "" or id in only.split(",")
+
+
 func M3_POLICE() -> float:
 	return 0.7
 
@@ -467,26 +471,26 @@ func _run() -> void:
 		elif a == "--companions":
 			with_companions = true
 	seed(20260108)
-	if only in ["", "m01"]:
+	if want("m01"):
 		await numeric_m01()
-	if only in ["", "m02"]:
+	if want("m02"):
 		await numeric_m02()
-	if only in ["", "m03"]:
+	if want("m03"):
 		await numeric_m03()
-	if only in ["", "m04"]:
+	if want("m04"):
 		await scenario_m04()
-	if only in ["", "m05"]:
+	if want("m05"):
 		await scenario_m05(false)
 		if with_companions:
 			await scenario_m05(true)
-	if only in ["", "m06"]:
+	if want("m06"):
 		await scenario_m06()
-	if only in ["", "m07"]:
+	if want("m07"):
 		for pol in ["courir", "marcher", "malin"]:
 			await scenario_m07(pol, false)
 		if with_companions:
 			await scenario_m07("malin", true)
-	if only in ["", "m08"]:
+	if want("m08"):
 		await scenario_m08(false)
 		if with_companions:
 			await scenario_m08(true)
