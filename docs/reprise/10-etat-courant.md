@@ -36,6 +36,8 @@ les runs 56 à 59 sont rouges pour des raisons connues et corrigées (voir « Hi
   (`EMPRISE_DECOR`, mesurée par `props_audit.gd`, lignes `EXT`) mord sur un bâtiment ou une route ; `StreetFurniture.blocked` supprime les bancs, jardinières et bornes
   qui seraient dans un mur ou sur la chaussée ; une enseigne n'est plus posée pour un décor déplacé hors du mur (`build_signs`). Audit : `qa/integration/props_audit.gd`.
   Si tu ajoutes ou modifies un décor de `_add_prop`, mets à jour `EMPRISE_DECOR`.
+- **Textures détaillées (esprit « dessin animé urbain », sans graffitis)** : `toon_sol.gdshader` (asphalte marqué/fissuré, dalles, herbe peinte, pavés, gravier), `toon_toit.gdshader` (rangs de tuiles/ardoises, teinte par tuile, mousse),
+  briques/pierre/enduit dans `toon_facade.gdshader`, grain du bois et torchis moucheté dans `toon_colombages.gdshader`, hachures d'encre dans les mi-teintes (`toon_hachure` de `toon_bandes.gdshaderinc`). Paramètre `details` = 0 pour revenir aux aplats.
 - Plan de reprise (ce dossier), décisions 0015 à 0018.
 
 ## Chiffres de contrôle

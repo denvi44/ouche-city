@@ -31,30 +31,6 @@ float mur_noise(vec2 p) {
 	return mix(mix(mur_h(i), mur_h(i + vec2(1, 0)), f.x), mix(mur_h(i + vec2(0, 1)), mur_h(i + vec2(1, 1)), f.x), f.y);
 }
 
-// Graffiti « bombe » : tache arrondie cernée de noir, zébrures de seconde couleur, coulures. Dans les 7 m de mur on en pose un sur environ un sur cinq.
-vec3 mur_graffiti(vec3 c, vec2 m, float seed) {
-	float cellx = floor(m.x / 7.0);
-	float h = mur_h(vec2(cellx, seed * 13.0));
-	if (h < 0.8 || m.y > 2.6) return c;
-	float cx = (cellx + 0.5) * 7.0 + (mur_h(vec2(cellx, seed)) - 0.5) * 2.4;
-	vec2 p = (m - vec2(cx, 1.25)) / vec2(0.95, 0.62);
-	float sd = length(p * vec2(1.0, 1.15));
-	vec3 pal[5] = vec3[5](vec3(0.95, 0.28, 0.6), vec3(0.15, 0.82, 0.9), vec3(0.98, 0.84, 0.18), vec3(0.58, 0.88, 0.22), vec3(0.98, 0.5, 0.15));
-	int k = int(floor(mur_h(vec2(cellx, seed * 5.0)) * 5.0)) % 5;
-	vec3 col1 = pow(pal[k], vec3(2.2));
-	vec3 col2 = pow(pal[(k + 2) % 5], vec3(2.2));
-	vec3 ink = pow(vec3(0.09, 0.07, 0.12), vec3(2.2));
-	if (sd < 1.0) {
-		if (sd > 0.84) return ink;
-		if (abs(sin(p.x * 8.0 + p.y * 4.0)) < 0.22 && sd < 0.68) return col2;
-		if (length(p - vec2(-0.38, 0.28)) < 0.12) return vec3(1.0);        // éclat
-		return col1;
-	}
-	// Coulures sous la tache.
-	if (p.y < -0.7 && p.y > -1.7 && sd < 1.25 && fract(p.x * 3.3 + h * 5.0) < 0.1) return col1;
-	return c;
-}
-
 vec3 mur_nu(vec3 base, vec2 m, float seed) {
 	vec3 c = base;
 	if (motif_mur == 1) {
@@ -91,7 +67,6 @@ void fragment() {
 	vec3 mur = couleur.rgb;
 	if (style != 2) {
 		mur = mur_nu(couleur.rgb, UV, donnees_mur.r);
-		mur = mur_graffiti(mur, UV, donnees_mur.r);
 	}
 	mur = mix(couleur.rgb, mur, details);
 	ALBEDO = mix(mur, p.rgb, p.a * details);
@@ -101,5 +76,6 @@ void fragment() {
 
 void light() {
 	float ndl = dot(NORMAL, LIGHT);
-	DIFFUSE_LIGHT += LIGHT_COLOR * gain * toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, mi_teinte_force);
+	float p = toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, mi_teinte_force);
+	DIFFUSE_LIGHT += LIGHT_COLOR * gain * p * toon_hachure(FRAGCOORD, p);
 }

@@ -32,7 +32,7 @@ void fragment() {
 void light() {
 	float ndl = dot(NORMAL, LIGHT);
 	float p = toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, mi_teinte_force);
-	vec3 direct = LIGHT_COLOR * gain * p;
+	vec3 direct = LIGHT_COLOR * gain * p * toon_hachure(FRAGCOORD, p);
 	// Rim : bord de l'objet (N·V faible) du côté éclairé.
 	float bord = 1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0);
 	float rim = smoothstep(1.0 - rim_largeur - 0.01, 1.0 - rim_largeur + 0.01, bord) * smoothstep(-0.1, 0.3, ndl) * rim_force;

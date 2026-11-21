@@ -14,3 +14,11 @@ float toon_palier(float ndl, float attenuation, float seuil_mi, float seuil_plei
 	float plein = smoothstep(seuil_plein - LARGEUR_BORD, seuil_plein + LARGEUR_BORD, ndl);
 	return ombre * mix(mi * mi_force, 1.0, plein);
 }
+
+// Hachures d'encre : fines diagonales sombres dans les mi-teintes (bords d'ombre, faces peu éclairées), à la manière d'un dessin à la plume.
+// Calculées dans l'espace écran : léger et identique sous Vulkan comme Metal. `p` : facteur de lumière directe renvoyé par toon_palier.
+float toon_hachure(vec4 fc, float p) {
+	float zone = step(0.05, p) * step(p, 0.75);
+	float trait = step(0.58, fract((fc.x + fc.y) / 5.0));
+	return 1.0 - zone * trait * 0.17;
+}

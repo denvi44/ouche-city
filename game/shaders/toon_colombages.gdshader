@@ -25,6 +25,19 @@ float bande(float x, float largeur) {
 
 varying flat vec4 donnees_mur;
 
+float col_h(vec2 p) {
+	p = fract(p * vec2(123.34, 456.21));
+	p += dot(p, p + 45.32);
+	return fract(p.x * p.y);
+}
+
+float col_n(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(col_h(i), col_h(i + vec2(1, 0)), f.x), mix(col_h(i + vec2(0, 1)), col_h(i + vec2(1, 1)), f.x), f.y);
+}
+
 void vertex() {
 	donnees_mur = COLOR;
 }
@@ -46,7 +59,15 @@ void fragment() {
 	float bois = clamp(sabliere + poteau + diag, 0.0, 1.0) * est_mur * (1.0 - soubassement);
 	vec3 pierre = vec3(0.72, 0.68, 0.6);
 	vec3 base = mix(torchis.rgb, pierre, soubassement * est_mur);
-	vec3 mur = mix(base, poutre.rgb, bois);
+	// Torchis moucheté (plages de teinte nettes), grain du bois (veines étirées le long des poutres), salissure en pied de mur.
+	float tn = col_n(m * 1.3) * 0.6 + col_n(m * 4.1) * 0.4;
+	base *= 0.93 + 0.1 * floor(tn * 3.0) / 3.0;
+	float veine = col_n(vec2(m.x * 9.0, m.y * 0.9)) * 0.5 + col_n(vec2(m.x * 3.0, m.y * 7.0)) * 0.5;
+	vec3 bois_c = poutre.rgb * (0.85 + 0.3 * floor(veine * 3.0) / 3.0);
+	if (fract(veine * 11.0) < 0.12) bois_c *= 0.75;
+	float pied = 1.0 - smoothstep(0.0, 1.0, m.y);
+	base *= 1.0 - 0.18 * floor(pied * 3.0 + 0.5) / 3.0;
+	vec3 mur = mix(base, bois_c, bois);
 	vec4 p = facade_paint(UV, donnees_mur, 0);
 	ALBEDO = mix(mur, p.rgb, p.a * details);
 	ROUGHNESS = 1.0;
@@ -55,5 +76,6 @@ void fragment() {
 
 void light() {
 	float ndl = dot(NORMAL, LIGHT);
-	DIFFUSE_LIGHT += LIGHT_COLOR * 0.6 * toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, 0.56);
+	float p = toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, 0.56);
+	DIFFUSE_LIGHT += LIGHT_COLOR * 0.6 * p * toon_hachure(FRAGCOORD, p);
 }

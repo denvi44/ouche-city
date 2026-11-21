@@ -148,5 +148,6 @@ void fragment() {
 
 void light() {
 	float ndl = dot(NORMAL, LIGHT);
-	DIFFUSE_LIGHT += LIGHT_COLOR * gain * toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, mi_teinte_force);
+	float p = toon_palier(ndl, ATTENUATION, seuil_mi_teinte, seuil_plein, mi_teinte_force);
+	DIFFUSE_LIGHT += LIGHT_COLOR * gain * p * toon_hachure(FRAGCOORD, p);
 }
