@@ -103,3 +103,41 @@ def test_carriere_libre():
         for r in t["roads"]:
             if r["kind"] not in ("footway", "path"):
                 assert not LineString(r["points"]).intersects(disque), "route dans la carrière"
+
+
+def _aire(pts):
+    return sum(pts[i][0] * pts[(i + 1) % len(pts)][1] - pts[(i + 1) % len(pts)][0] * pts[i][1] for i in range(len(pts))) / 2
+
+
+def test_enseignes_plaquees_aux_murs():
+    """Chaque enseigne est collée à un mur (≤ 15 cm), son cap est la normale sortante de ce mur (≤ 0,5°, jamais une diagonale
+    vers la rue) et elle ne dépasse pas du bout de l'arête."""
+    mauvais = []
+    nb = 0
+    for p in POIS.values():
+        if "building" not in p or "facing" not in p or p.get("facility"):
+            continue
+        nb += 1
+        pts = [tuple(q) for q in BATIMENTS[p["building"]]["footprint"]]
+        aire = _aire(pts)
+        fd = (math.sin(p["facing"]), math.cos(p["facing"]))
+        ok = False
+        for i in range(len(pts)):
+            a, c = pts[i], pts[(i + 1) % len(pts)]
+            ex, ez = c[0] - a[0], c[1] - a[1]
+            long = math.hypot(ex, ez)
+            if long < 0.8:
+                continue
+            t = ((p["position"][0] - a[0]) * ex + (p["position"][1] - a[1]) * ez) / (long * long)
+            if not -0.01 <= t <= 1.01:
+                continue
+            nx, nz = (ez / long, -ex / long) if aire >= 0 else (-ez / long, ex / long)
+            dist = abs((p["position"][0] - a[0]) * nx + (p["position"][1] - a[1]) * nz)
+            ecart = math.degrees(math.acos(max(-1.0, min(1.0, fd[0] * nx + fd[1] * nz))))
+            if dist <= 0.15 and ecart <= 0.5:
+                ok = True
+                break
+        if not ok:
+            mauvais.append(p["id"])
+    assert nb > 100
+    assert not mauvais, f"enseignes non plaquées à un mur : {mauvais[:10]} ({len(mauvais)}/{nb})"

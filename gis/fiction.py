@@ -62,26 +62,54 @@ def _r(v: float) -> float:
     return round(float(v), 2)
 
 
-def emplacement_enseigne(footprint, routes: list[LineString]) -> tuple[tuple[float, float], float]:
-    """Point de façade le plus proche de la route la plus proche, et angle (rad) de la façade vers la route.
+def _normale_sortante(a, c, aire: float) -> tuple[float, float]:
+    """Normale unitaire de l'arête a→c, tournée vers l'extérieur du bâtiment (`aire` : aire signée de l'anneau)."""
+    ex, ez = c[0] - a[0], c[1] - a[1]
+    n = math.hypot(ex, ez) or 1.0
+    nx, nz = ez / n, -ex / n
+    return (-nx, -nz) if aire < 0 else (nx, nz)
 
-    L'angle suit la convention Godot : rotation autour de Y pour que +Z local regarde la rue.
+
+def emplacement_enseigne(footprint, routes: list[LineString], largeur: float = 2.5) -> tuple[tuple[float, float], float]:
+    """Point de façade tourné vers la route la plus proche, et angle (rad) de la façade.
+
+    L'enseigne est **plaquée au mur** : son cap est exactement la normale sortante d'une arête du bâtiment
+    (jamais une diagonale vers la route quand le point le plus proche est un coin) et elle est posée contre
+    le mur, centrée sur l'arête si elle est plus courte que `largeur`, sans dépasser du coin sinon.
+    Convention Godot : rotation autour de Y pour que +Z local regarde la rue.
     """
     poly = Polygon(footprint)
+    pts = [tuple(p) for p in footprint]
+    aire = sum(pts[i][0] * pts[(i + 1) % len(pts)][1] - pts[(i + 1) % len(pts)][0] * pts[i][1] for i in range(len(pts))) / 2.0
     if not routes:
         c = poly.centroid
         return (c.x, c.y), 0.0
     route = min(routes, key=lambda r: r.distance(poly))
-    sur_facade, sur_route = nearest_points(poly.exterior, route)
-    dx, dz = sur_route.x - sur_facade.x, sur_route.y - sur_facade.y
-    n = math.hypot(dx, dz)
-    if n < 1e-6:
+    _, sur_route = nearest_points(poly.exterior, route)
+    meilleur = None
+    for i in range(len(pts)):
+        a, c = pts[i], pts[(i + 1) % len(pts)]
+        ex, ez = c[0] - a[0], c[1] - a[1]
+        long = math.hypot(ex, ez)
+        if long < 0.8:
+            continue
+        t = max(0.0, min(1.0, ((sur_route.x - a[0]) * ex + (sur_route.y - a[1]) * ez) / (long * long)))
+        qx, qz = a[0] + ex * t, a[1] + ez * t
+        d = math.hypot(sur_route.x - qx, sur_route.y - qz)
+        n = _normale_sortante(a, c, aire)
+        vers = ((sur_route.x - qx) / d, (sur_route.y - qz) / d) if d > 1e-6 else n
+        regard = n[0] * vers[0] + n[1] * vers[1]            # 1 : la façade regarde la route
+        score = d + (4.0 if long < 2.0 else 0.0) + (3.0 if regard < 0.2 else 0.0)
+        if meilleur is None or score < meilleur[0]:
+            meilleur = (score, a, c, n, long, t)
+    if meilleur is None:
         c = poly.centroid
-        dx, dz = sur_facade.x - c.x, sur_facade.y - c.y
-        n = math.hypot(dx, dz) or 1.0
-    dx, dz = dx / n, dz / n
-    pos = (sur_facade.x + dx * 0.35, sur_facade.y + dz * 0.35)
-    return pos, math.atan2(dx, dz)
+        return (c.x, c.y), 0.0
+    _, a, c, n, long, t = meilleur
+    marge = min(largeur / 2.0, long / 2.0)
+    u = max(marge, min(long - marge, t * long)) / long   # reste entièrement sur l'arête
+    px, pz = a[0] + (c[0] - a[0]) * u, a[1] + (c[1] - a[1]) * u
+    return (px + n[0] * 0.07, pz + n[1] * 0.07), math.atan2(n[0], n[1])
 
 
 def lieux_fictifs(tuiles: dict, taille: float) -> list[dict]:
@@ -95,7 +123,7 @@ def lieux_fictifs(tuiles: dict, taille: float) -> list[dict]:
     deja: set[str] = set()
 
     def ajout(b, pid, kind, label, missions=None):
-        (x, z), facing = emplacement_enseigne(b["footprint"], routes)
+        (x, z), facing = emplacement_enseigne(b["footprint"], routes, min(5.5, max(1.4, len(label) * 0.16 + 0.4)))
         poi = {"id": pid, "kind": kind, "label": label, "position": [_r(x), _r(z)],
                "tile": f"{int(x // taille)}_{int(z // taille)}", "radius": 4.0, "source": "design",
                "building": b["id"], "facing": _r(facing)}
@@ -895,11 +923,59 @@ def _rect_orienté(footprint, facing: float):
     return c.x, c.y, larg, prof, math.atan2(u[0], u[1]), poly.area / max(mr.area, 1e-6)
 
 
+# Débordement du modèle hors de son rectangle (mesuré par qa/integration/landmarks_audit.gd) : (latéral, avant, arrière) en mètres.
+# « Avant » est le côté du cap, c'est-à-dire la rue : perron, cour de récréation, parking…
+MARGES_EDIFICE = {"mairie": (0.6, 4.7, 0.5), "ecole": (3.3, 14.2, 0.6), "hopital": (6.2, 12.0, 0.5), "usine": (6.2, 10.5, 0.5)}
+# Dimensions minimales du modèle (il agrandit sinon son rectangle d'office).
+MINI_EDIFICE = {"mairie": (14.0, 9.0), "ecole": (8.0, 8.0), "hopital": (14.0, 18.0), "usine": (10.0, 16.0)}
+
+
+def _boite(cx: float, cz: float, cap: float, w: float, d: float, lat: float, avant: float, arriere: float, dx: float = 0.0, dz: float = 0.0) -> Polygon:
+    """Rectangle orienté (repère local : +Z = cap, +X = droite) centré en (cx, cz) + décalage local (dx, dz), élargi des marges."""
+    ux, uz = math.sin(cap), math.cos(cap)
+    vx, vz = math.cos(cap), -math.sin(cap)
+    ox, oz = cx + vx * dx + ux * dz, cz + vz * dx + uz * dz
+    pts = []
+    for lx, lz in ((-w / 2 - lat, -d / 2 - arriere), (w / 2 + lat, -d / 2 - arriere), (w / 2 + lat, d / 2 + avant), (-w / 2 - lat, d / 2 + avant)):
+        pts.append((ox + vx * lx + ux * lz, oz + vz * lx + uz * lz))
+    return Polygon(pts)
+
+
+def ajuster_edifice(footprint, cx: float, cz: float, w: float, d: float, cap: float, facility: str, couloirs):
+    """Plus grand rectangle (≤ rectangle englobant) dont le corps tient dans l'empreinte du bâtiment et dont tout le modèle
+    (perron, cour…) reste hors des chaussées (`couloirs` : zones de route élargies). Renvoie (cx, cz, w, d) ou None."""
+    lat, avant, arriere = MARGES_EDIFICE[facility]
+    mw, md = MINI_EDIFICE[facility]
+    poly = Polygon(footprint)
+    meilleur = None
+    for sw in (1.0, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5):
+        for sd in (1.0, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5):
+            nw, nd = w * sw, d * sd
+            if nw < mw or nd < md:
+                continue
+            for fx in (-1.0, -0.5, 0.0, 0.5, 1.0):
+                for fz in (-1.0, -0.5, 0.0, 0.5, 1.0):
+                    dx, dz = fx * (w - nw) / 2.0, fz * (d - nd) / 2.0
+                    corps = _boite(cx, cz, cap, nw, nd, 0, 0, 0, dx, dz)
+                    if corps.difference(poly).area > 0.03 * corps.area:
+                        continue
+                    if couloirs is not None and _boite(cx, cz, cap, nw, nd, lat, avant, arriere, dx, dz).intersection(couloirs).area > 0.3:
+                        continue
+                    if meilleur is None or nw * nd > meilleur[0]:
+                        c = corps.centroid
+                        meilleur = (nw * nd, c.x, c.y, nw, nd)
+    if meilleur is None:
+        return None
+    return meilleur[1], meilleur[2], meilleur[3], meilleur[4]
+
+
 def lieux_publics(tuiles: dict, taille: float, spawn, pois: list[dict]) -> list[dict]:
     """Choisit, parmi les bâtiments sans enseigne ni lieu de mission, ceux qui deviennent la mairie (proche de l'église), deux écoles,
     l'hôpital (le plus grand rectangle) et l'usine de calva (grande halle de brique), et annote l'église. Déterministe ; les POI existants
     ne bougent pas (on ne prend que des bâtiments libres)."""
     routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    from shapely.ops import unary_union
+    couloirs = unary_union([LineString(r["points"]).buffer(float(r.get("width", 5.0)) / 2.0 + 0.5) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")])
     pris = {p["building"] for p in pois if p.get("building")}
     batiments = [b for t in tuiles.values() for b in t["buildings"] if b["id"] not in pris]
     eglise = next((p for p in pois if p["id"] == "eglise"), None)
@@ -916,6 +992,13 @@ def lieux_publics(tuiles: dict, taille: float, spawn, pois: list[dict]) -> list[
 
     def dist(a, b):
         return math.hypot(a[0] - b[0], a[1] - b[1])
+
+    def cale(i, facility):
+        """Copie de `i` dont le rectangle est ajusté pour que le modèle ne morde ni sur la rue ni hors de l'empreinte ; None si impossible."""
+        r = ajuster_edifice(i["b"]["footprint"], i["c"][0], i["c"][1], i["w"], i["d"], i["cap"], facility, couloirs)
+        if r is None:
+            return None
+        return {**i, "c": (r[0], r[1]), "w": r[2], "d": r[3]}
 
     def prendre(i, pid, label, facility):
         utilises.append(i["c"])
@@ -940,14 +1023,18 @@ def lieux_publics(tuiles: dict, taille: float, spawn, pois: list[dict]) -> list[
     # Mairie : 250-800 m², à 40-250 m de l'église, la plus proche.
     mairies = sorted((i for i in cand if 250 <= i["aire"] <= 800 and 40 <= dist(i["c"], ref) <= 250 and 12 <= i["w"] and 9 <= i["d"]),
                      key=lambda i: (dist(i["c"], ref), i["b"]["id"]))
-    if mairies:
-        prendre(mairies[0], "mairie", LABELS_PUBLICS["mairie"], "mairie")
+    for i in mairies:
+        j = cale(i, "mairie")
+        if j is not None:
+            prendre(j, "mairie", LABELS_PUBLICS["mairie"], "mairie")
+            break
     # Écoles : 300-900 m², à 120-700 m du centre, éloignées de 150 m entre elles et des autres édifices ; la seconde plus grande.
     ecoles = sorted((i for i in cand if 300 <= i["aire"] <= 900 and 120 <= dist(i["c"], tuple(spawn)) <= 700), key=lambda i: (_h("ecole", i["b"]["id"]), i["b"]["id"]))
     choisies = []
     for i in ecoles:
-        if all(dist(i["c"], u) >= 150 for u in utilises) and all(dist(i["c"], c["c"]) >= 150 for c in choisies):
-            choisies.append(i)
+        j = cale(i, "ecole") if all(dist(i["c"], u) >= 150 for u in utilises) and all(dist(i["c"], c["c"]) >= 150 for c in choisies) else None
+        if j is not None:
+            choisies.append(j)
         if len(choisies) == 2:
             break
     choisies.sort(key=lambda i: i["aire"])
@@ -955,12 +1042,18 @@ def lieux_publics(tuiles: dict, taille: float, spawn, pois: list[dict]) -> list[
         prendre(i, pid, LABELS_PUBLICS[pid], fac)
     # Hôpital : le plus grand rectangle libre (≥ 700 m²), loin des autres édifices ; usine : grande halle de brique (≥ 500 m²).
     hop = sorted((i for i in cand if i["aire"] >= 700 and all(dist(i["c"], u) >= 120 for u in utilises)), key=lambda i: (-i["aire"], i["b"]["id"]))
-    if hop:
-        prendre(hop[0], "hopital_frouch", LABELS_PUBLICS["hopital_frouch"], "hopital")
+    for i in hop:
+        j = cale(i, "hopital")
+        if j is not None:
+            prendre(j, "hopital_frouch", LABELS_PUBLICS["hopital_frouch"], "hopital")
+            break
     usines = sorted((i for i in cand if i["aire"] >= 500 and i["b"]["typology"] in ("brique", "annexe", "commerce") and all(dist(i["c"], u) >= 120 for u in utilises)),
                     key=lambda i: (-i["aire"], i["b"]["id"]))
-    if usines:
-        prendre(usines[0], "usine_calva", LABELS_PUBLICS["usine_calva"], "usine")
+    for i in usines:
+        j = cale(i, "usine")
+        if j is not None:
+            prendre(j, "usine_calva", LABELS_PUBLICS["usine_calva"], "usine")
+            break
     return out
 
 

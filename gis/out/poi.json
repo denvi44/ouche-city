@@ -30,14 +30,14 @@
    "kind": "shop",
    "label": "Auto Bling 27",
    "position": [
-    1262.45,
-    1258.41
+    1261.81,
+    1259.54
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18422",
-   "facing": 1.33,
+   "facing": 1.27,
    "missions": [
     "m02_tuning_samedi"
    ],
@@ -48,14 +48,14 @@
    "kind": "mission_start",
    "label": "Comité des fêtes",
    "position": [
-    1133.9,
-    1602.78
+    1135.37,
+    1603.35
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17010",
-   "facing": -3.11,
+   "facing": 2.94,
    "missions": [
     "m01_calva_gege"
    ]
@@ -65,64 +65,64 @@
    "kind": "shop",
    "label": "Au Plateau du Dimanche",
    "position": [
-    1432.85,
-    1472.98
+    1434.47,
+    1472.4
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18587",
-   "facing": 0.12
+   "facing": 0.18
   },
   {
    "id": "commerce_16989",
    "kind": "shop",
    "label": "Pharmacie du Donjon",
    "position": [
-    1160.85,
-    1639.63
+    1161.03,
+    1637.89
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_16989",
-   "facing": 1.29
+   "facing": 1.3
   },
   {
    "id": "commerce_17595",
    "kind": "shop",
    "label": "Supérette du Rond-Point",
    "position": [
-    1407.86,
-    1493.1
+    1407.9,
+    1491.02
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_17595",
-   "facing": -1.41
+   "facing": -1.45
   },
   {
    "id": "commerce_5680",
    "kind": "shop",
    "label": "Fromagerie La Croûte Fleurie",
    "position": [
-    1074.16,
-    1650.81
+    1074.69,
+    1649.08
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_5680",
-   "facing": -1.65
+   "facing": -1.71
   },
   {
    "id": "commerce_18113",
    "kind": "shop",
    "label": "Presse L'Écho du Bocage",
    "position": [
-    1367.86,
-    1352.08
+    1369.84,
+    1351.53
    ],
    "tile": "5_5",
    "radius": 4.0,
@@ -135,120 +135,120 @@
    "kind": "shop",
    "label": "Bar-Tabac Le Pommier Penché",
    "position": [
-    1571.04,
-    1974.17
+    1568.59,
+    1975.3
    ],
    "tile": "6_7",
    "radius": 4.0,
    "source": "design",
    "building": "b_9898",
-   "facing": 1.77
+   "facing": 0.44
   },
   {
    "id": "commerce_17286",
    "kind": "shop",
    "label": "Tif'Frouch",
    "position": [
-    1439.65,
-    1642.33
+    1440.91,
+    1641.9
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17286",
-   "facing": -1.57
+   "facing": -2.77
   },
   {
    "id": "commerce_18897",
    "kind": "shop",
    "label": "Le Grenier de Tata Odette",
    "position": [
-    1392.27,
-    1341.89
+    1392.39,
+    1339.69
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18897",
-   "facing": -1.39
+   "facing": -1.5
   },
   {
    "id": "commerce_18240",
    "kind": "shop",
    "label": "Caisse Mutuelle du Pays de Frouch",
    "position": [
-    1337.96,
-    1427.96
+    1338.55,
+    1430.67
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18240",
-   "facing": -1.48
+   "facing": -1.46
   },
   {
    "id": "commerce_20361",
    "kind": "shop",
    "label": "Aux Croûtes Dorées",
    "position": [
-    1389.67,
-    1161.24
+    1389.78,
+    1162.96
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_20361",
-   "facing": -1.85
+   "facing": -1.67
   },
   {
    "id": "commerce_20294",
    "kind": "shop",
    "label": "Les Pétales Pressés",
    "position": [
-    1388.95,
-    1214.53
+    1389.27,
+    1216.25
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_20294",
-   "facing": -1.57
+   "facing": -1.55
   },
   {
    "id": "commerce_17957",
    "kind": "shop",
    "label": "Optique Yeux de Lynx",
    "position": [
-    1426.45,
-    1592.37
+    1426.32,
+    1593.42
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17957",
-   "facing": 1.75
+   "facing": 1.71
   },
   {
    "id": "commerce_18574",
    "kind": "shop",
    "label": "Pharmacie de la Pomme Verte",
    "position": [
-    1435.98,
-    1474.15
+    1436.19,
+    1473.96
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18574",
-   "facing": -0.97
+   "facing": -1.51
   },
   {
    "id": "commerce_13863",
    "kind": "shop",
    "label": "La Galette Qui Roule",
    "position": [
-    1539.84,
-    1727.99
+    1538.13,
+    1728.61
    ],
    "tile": "6_6",
    "radius": 4.0,
@@ -261,22 +261,22 @@
    "kind": "shop",
    "label": "Le Kiosque à Ragots",
    "position": [
-    1527.9,
-    954.2
+    1526.36,
+    955.04
    ],
    "tile": "6_3",
    "radius": 4.0,
    "source": "design",
    "building": "b_1474",
-   "facing": -2.81
+   "facing": -2.8
   },
   {
    "id": "commerce_5531",
    "kind": "shop",
    "label": "Bricol'Frouch",
    "position": [
-    1028.07,
-    1835.84
+    1028.04,
+    1837.11
    ],
    "tile": "4_7",
    "radius": 4.0,
@@ -289,260 +289,260 @@
    "kind": "shop",
    "label": "Quincaillerie Clou & Cie",
    "position": [
-    1442.61,
-    948.59
+    1441.27,
+    950.28
    ],
    "tile": "5_3",
    "radius": 4.0,
    "source": "design",
    "building": "b_1393",
-   "facing": 1.1
+   "facing": 1.03
   },
   {
    "id": "commerce_14762",
    "kind": "shop",
    "label": "Crédit Pommier",
    "position": [
-    1446.89,
-    1910.7
+    1445.6,
+    1911.58
    ],
    "tile": "5_7",
    "radius": 4.0,
    "source": "design",
    "building": "b_14762",
-   "facing": 2.91
+   "facing": -2.67
   },
   {
    "id": "commerce_5321",
    "kind": "shop",
    "label": "Boutique Laine et Bottes",
    "position": [
-    1085.95,
-    1937.62
+    1086.2,
+    1935.49
    ],
    "tile": "4_7",
    "radius": 4.0,
    "source": "design",
    "building": "b_5321",
-   "facing": 1.31
+   "facing": 1.32
   },
   {
    "id": "commerce_19044",
    "kind": "shop",
    "label": "La Table de Fernand",
    "position": [
-    1390.76,
-    1292.76
+    1391.01,
+    1291.01
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_19044",
-   "facing": -1.49
+   "facing": -1.55
   },
   {
    "id": "commerce_18126",
    "kind": "shop",
    "label": "Charcuterie Andouille & Fils",
    "position": [
-    1316.47,
-    1301.82
+    1317.35,
+    1304.12
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18126",
-   "facing": -1.33
+   "facing": -1.32
   },
   {
    "id": "commerce_17632",
    "kind": "shop",
    "label": "Le Pain Bénit",
    "position": [
-    1410.46,
-    1510.19
+    1411.01,
+    1511.35
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17632",
-   "facing": -1.41
+   "facing": -1.35
   },
   {
    "id": "commerce_17005",
    "kind": "shop",
    "label": "Au Bouquet de Pommiers",
    "position": [
-    1154.09,
-    1605.59
+    1156.01,
+    1606.37
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17005",
-   "facing": -3.11
+   "facing": 2.88
   },
   {
    "id": "commerce_18934",
    "kind": "shop",
    "label": "Mode Bocage Chic",
    "position": [
-    1392.96,
-    1351.79
+    1393.48,
+    1353.21
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18934",
-   "facing": -1.43
+   "facing": -1.41
   },
   {
    "id": "commerce_19952",
    "kind": "shop",
    "label": "Restaurant L'Auberge du Cidre Doux",
    "position": [
-    1146.22,
-    1159.75
+    1148.21,
+    1161.69
    ],
    "tile": "4_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_19952",
-   "facing": 2.51
+   "facing": 2.47
   },
   {
    "id": "commerce_18884",
    "kind": "shop",
    "label": "Garage Bielle et Pistons",
    "position": [
-    1389.76,
-    1238.71
+    1390.19,
+    1240.85
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_18884",
-   "facing": -1.64
+   "facing": -1.5
   },
   {
    "id": "commerce_18663",
    "kind": "shop",
    "label": "Mécanique Gaston Frères",
    "position": [
-    1431.01,
-    1402.58
+    1428.99,
+    1403.19
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18663",
-   "facing": 3.14
+   "facing": -2.98
   },
   {
    "id": "commerce_18431",
    "kind": "shop",
    "label": "Épicerie Chez Raymonde",
    "position": [
-    1248.49,
-    1267.66
+    1246.84,
+    1266.49
    ],
    "tile": "4_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18431",
-   "facing": -0.34
+   "facing": -0.48
   },
   {
    "id": "commerce_17602",
    "kind": "shop",
    "label": "Boulangerie du Pressoir",
    "position": [
-    1408.95,
-    1501.59
+    1408.99,
+    1499.59
    ],
-   "tile": "5_6",
+   "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_17602",
-   "facing": -1.41
+   "facing": -1.45
   },
   {
    "id": "commerce_18926",
    "kind": "shop",
    "label": "Pizzeria Mamma Normandia",
    "position": [
-    1391.57,
-    1328.2
+    1391.74,
+    1326.03
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18926",
-   "facing": -1.39
+   "facing": -1.53
   },
   {
    "id": "commerce_20544",
    "kind": "shop",
    "label": "Boucherie Lecochon",
    "position": [
-    1366.25,
-    1207.94
+    1365.88,
+    1209.57
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_20544",
-   "facing": 1.55
+   "facing": 1.52
   },
   {
    "id": "commerce_17817",
    "kind": "shop",
    "label": "Agence Clé des Champs",
    "position": [
-    1402.55,
-    1514.77
+    1401.95,
+    1512.97
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17817",
-   "facing": 1.73
+   "facing": 1.74
   },
   {
    "id": "commerce_18851",
    "kind": "shop",
    "label": "Au Jambon Qui Chante",
    "position": [
-    1389.96,
-    1254.76
+    1390.23,
+    1256.63
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18851",
-   "facing": -1.77
+   "facing": -1.57
   },
   {
    "id": "commerce_16166",
    "kind": "shop",
    "label": "Au Fournil de Mémère",
    "position": [
-    1774.41,
-    1746.33
+    1776.43,
+    1746.02
    ],
    "tile": "7_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_16166",
-   "facing": -2.17
+   "facing": -2.89
   },
   {
    "id": "commerce_18094",
    "kind": "shop",
    "label": "Crêperie Bolée & Galette",
    "position": [
-    1374.67,
-    1326.41
+    1374.21,
+    1325.43
    ],
    "tile": "5_5",
    "radius": 4.0,
@@ -555,134 +555,134 @@
    "kind": "shop",
    "label": "La Mie du Bocage",
    "position": [
-    1341.96,
-    1469.38
+    1342.48,
+    1470.81
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18388",
-   "facing": -1.46
+   "facing": -1.41
   },
   {
    "id": "commerce_17918",
    "kind": "shop",
    "label": "Brocante Tout Doit Disparaître (depuis 1987)",
    "position": [
-    1418.53,
-    1565.81
+    1419.22,
+    1568.5
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17918",
-   "facing": 1.95
+   "facing": 1.92
   },
   {
    "id": "commerce_1551",
    "kind": "shop",
    "label": "Immo Colombages",
    "position": [
-    1595.16,
-    914.78
+    1594.64,
+    913.45
    ],
    "tile": "6_3",
    "radius": 4.0,
    "source": "design",
    "building": "b_1551",
-   "facing": 1.73
+   "facing": 1.74
   },
   {
    "id": "commerce_1469",
    "kind": "shop",
    "label": "Le Petit Trou Normand",
    "position": [
-    1589.5,
-    934.0
+    1587.82,
+    934.9
    ],
    "tile": "6_3",
    "radius": 4.0,
    "source": "design",
    "building": "b_1469",
-   "facing": -2.81
+   "facing": -2.79
   },
   {
    "id": "commerce_17723",
    "kind": "shop",
    "label": "Le Bistrot du Bocage",
    "position": [
-    1425.59,
-    1561.37
+    1427.29,
+    1560.07
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17723",
-   "facing": -1.16
+   "facing": -2.48
   },
   {
    "id": "commerce_13859",
    "kind": "shop",
    "label": "Café des Sports et du Tiercé",
    "position": [
-    1516.54,
-    1732.49
+    1519.0,
+    1732.31
    ],
    "tile": "6_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_13859",
-   "facing": -2.95
+   "facing": -2.96
   },
   {
    "id": "commerce_5687",
    "kind": "shop",
    "label": "Café de la Mare aux Canards",
    "position": [
-    1070.67,
-    1677.74
+    1071.54,
+    1675.62
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_5687",
-   "facing": -1.82
+   "facing": -1.84
   },
   {
    "id": "commerce_18267",
    "kind": "shop",
    "label": "Le Bigoudi d'Or",
    "position": [
-    1364.33,
-    1249.99
+    1362.9,
+    1249.73
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_18267",
-   "facing": 0.07
+   "facing": 0.01
   },
   {
    "id": "commerce_1437",
    "kind": "shop",
    "label": "L'Épicerie des Quatre Vaches",
    "position": [
-    1472.83,
-    908.64
+    1470.92,
+    907.08
    ],
    "tile": "5_3",
    "radius": 4.0,
    "source": "design",
    "building": "b_1437",
-   "facing": -0.53
+   "facing": -0.57
   },
   {
    "id": "commerce_1482",
    "kind": "shop",
    "label": "Hair du Bocage",
    "position": [
-    1546.09,
-    949.41
+    1544.93,
+    950.11
    ],
    "tile": "6_3",
    "radius": 4.0,
@@ -695,64 +695,64 @@
    "kind": "shop",
    "label": "Le Grenier de Tata Odette du Bas",
    "position": [
-    1493.73,
-    1636.96
+    1495.46,
+    1639.17
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_16628",
-   "facing": 2.47
+   "facing": 2.34
   },
   {
    "id": "commerce_18132",
    "kind": "shop",
    "label": "Immo Colombages Express",
    "position": [
-    1368.46,
-    1295.1
+    1367.83,
+    1293.11
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18132",
-   "facing": 1.65
+   "facing": 1.74
   },
   {
    "id": "commerce_17412",
    "kind": "shop",
    "label": "Le Grenier de Tata Odette Le Retour",
    "position": [
-    1425.4,
-    1675.3
+    1422.85,
+    1676.38
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17412",
-   "facing": -2.86
+   "facing": -2.84
   },
   {
    "id": "commerce_17144",
    "kind": "shop",
    "label": "Au Jambon Qui Chante de l'Église",
    "position": [
-    1432.66,
-    1646.43
+    1429.63,
+    1647.05
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17144",
-   "facing": 1.57
+   "facing": 0.2
   },
   {
    "id": "commerce_17328",
    "kind": "shop",
    "label": "L'Épicerie des Quatre Vaches Le Retour",
    "position": [
-    1456.44,
-    1724.11
+    1457.02,
+    1726.41
    ],
    "tile": "5_6",
    "radius": 4.0,
@@ -765,64 +765,64 @@
    "kind": "shop",
    "label": "Charcuterie Andouille & Fils Père et Fille",
    "position": [
-    1390.45,
-    1280.36
+    1390.69,
+    1277.93
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18797",
-   "facing": -1.49
+   "facing": -1.55
   },
   {
    "id": "commerce_18482",
    "kind": "shop",
    "label": "L'Épicerie des Quatre Vaches Express",
    "position": [
-    1348.34,
-    1257.88
+    1345.57,
+    1257.74
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18482",
-   "facing": 0.08
+   "facing": 0.05
   },
   {
    "id": "commerce_18718",
    "kind": "shop",
    "label": "La Table de Fernand & Fils",
    "position": [
-    1421.35,
-    1474.78
+    1419.04,
+    1474.64
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18718",
-   "facing": 0.12
+   "facing": 0.06
   },
   {
    "id": "commerce_17847",
    "kind": "shop",
    "label": "Le Grenier de Tata Odette Bis",
    "position": [
-    1406.75,
-    1534.75
+    1405.89,
+    1532.36
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17847",
-   "facing": 1.8
+   "facing": 1.81
   },
   {
    "id": "commerce_18746",
    "kind": "shop",
    "label": "Garage Bielle et Pistons Express",
    "position": [
-    1384.26,
-    1377.68
+    1384.38,
+    1380.44
    ],
    "tile": "5_5",
    "radius": 4.0,
@@ -835,456 +835,456 @@
    "kind": "shop",
    "label": "Crêperie Bolée & Galette Bis",
    "position": [
-    1442.47,
-    1662.19
+    1442.32,
+    1659.74
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17269",
-   "facing": -1.39
+   "facing": -1.4
   },
   {
    "id": "commerce_18411",
    "kind": "shop",
    "label": "Caisse Mutuelle du Pays de Frouch de la Place",
    "position": [
-    1266.84,
-    1243.52
+    1265.87,
+    1245.95
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_18411",
-   "facing": 1.33
+   "facing": 1.3
   },
   {
    "id": "commerce_17707",
    "kind": "shop",
    "label": "Boucherie Lecochon des Vergers",
    "position": [
-    1421.19,
-    1553.67
+    1420.58,
+    1551.1
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17707",
-   "facing": -1.16
+   "facing": -1.23
   },
   {
    "id": "commerce_18756",
    "kind": "shop",
    "label": "Les Pétales Pressés Chez Nous",
    "position": [
-    1392.16,
-    1446.1
+    1392.09,
+    1448.64
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18756",
-   "facing": 1.67
+   "facing": 1.65
   },
   {
    "id": "commerce_14715",
    "kind": "shop",
    "label": "Charcuterie Andouille & Fils de la Place",
    "position": [
-    1559.4,
-    1885.54
+    1560.41,
+    1887.9
    ],
    "tile": "6_7",
    "radius": 4.0,
    "source": "design",
    "building": "b_14715",
-   "facing": 2.14
+   "facing": 2.09
   },
   {
    "id": "commerce_1485",
    "kind": "shop",
    "label": "Le Pain Bénit des Vergers",
    "position": [
-    1546.09,
-    949.41
+    1548.27,
+    948.99
    ],
    "tile": "6_3",
    "radius": 4.0,
    "source": "design",
    "building": "b_1485",
-   "facing": -2.81
+   "facing": -2.82
   },
   {
    "id": "commerce_20568",
    "kind": "shop",
    "label": "Au Plateau du Dimanche Père et Fille",
    "position": [
-    1366.66,
-    1202.94
+    1366.17,
+    1205.44
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_20568",
-   "facing": 1.55
+   "facing": 1.49
   },
   {
    "id": "commerce_17415",
    "kind": "shop",
    "label": "Mécanique Gaston Frères Chez Nous",
    "position": [
-    1396.96,
-    1712.79
+    1397.64,
+    1715.47
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17415",
-   "facing": -1.43
+   "facing": -1.42
   },
   {
    "id": "commerce_17236",
    "kind": "shop",
    "label": "Quincaillerie Clou & Cie depuis 1962",
    "position": [
-    1400.51,
-    1681.99
+    1397.97,
+    1683.1
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17236",
-   "facing": -2.86
+   "facing": -2.83
   },
   {
    "id": "commerce_13721",
    "kind": "shop",
    "label": "Pharmacie de la Pomme Verte Bis",
    "position": [
-    1389.16,
-    1224.61
+    1389.51,
+    1227.31
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_13721",
-   "facing": -1.62
+   "facing": -1.54
   },
   {
    "id": "commerce_15122",
    "kind": "shop",
    "label": "Le Grenier de Tata Odette de la Place",
    "position": [
-    1463.57,
-    1741.91
+    1464.78,
+    1742.46
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_15122",
-   "facing": -2.73
+   "facing": 2.86
   },
   {
    "id": "commerce_18915",
    "kind": "shop",
    "label": "Pharmacie du Donjon Chez Nous",
    "position": [
-    1391.77,
-    1333.8
+    1391.95,
+    1331.22
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18915",
-   "facing": -1.39
+   "facing": -1.54
   },
   {
    "id": "commerce_17064",
    "kind": "shop",
    "label": "Bar-Tabac Le Pommier Penché depuis 1962",
    "position": [
-    1342.97,
-    1588.98
+    1345.45,
+    1590.68
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17064",
-   "facing": -2.4
+   "facing": 2.54
   },
   {
    "id": "commerce_5693",
    "kind": "shop",
    "label": "Tif'Frouch du Haut",
    "position": [
-    1076.86,
-    1653.68
+    1077.54,
+    1652.12
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_5693",
-   "facing": -1.71
+   "facing": -1.82
   },
   {
    "id": "commerce_16675",
    "kind": "shop",
    "label": "Boucherie Lecochon du Lavoir",
    "position": [
-    1502.16,
-    1694.68
+    1500.28,
+    1696.26
    ],
    "tile": "6_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_16675",
-   "facing": 0.82
+   "facing": 0.81
   },
   {
    "id": "commerce_18893",
    "kind": "shop",
    "label": "Le Bigoudi d'Or Père et Fille",
    "position": [
-    1392.67,
-    1347.49
+    1392.76,
+    1344.92
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18893",
-   "facing": -1.39
+   "facing": -1.5
   },
   {
    "id": "commerce_18834",
    "kind": "shop",
    "label": "Brocante Tout Doit Disparaître (depuis 1987) du Pont",
    "position": [
-    1390.25,
-    1270.89
+    1390.45,
+    1268.08
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18834",
-   "facing": -1.41
+   "facing": -1.54
   },
   {
    "id": "commerce_20255",
    "kind": "shop",
    "label": "Boutique Laine et Bottes de l'Église",
    "position": [
-    1401.19,
-    1123.6
+    1400.54,
+    1126.3
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_20255",
-   "facing": -1.97
+   "facing": -1.91
   },
   {
    "id": "commerce_18155",
    "kind": "shop",
    "label": "Immo Colombages du Marché",
    "position": [
-    1365.45,
-    1274.27
+    1365.34,
+    1276.52
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18155",
-   "facing": 1.74
+   "facing": 1.64
   },
   {
    "id": "commerce_20749",
    "kind": "shop",
    "label": "Quincaillerie Clou & Cie Chez Nous",
    "position": [
-    1421.01,
-    1060.2
+    1419.31,
+    1062.32
    ],
    "tile": "5_4",
    "radius": 4.0,
    "source": "design",
    "building": "b_20749",
-   "facing": 1.07
+   "facing": 1.0
   },
   {
    "id": "commerce_16798",
    "kind": "shop",
    "label": "Pizzeria Mamma Normandia Chez Nous",
    "position": [
-    1093.56,
-    1684.15
+    1094.34,
+    1682.32
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_16798",
-   "facing": -1.82
+   "facing": -1.83
   },
   {
    "id": "commerce_18180",
    "kind": "shop",
    "label": "Épicerie Chez Raymonde Chez Nous",
    "position": [
-    1333.55,
-    1383.19
+    1333.52,
+    1380.42
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18180",
-   "facing": -1.44
+   "facing": -1.46
   },
   {
    "id": "commerce_5711",
    "kind": "shop",
    "label": "Caisse Mutuelle du Pays de Frouch du Pont",
    "position": [
-    1074.37,
-    1678.74
+    1075.36,
+    1676.16
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_5711",
-   "facing": -1.82
+   "facing": -1.84
   },
   {
    "id": "commerce_19016",
    "kind": "shop",
    "label": "La Galette Qui Roule du Lavoir",
    "position": [
-    1417.59,
-    1365.98
+    1415.07,
+    1366.2
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_19016",
-   "facing": 0.22
+   "facing": 0.2
   },
   {
    "id": "commerce_18271",
    "kind": "shop",
    "label": "Fromagerie La Croûte Fleurie des Vergers",
    "position": [
-    1363.14,
-    1257.29
+    1360.36,
+    1257.12
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18271",
-   "facing": 0.07
+   "facing": 0.04
   },
   {
    "id": "commerce_15044",
    "kind": "shop",
    "label": "Boulangerie du Pressoir Père et Fille",
    "position": [
-    1437.29,
-    1772.46
+    1439.7,
+    1771.06
    ],
    "tile": "5_7",
    "radius": 4.0,
    "source": "design",
    "building": "b_15044",
-   "facing": -2.46
+   "facing": -2.52
   },
   {
    "id": "commerce_18584",
    "kind": "shop",
    "label": "Le Kiosque à Ragots de la Gare",
    "position": [
-    1434.82,
-    1466.88
+    1437.41,
+    1466.38
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18584",
-   "facing": 0.04
+   "facing": 0.09
   },
   {
    "id": "commerce_18994",
    "kind": "shop",
    "label": "Optique Yeux de Lynx des Halles",
    "position": [
-    1390.86,
-    1298.25
+    1391.09,
+    1295.55
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_18994",
-   "facing": -1.51
+   "facing": -1.55
   },
   {
    "id": "commerce_13908",
    "kind": "shop",
    "label": "La Mie du Bocage Le Retour",
    "position": [
-    1186.42,
-    1759.47
+    1184.27,
+    1758.64
    ],
    "tile": "4_7",
    "radius": 4.0,
    "source": "design",
    "building": "b_13908",
-   "facing": -0.24
+   "facing": -0.25
   },
   {
    "id": "commerce_17439",
    "kind": "shop",
    "label": "Brocante Tout Doit Disparaître (depuis 1987) du Lavoir",
    "position": [
-    1479.13,
-    1616.16
+    1480.78,
+    1618.45
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17439",
-   "facing": 2.47
+   "facing": 2.29
   },
   {
    "id": "commerce_5704",
    "kind": "shop",
    "label": "Le Bistrot du Bocage Chez Nous",
    "position": [
-    1154.04,
-    1647.42
+    1153.04,
+    1649.85
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_5704",
-   "facing": 1.31
+   "facing": 1.29
   },
   {
    "id": "commerce_19719",
    "kind": "shop",
    "label": "Crédit Pommier du Haut",
    "position": [
-    1796.37,
-    1662.47
+    1794.39,
+    1662.53
    ],
    "tile": "7_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_19719",
-   "facing": 0.18
+   "facing": 0.17
   },
   {
    "id": "commerce_19876",
    "kind": "shop",
    "label": "Les Pétales Pressés Père et Fille",
    "position": [
-    1825.85,
-    1674.29
+    1828.6,
+    1674.07
    ],
    "tile": "7_6",
    "radius": 4.0,
@@ -1297,70 +1297,70 @@
    "kind": "shop",
    "label": "Charcuterie Andouille & Fils du Pont",
    "position": [
-    1396.65,
-    1483.48
+    1395.83,
+    1480.83
    ],
    "tile": "5_5",
    "radius": 4.0,
    "source": "design",
    "building": "b_16728",
-   "facing": 1.73
+   "facing": 1.77
   },
   {
    "id": "commerce_11768",
    "kind": "shop",
    "label": "Mode Bocage Chic Saint-Michel",
    "position": [
-    1200.53,
-    1999.58
+    1197.76,
+    2000.03
    ],
-   "tile": "4_7",
+   "tile": "4_8",
    "radius": 4.0,
    "source": "design",
    "building": "b_11768",
-   "facing": 1.14
+   "facing": 0.21
   },
   {
    "id": "commerce_17404",
    "kind": "shop",
    "label": "Le Petit Trou Normand du Pont",
    "position": [
-    1443.23,
-    1688.92
+    1442.06,
+    1686.65
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17404",
-   "facing": 1.88
+   "facing": 1.94
   },
   {
    "id": "commerce_17117",
    "kind": "shop",
    "label": "Le Grenier de Tata Odette de la Mare",
    "position": [
-    1404.57,
-    1609.98
+    1407.18,
+    1610.98
    ],
    "tile": "5_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_17117",
-   "facing": 2.98
+   "facing": 2.88
   },
   {
    "id": "commerce_16828",
    "kind": "shop",
    "label": "L'Épicerie des Quatre Vaches & Fils",
    "position": [
-    1154.25,
-    1561.42
+    1154.67,
+    1558.69
    ],
    "tile": "4_6",
    "radius": 4.0,
    "source": "design",
    "building": "b_16828",
-   "facing": 1.31
+   "facing": 1.32
   },
   {
    "id": "eglise",
@@ -1386,8 +1386,8 @@
    "kind": "mission_target",
    "label": "Cave de Tonton Gégé",
    "position": [
-    1391.66,
-    1440.4
+    1391.49,
+    1441.67
    ],
    "tile": "5_5",
    "radius": 4.0,
@@ -1396,7 +1396,7 @@
     "m01_calva_gege"
    ],
    "step": "crates",
-   "facing": 1.67,
+   "facing": 1.66,
    "building": "b_18761"
   },
   {
@@ -1404,8 +1404,8 @@
    "kind": "mission_target",
    "label": "Grange des Pommiers",
    "position": [
-    957.67,
-    1601.58
+    956.6,
+    1600.5
    ],
    "tile": "3_6",
    "radius": 4.0,
@@ -1414,7 +1414,7 @@
     "m01_calva_gege"
    ],
    "step": "crates",
-   "facing": 0.18,
+   "facing": -0.69,
    "building": "b_4445"
   },
   {
@@ -1422,8 +1422,8 @@
    "kind": "mission_target",
    "label": "Tas de fumier du père Lepommier",
    "position": [
-    939.87,
-    1600.99
+    958.4,
+    1604.67
    ],
    "tile": "3_6",
    "radius": 4.0,
@@ -1432,7 +1432,7 @@
     "m01_calva_gege"
    ],
    "step": "crates",
-   "facing": 3.32,
+   "facing": 2.45,
    "prop": "fumier"
   },
   {
@@ -1440,8 +1440,8 @@
    "kind": "mission_target",
    "label": "Poulailler de Mémère Ginette",
    "position": [
-    1459.67,
-    1647.29
+    1460.2,
+    1647.86
    ],
    "tile": "5_6",
    "radius": 4.0,
@@ -1450,7 +1450,7 @@
     "m01_calva_gege"
    ],
    "step": "crates",
-   "facing": -1.39,
+   "facing": -1.18,
    "prop": "coop",
    "building": "b_17292"
   },
@@ -1513,8 +1513,8 @@
    "kind": "hideout",
    "label": "Garage de Kévin (mécanique à la dure)",
    "position": [
-    1442.79,
-    1400.9
+    1442.97,
+    1402.46
    ],
    "tile": "5_5",
    "radius": 5.0,
@@ -1523,7 +1523,7 @@
     "m02_tuning_samedi"
    ],
    "step": "assembly",
-   "facing": 2.9,
+   "facing": 1.72,
    "prop": "garage",
    "building": "b_18668"
   },
@@ -1532,8 +1532,8 @@
    "kind": "spawn",
    "label": "La Fusée de Kévin",
    "position": [
-    1443.94,
-    1396.14
+    1444.47,
+    1396.27
    ],
    "tile": "5_5",
    "radius": 5.0,
@@ -1550,8 +1550,8 @@
    "kind": "mission_target",
    "label": "Casse Auto Dugenou",
    "position": [
-    1204.25,
-    1998.93
+    1204.19,
+    1998.66
    ],
    "tile": "4_7",
    "radius": 7.0,
@@ -1569,8 +1569,8 @@
    "kind": "mission_target",
    "label": "Chez le père Bernard (annonce : jantes à saisir)",
    "position": [
-    1334.28,
-    1274.08
+    1335.56,
+    1274.34
    ],
    "tile": "5_5",
    "radius": 5.0,
@@ -1579,7 +1579,7 @@
     "m02_tuning_samedi"
    ],
    "step": "parts",
-   "facing": -3.07,
+   "facing": -3.13,
    "building": "b_18350"
   },
   {
@@ -1587,8 +1587,8 @@
    "kind": "mission_target",
    "label": "Cour de Dylan",
    "position": [
-    1511.73,
-    1574.77
+    1511.17,
+    1573.36
    ],
    "tile": "6_6",
    "radius": 5.0,
@@ -1597,7 +1597,7 @@
     "m02_tuning_samedi"
    ],
    "step": "parts",
-   "facing": -0.23,
+   "facing": -1.09,
    "building": "b_19301"
   },
   {
@@ -1657,8 +1657,8 @@
    "kind": "mission_target",
    "label": "Sono du lotissement des Pommiers",
    "position": [
-    1553.63,
-    1384.74
+    1553.3,
+    1383.44
    ],
    "tile": "6_5",
    "radius": 10.0,
@@ -1667,7 +1667,7 @@
     "m03_battle_sono"
    ],
    "step": "stage",
-   "facing": -0.92,
+   "facing": -1.12,
    "prop": "stage",
    "building": "b_19243"
   },
@@ -1676,8 +1676,8 @@
    "kind": "mission_target",
    "label": "Sono du Clos Fleuri (rivaux)",
    "position": [
-    1004.29,
-    1725.6
+    1005.44,
+    1726.19
    ],
    "tile": "4_6",
    "radius": 10.0,
@@ -1686,7 +1686,7 @@
     "m03_battle_sono"
    ],
    "step": "rival",
-   "facing": 2.9,
+   "facing": 2.88,
    "prop": "stage",
    "building": "b_5151"
   },
@@ -1695,8 +1695,8 @@
    "kind": "mission_target",
    "label": "Le caisson de la Fusée (chez Kévin)",
    "position": [
-    1404.26,
-    1457.66
+    1404.68,
+    1458.88
    ],
    "tile": "5_5",
    "radius": 3.0,
@@ -1705,7 +1705,7 @@
     "m03_battle_sono"
    ],
    "step": "setup",
-   "facing": -1.48,
+   "facing": -1.46,
    "building": "b_18721"
   },
   {
@@ -1713,8 +1713,8 @@
    "kind": "mission_target",
    "label": "La rallonge de Ginette",
    "position": [
-    1386.9,
-    1596.76
+    1388.18,
+    1596.87
    ],
    "tile": "5_6",
    "radius": 3.0,
@@ -1723,7 +1723,7 @@
     "m03_battle_sono"
    ],
    "step": "setup",
-   "facing": -0.33,
+   "facing": -0.3,
    "building": "b_17953"
   },
   {
@@ -1731,8 +1731,8 @@
    "kind": "mission_target",
    "label": "Le groupe électrogène de Tonton Gégé",
    "position": [
-    1320.27,
-    1198.57
+    1320.38,
+    1199.87
    ],
    "tile": "5_4",
    "radius": 3.0,
@@ -1741,7 +1741,7 @@
     "m03_battle_sono"
    ],
    "step": "setup",
-   "facing": -1.77,
+   "facing": -1.7,
    "building": "b_20574"
   },
   {
@@ -1749,8 +1749,8 @@
    "kind": "mission_target",
    "label": "Cuisine du méchoui (Comité des fêtes)",
    "position": [
-    1504.33,
-    1374.75
+    1503.82,
+    1373.57
    ],
    "tile": "6_5",
    "radius": 8.0,
@@ -1759,7 +1759,7 @@
     "m04_mechoui_saint_jean"
    ],
    "step": "fire",
-   "facing": -0.92,
+   "facing": -0.94,
    "prop": "fete",
    "building": "b_19192"
   },
@@ -1768,8 +1768,8 @@
    "kind": "mission_target",
    "label": "Bûcher de la Saint-Jean",
    "position": [
-    1279.77,
-    1228.45
+    1279.75,
+    1229.73
    ],
    "tile": "5_4",
    "radius": 6.0,
@@ -1787,8 +1787,8 @@
    "kind": "mission_target",
    "label": "L'agneau de la ferme du Pré-Fleuri",
    "position": [
-    1382.95,
-    1150.83
+    1382.3,
+    1151.94
    ],
    "tile": "5_4",
    "radius": 3.0,
@@ -1797,7 +1797,7 @@
     "m04_mechoui_saint_jean"
    ],
    "step": "gather",
-   "facing": 1.3,
+   "facing": 1.27,
    "building": "b_20682"
   },
   {
@@ -1805,8 +1805,8 @@
    "kind": "mission_target",
    "label": "La broche de Tonton Gégé",
    "position": [
-    1393.56,
-    1462.9
+    1393.38,
+    1464.17
    ],
    "tile": "5_5",
    "radius": 3.0,
@@ -1815,7 +1815,7 @@
     "m04_mechoui_saint_jean"
    ],
    "step": "gather",
-   "facing": 1.66,
+   "facing": 1.65,
    "building": "b_18223"
   },
   {
@@ -1823,8 +1823,8 @@
    "kind": "mission_target",
    "label": "Le charbon de la quincaillerie Lebrun-Dupré",
    "position": [
-    1428.34,
-    1277.33
+    1428.36,
+    1278.63
    ],
    "tile": "5_5",
    "radius": 3.0,
@@ -1833,7 +1833,7 @@
     "m04_mechoui_saint_jean"
    ],
    "step": "gather",
-   "facing": 1.87,
+   "facing": 1.8,
    "building": "b_18809"
   },
   {
@@ -1894,8 +1894,8 @@
    "kind": "mission_target",
    "label": "Stand de jus de pomme de Tonton Gégé (fête de la pomme)",
    "position": [
-    1416.98,
-    1539.24
+    1416.95,
+    1537.93
    ],
    "tile": "5_6",
    "radius": 6.0,
@@ -1904,7 +1904,7 @@
     "m07_jus_de_pomme"
    ],
    "step": "start",
-   "facing": -1.24,
+   "facing": -1.34,
    "prop": "pressoir",
    "building": "b_17683"
   },
@@ -1913,8 +1913,8 @@
    "kind": "hideout",
    "label": "Chez vous : la maison aux toilettes si lointaines",
    "position": [
-    1439.39,
-    1749.14
+    1440.29,
+    1748.2
    ],
    "tile": "5_6",
    "radius": 3.0,
@@ -1923,7 +1923,7 @@
     "m07_jus_de_pomme"
    ],
    "step": "home",
-   "facing": 0.53,
+   "facing": 0.59,
    "building": "b_13824"
   },
   {
@@ -1931,8 +1931,8 @@
    "kind": "mission_target",
    "label": "Toilettes publiques (souvent occupées)",
    "position": [
-    1429.05,
-    1648.14
+    1433.01,
+    1643.15
    ],
    "tile": "5_6",
    "radius": 3.0,
@@ -1941,7 +1941,7 @@
     "m07_jus_de_pomme"
    ],
    "step": "wc",
-   "facing": 0.22,
+   "facing": 1.59,
    "prop": "wc"
   },
   {
@@ -2029,8 +2029,8 @@
    "kind": "landmark",
    "label": "Mairie de Frouch City",
    "position": [
-    1459.61,
-    1429.28
+    1457.65,
+    1431.47
    ],
    "tile": "5_5",
    "radius": 12.0,
@@ -2039,8 +2039,8 @@
    "facing": 1.81,
    "facility": "mairie",
    "rect": [
-    22.26,
-    13.85
+    18.92,
+    9.0
    ]
   },
   {
@@ -2048,27 +2048,8 @@
    "kind": "landmark",
    "label": "École primaire des Pommiers",
    "position": [
-    1305.6,
-    1786.44
-   ],
-   "tile": "5_7",
-   "radius": 12.0,
-   "source": "design",
-   "building": "b_14551",
-   "facing": -1.76,
-   "facility": "ecole",
-   "rect": [
-    14.06,
-    31.75
-   ]
-  },
-  {
-   "id": "college_bocage",
-   "kind": "landmark",
-   "label": "Collège du Bocage",
-   "position": [
-    1572.54,
-    1022.84
+    1575.09,
+    1022.15
    ],
    "tile": "6_4",
    "radius": 12.0,
@@ -2077,8 +2058,27 @@
    "facing": -2.88,
    "facility": "ecole",
    "rect": [
-    42.36,
-    10.93
+    31.77,
+    8.75
+   ]
+  },
+  {
+   "id": "college_bocage",
+   "kind": "landmark",
+   "label": "Collège du Bocage",
+   "position": [
+    1167.32,
+    1476.89
+   ],
+   "tile": "4_5",
+   "radius": 12.0,
+   "source": "design",
+   "building": "b_16701",
+   "facing": 2.87,
+   "facility": "ecole",
+   "rect": [
+    12.85,
+    25.53
    ]
   },
   {
@@ -2086,8 +2086,8 @@
    "kind": "landmark",
    "label": "Hôpital de Frouch",
    "position": [
-    1485.35,
-    1980.8
+    1485.36,
+    1982.23
    ],
    "tile": "5_7",
    "radius": 12.0,
@@ -2096,8 +2096,8 @@
    "facing": -1.07,
    "facility": "hopital",
    "rect": [
-    25.21,
-    54.29
+    22.69,
+    51.57
    ]
   },
   {
@@ -2105,8 +2105,8 @@
    "kind": "landmark",
    "label": "Distillerie Pommier & Fils (usine de calva)",
    "position": [
-    1100.5,
-    1771.87
+    1098.01,
+    1771.23
    ],
    "tile": "4_7",
    "radius": 12.0,
@@ -2116,7 +2116,7 @@
    "facility": "usine",
    "rect": [
     10.43,
-    51.26
+    41.01
    ]
   }
  ]
