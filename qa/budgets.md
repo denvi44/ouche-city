@@ -7,14 +7,14 @@ Configs de référence (`CLAUDE.md`) : **Mac M1 8 Go** et **PC GTX 1060 / RX 580
 | Image complète | ≤ 16,6 ms (p95), ≤ 20 ms (p99) | à mesurer sur les runners avec GPU |
 | Post-process contours | ≤ 1,5 ms à 1080p (M1) | à mesurer |
 | Ombres (soleil) | ≤ 2,5 ms, distance 160 m | à mesurer |
-| Triangles visibles | ≤ 1,5 M | scène témoin : ≈ 150 k, contours inclus (26 tuiles, 1 359 bâtiments : le bâti est dessiné deux fois, corps + coque de contour) |
+| Triangles visibles | ≤ 1,5 M | scène témoin : ≈ 380 k, contours inclus (26 tuiles, 1 359 bâtiments : le bâti est dessiné deux fois, corps + coque de contour ; ≈ 280 k pour le bâti avec ses détails d'architecture contre ≈ 50 k sans, mesuré par construction de la ville) |
 | Appels de rendu | ≤ 2 000 | scène témoin : 236 surfaces (1 par matériau et par tuile) + joueurs |
 | Accessoires détaillés (`PropKit`) | ≤ 4 000 triangles par accessoire, ≤ 40 000 de mobilier de rue visible | lampadaire ≈ 0,9 k triangles, MultiMesh par tuile (corps + contour) ; testé par `run_gdscript_tests.gd` |
 | PNJ actifs (IA complète) | ≤ 60 dans 150 m | M1 |
 | Véhicules simulés | ≤ 40 | M1 |
 | Mémoire vive (client) | ≤ 3 Go | à mesurer |
 | Mémoire vidéo | ≤ 2 Go | à mesurer |
-| Chargement scène témoin | ≤ 5 s sur SSD | génération de la ville : 0,7 s (CPU, CI Linux) |
+| Chargement scène témoin | ≤ 5 s sur SSD | génération de la ville : 1,9 s avec détails d'architecture, 1,2 s sans (CPU, CI Linux) |
 | Bande passante par joueur (descendante) | ≤ 64 kbit/s à 16 joueurs | état joueur : 20 Hz × ~40 octets × 15 pairs ≈ 96 kbit/s ; à réduire par zones d'intérêt (M1) |
 | Bande passante par joueur (montante) | ≤ 16 kbit/s | entrées : 60 Hz × ~28 octets (5 flottants + en-tête) ≈ 13 kbit/s ; en voiture 3 flottants, moins |
 | Serveur dédié, 16 joueurs | ≤ 1 cœur à 50 %, ≤ 1 Go | à mesurer (test de charge, agent 12) |

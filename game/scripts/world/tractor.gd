@@ -87,7 +87,7 @@ func _build_visual() -> void:
 		wi.position = Vector3(spec[0] * 1.05, spec[2], spec[1])
 		visual.add_child(wi)
 	# Le fermier, à son volant (béret, forcément).
-	var farmer := CharacterModel.make(Color(0.3, 0.4, 0.62), Color(0.35, 0.3, 0.24), Color(0.4, 0.3, 0.2))
+	var farmer := CharacterModel.make(Color(0.3, 0.4, 0.62), Color(0.35, 0.3, 0.24), Color(0.4, 0.3, 0.2), {"headgear": "straw", "hair": Color(0.6, 0.6, 0.58), "beard": Color(0.7, 0.7, 0.68), "vest": Color(0.45, 0.35, 0.22)})
 	farmer.position = Vector3(0, 1.15, 0.95)
 	farmer.scale = Vector3.ONE * 0.8
 	farmer.pose_override = {"speed": 0.0}

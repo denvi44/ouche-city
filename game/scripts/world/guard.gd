@@ -31,7 +31,7 @@ func _build_visual() -> void:
 	visual = Node3D.new()
 	visual.name = "Visuel"
 	add_child(visual)
-	var m := CharacterModel.make(Color(0.42, 0.5, 0.4), Color(0.3, 0.3, 0.26), Color(0.25, 0.3, 0.25))
+	var m := CharacterModel.make(Color(0.3, 0.38, 0.55), Color(0.2, 0.24, 0.38), Color(0.2, 0.26, 0.45), {"headgear": "kepi", "hair": Color(0.2, 0.15, 0.1), "moustache": Color(0.22, 0.16, 0.1), "belt": Color(0.95, 0.95, 0.95), "scarf": Color(0.9, 0.9, 0.92), "shoes": Color(0.08, 0.08, 0.1)})
 	visual.add_child(m)
 	var label := Label3D.new()
 	label.text = "Gardien"

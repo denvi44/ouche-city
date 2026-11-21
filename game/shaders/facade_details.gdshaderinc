@@ -70,7 +70,9 @@ vec4 facade_paint(vec2 m, vec4 d, int style) {
 	float vy = m.y - fl * floor_h;
 	float floors = max(floor((eave - 0.4) / floor_h), 1.0);
 	if (fl >= floors) return vec4(0.0);
-	float door_cell = floor(fd_h(seed * 13.0) * n);
+	// Travée de la porte : arithmétique entière, identique à BuildingDetails.door_cell (l'auvent 3D suit la porte peinte).
+	int seed_i = int(seed * 255.0 + 0.5);
+	float door_cell = float((seed_i * 37 + 11) % max(int(n), 1));
 	bool ground = fl < 0.5;
 	bool is_door = door > 0.25 && ground && abs(cell - door_cell) < 0.5;
 	vec3 creme = fd_srgb(vec3(0.95, 0.92, 0.84));

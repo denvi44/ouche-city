@@ -27,6 +27,8 @@ var _tools := {}   # nom de matériau -> SurfaceTool
 var _cur_color := Color.WHITE
 ## Polylignes des routes de la tuile en cours : sert à choisir le mur de la porte (côté rue).
 var _tile_roads: Array = []
+## Détails d'architecture (cheminées, lucarnes, corniches, auvents) : désactivables pour les mesures.
+var details := true
 var _collect_hull := false
 var _hull_tris: Array = []   # triangles du bâti en cours : [a, b, c] (Vector3) pour le contour
 ## Grilles de relief des tuiles chargées : "x_y" -> { origin, size, res, heights }
@@ -119,6 +121,20 @@ func _tool(mat: String) -> SurfaceTool:
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
 		_tools[mat] = st
 	return _tools[mat]
+
+
+## Surface de détail d'architecture : même matériau que `mat`, mais exclue des collisions (préfixe « ~ »).
+func _dtool(mat: String) -> SurfaceTool:
+	return _tool("~" + mat)
+
+
+## Maillage de collision d'un bâti : toutes les surfaces sauf les détails (auvents, corniches, cheminées…).
+static func collision_mesh(src: ArrayMesh) -> ArrayMesh:
+	var out := ArrayMesh.new()
+	for i in src.get_surface_count():
+		if not src.surface_get_name(i).begins_with("~"):
+			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, src.surface_get_arrays(i))
+	return out
 
 
 ## Ajoute un triangle en garantissant que sa face avant regarde du côté de `n`
@@ -278,6 +294,10 @@ func add_building(b: Dictionary) -> void:
 			Vector3(c.x, ground + hc, c.y), Vector3(a.x, ground + ha, a.y), n,
 			Vector2(0, 0), Vector2(seg_l, 0), Vector2(seg_l, hc), Vector2(0, ha))
 		_cur_color = Color.WHITE
+		if has_details and details:
+			BuildingDetails.emit_bands(self, a, c, n2, ground, ha, hc, typo, i == door_edge)
+			if i == door_edge:
+				BuildingDetails.emit_door_feature(self, a, c, n2, ground, seed, typo, typo == "eglise")
 	# Toit
 	var roof_mat := "ardoise"
 	if typo in ["brique", "annexe"] or (typo in ["colombages", "pavillon"] and _hash01(b.id) < 0.45):
@@ -295,6 +315,11 @@ func add_building(b: Dictionary) -> void:
 				_add_polygon(st, half_poly, func(p): return ground + roof_height(m, p), Vector3.ZERO)
 	if typo == "eglise":
 		_add_church_tower(ring, m, h, ground)
+		if details:
+			BuildingDetails.emit_buttresses(self, ring, m, ground, h)
+	elif details:
+		BuildingDetails.emit_chimneys(self, ring, m, ground, seed, typo)
+		BuildingDetails.emit_dormers(self, ring, m, ground, seed, typo, int(b.get("levels", 1)), roof_mat)
 
 
 ## Triangule un polygone horizontal ou incliné ; `up` nul = normale calculée par triangle, orientée vers le haut.
@@ -448,7 +473,7 @@ func build_tile(data: Dictionary) -> Node3D:
 		mi.name = "Batiments"
 		mi.mesh = buildings_mesh
 		root.add_child(mi)
-		_add_collision(body, buildings_mesh)
+		_add_collision(body, collision_mesh(buildings_mesh))
 		var hi := MeshInstance3D.new()
 		hi.name = "Contours"
 		hi.mesh = hull_mesh
@@ -513,7 +538,7 @@ func _commit() -> ArrayMesh:
 	keys.sort()
 	for k in keys:
 		var st: SurfaceTool = _tools[k]
-		st.set_material(material(k))
+		st.set_material(material(k.trim_prefix("~")))
 		st.commit(mesh)
 		mesh.surface_set_name(mesh.get_surface_count() - 1, k)
 	_tools.clear()

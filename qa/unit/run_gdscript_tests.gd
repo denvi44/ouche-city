@@ -241,6 +241,25 @@ func _run() -> void:
 	for pt in detour2:
 		through = through or Geometry2D.is_point_in_polygon(pt, blk)
 	check(nblocked >= 2 and not through and RoadNav.length_of(detour2) > 60.0, "navigation : le passage sous un bâtiment est évité (%d points bloqués, détour %.0f m)" % [nblocked, RoadNav.length_of(detour2)])
+	# Personnages détaillés : visage, vêtements et accessoires selon le style.
+	var CMt = load("res://scripts/player/character_model.gd")
+	var Pl = load("res://scripts/player/player.gd")
+	var basic = CMt.make(Color(0.5, 0.5, 0.5))
+	var gege = CMt.make(Pl.OUTFITS[-1].shirt, Pl.OUTFITS[-1].trousers, Pl.OUTFITS[-1].hat, Pl.OUTFITS[-1].style)
+	var gin = CMt.make(Pl.OUTFITS[-2].shirt, Pl.OUTFITS[-2].trousers, Pl.OUTFITS[-2].hat, Pl.OUTFITS[-2].style)
+	check(basic.detail_parts >= 25, "personnage de base : %d parties de détail (yeux, sourcils, bouche, oreilles, cheveux, ceinture, col, boutons, poches, manchettes, semelles…)" % basic.detail_parts)
+	check(gege.detail_parts > basic.detail_parts and gin.detail_parts > basic.detail_parts, "Gégé (moustache, gilet) et Ginette (chignon, lunettes, tablier) ont plus de détails que le personnage de base")
+	check(gege.find_child("Tete", true, false) != null and gege.find_child("Tronc", true, false) != null, "la hiérarchie articulée est conservée")
+	var mats := {}
+	for mi in gege.find_children("*", "MeshInstance3D", true, false):
+		mats[(mi as MeshInstance3D).mesh.surface_get_material(0) if (mi as MeshInstance3D).mesh.get_surface_count() > 0 else null] = true
+	check(mats.size() < gege.find_children("*", "MeshInstance3D", true, false).size(), "matériaux partagés entre parties de même couleur (%d pour %d parties)" % [mats.size(), gege.find_children("*", "MeshInstance3D", true, false).size()])
+	gege.animate(0.5, 3.0)
+	check(absf(gege.leg_angle_l) < 1.5, "l'animation de marche fonctionne toujours avec le modèle détaillé")
+	for kind in ["cap", "cap_back", "headphones", "scarf", "straw", "kepi", "none", "beret"]:
+		var mk = CMt.make(Color(0.5, 0.5, 0.5), Color(0.2, 0.2, 0.3), Color(0.3, 0.3, 0.3), {"headgear": kind})
+		check(mk.find_child("Tete", true, false) != null, "couvre-chef « %s » construit" % kind) if kind in ["kepi", "straw", "none"] else null
+	check(Pl.default_style(3) != Pl.default_style(4) and Pl.default_style(3) == Pl.default_style(3), "style des joueurs : déterministe, varié selon l'identifiant")
 	var wav: AudioStreamWAV = Synth.to_stream(eng, true)
 	check(wav.data.size() == eng.size() * 2 and wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.mix_rate == 22050, "flux WAV 16 bits mono, bouclé")
 	var Amb = load("res://scripts/audio/ambiance.gd")
@@ -285,6 +304,38 @@ func _run() -> void:
 				info[nm + "_door_z"] = (vs[t].z + vs[t + 1].z + vs[t + 2].z) / 3.0
 		info[nm + "_doors"] = doors / 2     # deux triangles par mur
 		info[nm + "_detail"] = detail_walls / 2
+	# --- Détails d'architecture ---
+	var BD = load("res://scripts/world/building_details.gd")
+	var gable := {"id": "b_20", "footprint": [[10, 10], [10, 22], [30, 22], [30, 10]], "height": 7.5, "levels": 2, "roof": "gabled", "typology": "brique", "groundZ": 0.0}
+	var ringd := PackedVector2Array([Vector2(10, 10), Vector2(10, 22), Vector2(30, 22), Vector2(30, 10)])
+	var md: Dictionary = Builder.ridge_model(ringd, 7.5, "gabled")
+	var chs: Array = BD.chimney_spots(ringd, md, 0.9, "brique")
+	check(chs.size() == 2 and chs.all(func(p): return Geometry2D.is_point_in_polygon(p, ringd)), "cheminées : deux sur un long toit, dans le contour")
+	check(BD.chimney_spots(ringd, md, 0.9, "annexe").is_empty() and BD.chimney_spots(ringd, Builder.ridge_model(ringd, 7.5, "flat"), 0.5, "brique").is_empty(), "cheminées : ni sur une annexe ni sur un toit plat")
+	var dms: Array = BD.dormer_spots(ringd, md, 0.9, "brique", 2)
+	check(dms.size() >= 2 and dms.all(func(d): return Geometry2D.is_point_in_polygon(d.pos, ringd)), "lucarnes : %d sur un grand toit à étage" % dms.size())
+	check(BD.dormer_spots(ringd, md, 0.9, "brique", 1).is_empty() and BD.dormer_spots(ringd, md, 0.9, "commerce", 3).is_empty(), "lucarnes : aucune sans étage ni sur un commerce")
+	check(BD.chimney_spots(ringd, md, 0.9, "brique") == BD.chimney_spots(ringd, md, 0.9, "brique"), "détails : placement déterministe")
+	var bay: Vector2 = BD.bays(14.0)
+	check(int(bay.x) == 5 and absf(bay.y * bay.x - 14.0) < 0.2, "travées : 14 m = 5 travées de %.2f m" % bay.y)
+	var okc := true
+	for sd in 256:
+		okc = okc and BD.door_cell(sd / 255.0, 5) >= 0 and BD.door_cell(sd / 255.0, 5) < 5 and BD.door_cell(sd / 255.0, 1) == 0
+	check(okc, "porte : la travée est toujours dans la façade")
+	var off: float = BD.door_offset(0.4, 14.0)
+	check(off > 0.0 and off < 14.0, "porte : décalage %.2f m le long du mur" % off)
+	var tile3 := tile2.duplicate(true)
+	tile3.buildings = [gable]
+	var bd1 = Builder.new()
+	bd1.register_tile(tile3)
+	var with_n := ((bd1.build_tile(tile3).get_node("Batiments") as MeshInstance3D).mesh as ArrayMesh)
+	var bd2 = Builder.new()
+	bd2.details = false
+	bd2.register_tile(tile3)
+	var without_n := ((bd2.build_tile(tile3).get_node("Batiments") as MeshInstance3D).mesh as ArrayMesh)
+	check(with_n.get_faces().size() > without_n.get_faces().size() * 2 and with_n.get_surface_count() > without_n.get_surface_count(), "bâtiment détaillé : %d triangles contre %d, %d surfaces contre %d" % [with_n.get_faces().size() / 3, without_n.get_faces().size() / 3, with_n.get_surface_count(), without_n.get_surface_count()])
+	var col_n: ArrayMesh = Builder.collision_mesh(with_n)
+	check(col_n.get_faces().size() == without_n.get_faces().size(), "collisions : les détails d'architecture n'y sont pas (%d triangles, comme sans détails)" % (col_n.get_faces().size() / 3))
 	check(info.get("facade_brique_doors", 0) == 1, "maison : une seule porte")
 	check(absf(info.get("facade_brique_door_z", -1.0) - 20.0) < 0.1, "maison : porte sur le mur côté rue (z = 20, rue à z = 100)")
 	check(info.get("facade_brique_detail", 0) == 4, "maison : 4 murs avec fenêtres")
