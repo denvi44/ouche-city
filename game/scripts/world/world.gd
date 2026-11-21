@@ -85,16 +85,32 @@ func _build_van_and_mission() -> void:
 	mission.setup(pois, builder.height_at, van, players_root)
 
 
-## Compagnons IA : en solo, Tonton Gégé tient le rôle d'arrimeur (--no-companions pour les tests).
+## Compagnons IA : en solo, ils tiennent les rôles que le joueur ne tient pas (conducteur) :
+## Gégé arrimeur, Ginette négociatrice, Kévin Radio guetteur, Kévin diversion.
+## `--no-companions` les désactive (tests) ; `--companions=gege,ginette` en choisit.
 func _spawn_companions() -> void:
 	if Net.mode != Net.Mode.SOLO or Net.arg("no-companions") != null or mission == null:
 		return
-	var id := -1
-	var gege := _spawn(id, Player.OUTFITS[id].nom, find_free_spawn(spawn_point + Vector3(3.0, 0.0, 3.0)))
-	gege.brain = CompanionBrain.new(gege, mission, RoadNav.load_default())
+	var which := str(Net.arg("companions", "gege,ginette,radio,kevin")).split(",")
+	var ids := {"gege": -1, "ginette": -2, "radio": -3, "kevin": -4}
+	var nav := RoadNav.load_default()
+	var k := 0
+	for key in which:
+		if not ids.has(key):
+			continue
+		var id: int = ids[key]
+		var angle := TAU * k / 4.0
+		var pos := find_free_spawn(spawn_point + Vector3(cos(angle) * 3.0, 0.0, sin(angle) * 3.0))
+		var c := _spawn(id, Player.OUTFITS[id].nom, pos)
+		c.brain = CompanionBrain.new(c, mission, nav, Player.OUTFITS[id].role)
+		k += 1
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
+		for i in 3:
+			if event.is_action_pressed("choose_%d" % (i + 1)):
+				mission.request_choice(MissionM01.OPTIONS[i])
 	if event.is_action_pressed("interact") and mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
 		mission.request_interact()
 

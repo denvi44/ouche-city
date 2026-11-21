@@ -93,11 +93,19 @@ static func companions_of(m: MissionM01) -> Array:
 
 ## Ce que fait un compagnon, déduit de l'état public (valable sur tous les pairs).
 static func companion_status(c: Player, m: MissionM01) -> String:
-	if c.carrying:
-		return "porte une caisse à la camionnette"
-	if m.step == "crates":
-		return "s'occupe des caisses"
-	return "attend près de la camionnette"
+	var role: String = Player.OUTFITS.get(c.peer_id, {}).get("role", "")
+	match role:
+		"arrimeur":
+			if c.carrying:
+				return "porte une caisse à la camionnette"
+			return "s'occupe des caisses" if m.step == "crates" else "attend près de la camionnette"
+		"negociatrice":
+			return "négocie avec le gendarme" if m.step == "checkpoint" else "se tient prête au barrage"
+		"diversion":
+			return "prêt à faire diversion" if m.step == "checkpoint" else "se planque près du barrage"
+		"guetteur":
+			return "guette et commente à la radio"
+	return "attend"
 
 
 ## Texte du panneau de mission (fonction pure, testée).

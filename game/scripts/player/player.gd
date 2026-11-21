@@ -16,6 +16,9 @@ const PALETTE := [Color(0.85, 0.3, 0.25), Color(0.25, 0.5, 0.8), Color(0.95, 0.7
 ## Tenues des compagnons IA (identifiants négatifs) : identiques sur tous les pairs.
 const OUTFITS := {
 	-1: {"nom": "Tonton Gégé (IA)", "shirt": Color(0.72, 0.52, 0.3), "trousers": Color(0.3, 0.38, 0.55), "hat": Color(0.6, 0.5, 0.35), "role": "arrimeur"},
+	-2: {"nom": "Ginette (IA)", "shirt": Color(0.78, 0.35, 0.5), "trousers": Color(0.35, 0.3, 0.38), "hat": Color(0.85, 0.75, 0.82), "role": "negociatrice"},
+	-3: {"nom": "Kévin Radio (IA)", "shirt": Color(0.3, 0.62, 0.62), "trousers": Color(0.22, 0.24, 0.32), "hat": Color(0.18, 0.2, 0.28), "role": "guetteur"},
+	-4: {"nom": "Kévin (IA)", "shirt": Color(0.9, 0.78, 0.25), "trousers": Color(0.25, 0.25, 0.3), "hat": Color(0.78, 0.2, 0.18), "role": "diversion"},
 }
 
 var peer_id := 1

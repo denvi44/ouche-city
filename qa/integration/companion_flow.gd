@@ -76,9 +76,52 @@ func _run() -> void:
 	check(mission.cargo == loaded * mission.bottles_per_crate, "cargaison cohérente (%d bouteilles)" % mission.cargo)
 	check(longest_still < 12.0, "jamais bloqué plus de 12 s (%.0f s)" % longest_still)
 	check(not gege.carrying or mission.carried_by(-1) != "", "porteur cohérent avec l'état de la mission")
+	# --- Les autres compagnons sont à leur poste ---------------------------------------------------------
+	for entry in [[-2, "ginette", "Ginette"], [-3, "radio", "Kévin Radio"], [-4, "kevin", "Kévin"]]:
+		var c = world.players_root.get_node_or_null(str(entry[0]))
+		if check(c != null and c.is_ai and c.brain != null, "%s est un compagnon IA" % entry[2]):
+			var spot: Vector3 = mission.spot(entry[1])
+			var dist := Vector2(c.global_position.x - spot.x, c.global_position.z - spot.z).length()
+			check(dist < 3.5, "%s est à son poste (%.1f m) — %s" % [entry[2], dist, c.brain.status])
 	if loaded >= 4:
 		check(mission.step == "road", "toutes les caisses chargées : étape route")
 		check(gege.brain.status.begins_with("attend"), "Gégé attend près de la camionnette (ne monte pas)")
 		check(mission.van.driver == 0, "la camionnette reste libre pour le joueur")
+	if loaded >= 4:
+		# --- Barrage avec Ginette et Kévin sur place -------------------------------------------------------
+		var van = mission.van
+		var to_barrage := func():
+			mission.step = "road"
+			mission.barrier_open = false
+			van.global_position = mission.zones.barrage + Vector3(0, 0.6, 0) + van.forward() * -6.0
+			van.velocity = Vector3.ZERO
+			van.speed = 0.0
+		var cargo0: int = mission.cargo
+		to_barrage.call()
+		for i in 10:
+			await physics_frame
+		check(mission.step == "checkpoint", "la camionnette arrive au barrage : choix d'équipe")
+		check(mission._radio_flags.has("chargement") and mission._radio_flags.has("barrage"), "Kévin Radio commente la route (%d messages)" % mission._radio_flags.size())
+		mission.test_roll = 0.5          # 0,5 < 0,9 : le bluff passe avec Ginette (il aurait raté à 50 % sans elle)
+		mission.choose("bluff")
+		check(mission.step == "fair" and mission.cargo == cargo0, "bluff avec Ginette sur place : ça passe")
+		to_barrage.call()
+		for i in 10:
+			await physics_frame
+		mission.choose("diversion")
+		check(mission.step == "fair" and mission.cargo == cargo0, "diversion avec Kévin sur place : ça marche")
+		to_barrage.call()
+		for i in 10:
+			await physics_frame
+		mission.checkpoint_left = 0.01
+		for i in 10:
+			await physics_frame
+		check(mission.step == "fair", "délai écoulé : Ginette prend la parole")
+		var said := false
+		for m in mission.messages:
+			if "Ginette prend la parole" in m or "Ginette s'avance" in m:
+				said = true
+		check(said, "le journal consigne l'intervention de Ginette")
+		mission.test_roll = -1.0
 	print("[companion] %s" % ("ÉCHEC : %d vérification(s)" % fails if fails > 0 else "toutes les vérifications passent"))
 	quit(1 if fails > 0 else 0)

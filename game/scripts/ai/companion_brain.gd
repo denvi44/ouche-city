@@ -4,8 +4,12 @@ extends RefCounted
 ## Il produit, à chaque pas physique, la même « entrée » qu'un joueur (déplacement, lacet,
 ## sprint) : le compagnon est simulé par `Player.simulate`, comme un humain.
 ##
-## Rôle « arrimeur » (Tonton Gégé, mission 01) : il va chercher une caisse au sol, la rapporte
-## à la camionnette et la charge. Il n'essaie jamais de monter dans la camionnette.
+## Rôles (mission 01) :
+##  - « arrimeur » (Tonton Gégé) : va chercher une caisse au sol, la rapporte à la camionnette et
+##    la charge. N'essaie jamais de monter dedans ;
+##  - « negociatrice » (Ginette) : se poste sur le trottoir au barrage ; sa présence rend le bluff sûr ;
+##  - « diversion » (Kévin) : se planque près du barrage ; sans lui, la diversion échoue ;
+##  - « guetteur » (Kévin Radio) : se poste près du stand de la foire et commente la route à la radio.
 
 const ARRIVE_CRATE := 1.7           # distance de prise (la prise se fait à moins de 2,8 m)
 const ARRIVE_VAN := 3.0
@@ -41,7 +45,8 @@ var _hist_t := 0.0
 var _hist_pos := Vector2.ZERO
 
 
-func _init(p_body: Player, p_mission: MissionM01, p_nav: RoadNav) -> void:
+func _init(p_body: Player, p_mission: MissionM01, p_nav: RoadNav, p_role := "arrimeur") -> void:
+	role = p_role
 	body = p_body
 	mission = p_mission
 	nav = p_nav
@@ -58,6 +63,13 @@ func think(delta: float) -> Dictionary:
 	if mission == null or mission.van == null or mission.step in ["done", "failed"]:
 		status = "attend"
 		return idle()
+	match role:
+		"negociatrice":
+			return _hold("ginette", "se poste au barrage", "négocie avec le gendarme", delta)
+		"diversion":
+			return _hold("kevin", "se planque près du barrage", "est prêt à faire diversion", delta)
+		"guetteur":
+			return _hold("radio", "gagne son poste de guet", "guette depuis la place Carnot", delta)
 	var me := body.peer_id
 	var pos := body.global_position
 	# 1. Une caisse sur l'épaule : direction la camionnette, puis chargement.
@@ -85,6 +97,23 @@ func think(delta: float) -> Dictionary:
 	if _horizontal(pos, spot) > 2.0:
 		return _walk_to(spot, delta)
 	return idle()
+
+
+## Rôles d'attente : va à son emplacement, puis y reste en regardant vers le barrage.
+func _hold(spot_name: String, going: String, there: String, delta: float) -> Dictionary:
+	var target := mission.spot(spot_name)
+	if target == Vector3.ZERO:
+		status = "attend"
+		return idle()
+	var pos := body.global_position
+	if _horizontal(pos, target) > 2.0:
+		status = going
+		return _walk_to(target, delta)
+	status = there if mission.step == "checkpoint" or role == "guetteur" else "attend en position"
+	var focus: Vector3 = mission.zones.get("barrage", pos)
+	var d := focus - pos
+	_last_yaw = atan2(-d.x, -d.z)
+	return {"move": Vector2.ZERO, "yaw": _last_yaw, "jump": false, "sprint": false}
 
 
 func _pick_crate(pos: Vector3) -> String:

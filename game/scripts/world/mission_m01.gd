@@ -16,6 +16,18 @@ const VAN_RADIUS := 4.2
 const ZONE_RADIUS := 9.0
 const BREAK_THRESHOLD := 3.5       # perte de vitesse (m/s) à partir de laquelle ça casse
 const SYNC_PERIOD := 0.25
+const CHECKPOINT_TIME := 12.0       # s pour choisir avant que les compagnons décident
+const DETOUR_COST := 45.0           # s perdues en contournant
+const DIVERSION_FAIL_COST := 20.0
+const BLUFF_BASE := 0.5
+const BLUFF_WITH_GINETTE := 0.9
+const NEAR_BARRAGE := 16.0          # distance (m) à laquelle Ginette est « sur place »
+const NEAR_DIVERSION := 30.0        # distance (m) à laquelle Kévin peut faire diversion
+const CONFISCATED := 3              # bouteilles saisies par le gendarme si le bluff rate
+const OPTIONS := ["bluff", "detour", "diversion"]
+const ID_GINETTE := -2
+const ID_RADIO := -3
+const ID_KEVIN := -4
 
 const CRATE_POIS := ["cave_gege", "grange_pommiers", "poulailler_ginette", "fumier_tas"]
 const CRATE_NAMES := {"cave_gege": "la cave de Gégé", "grange_pommiers": "la grange", "poulailler_ginette": "le poulailler", "fumier_tas": "le tas de fumier"}
@@ -41,9 +53,19 @@ var driver := 0
 var crates := {}                # id -> {"state": ground|carried|loaded, "carrier": peer, "pos": Vector3, "bottles": int}
 var messages: Array = []        # derniers événements (texte)
 var barrage_passed := false
+var checkpoint_left := 0.0      # s restantes pour choisir (étape « checkpoint »)
+var failed_options: Array = []  # options déjà tentées en vain
+var barrier_open := false
 
 var van: Vehicle
 var zones := {}                 # "barrage" / "stand" -> Vector3
+var zone_dirs := {}             # direction de la route (x, z) en chaque zone
+var rng := RandomNumberGenerator.new()
+## Tirage imposé (tests) : >= 0 remplace le hasard.
+var test_roll := -1.0
+var _spots := {}                # emplacements d'attente des compagnons (calculés à la demande)
+var _barrier_body: StaticBody3D
+var _radio_flags := {}
 var _crate_nodes := {}
 var _dirty := true
 var _sync_t := 0.0
@@ -51,6 +73,7 @@ var _players_root: Node3D
 
 
 func _ready() -> void:
+	rng.seed = 20260101        # mêmes tirages à chaque partie (reproductible) ; Ginette et la chance font le reste
 	var m = CityBuilder.read_json(MISSION_FILE)
 	if m is Dictionary:
 		title = m.title
@@ -83,12 +106,60 @@ func setup(pois: Array, ground: Callable, vehicle: Vehicle, players_root: Node3D
 				"pos": Vector3(cp.x, ground.call(cp.x, cp.y), cp.y)}
 		elif p.id == "barrage_bosc_tenney":
 			zones["barrage"] = Vector3(pos2.x, h, pos2.y)
+			zone_dirs["barrage"] = Vector2(sin(float(p.get("facing", 0.0))), cos(float(p.get("facing", 0.0))))
 		elif p.id == "stand_comite":
 			zones["stand"] = Vector3(pos2.x, h, pos2.y)
+			zone_dirs["stand"] = Vector2(sin(float(p.get("facing", 0.0))), cos(float(p.get("facing", 0.0))))
+	var city = get_parent().get("city")
+	if city:
+		_barrier_body = city.get_node_or_null("LieuxDeMission/Lieu_barrage_bosc_tenney/Collision") as StaticBody3D
 	for id in crates:
 		_crate_nodes[id] = _make_crate_node(id)
 		get_parent().add_child.call_deferred(_crate_nodes[id])
 	_refresh_nodes()
+
+
+func actor(id: int) -> Node3D:
+	return _players_root.get_node_or_null(str(id)) as Node3D if _players_root else null
+
+
+## Distance horizontale d'un acteur à une zone (INF si absent).
+func distance_to_zone(id: int, zone: String) -> float:
+	var a := actor(id)
+	if a == null or not zones.has(zone):
+		return INF
+	return Vector2(a.global_position.x - zones[zone].x, a.global_position.z - zones[zone].z).length()
+
+
+## Emplacement d'attente d'un compagnon : sur le trottoir, de part et d'autre de la route, à
+## l'écart de la camionnette. Calculé à la demande (la physique doit être prête) puis mémorisé.
+func spot(name: String) -> Vector3:
+	if _spots.has(name):
+		return _spots[name]
+	var base := Vector3.ZERO
+	match name:
+		"ginette":
+			base = _offset("barrage", 0.0, 5.0)
+		"kevin":
+			base = _offset("barrage", -18.0, -5.0)
+		"radio":
+			base = _offset("stand", -12.0, 5.0)
+		_:
+			return Vector3.ZERO
+	var w := get_parent()
+	if w and w.has_method("find_free_spawn"):
+		base = w.find_free_spawn(base)
+	_spots[name] = base
+	return base
+
+
+func _offset(zone: String, along: float, side: float) -> Vector3:
+	if not zones.has(zone):
+		return Vector3.ZERO
+	var d: Vector2 = zone_dirs.get(zone, Vector2(0, 1))
+	var perp := Vector2(-d.y, d.x)
+	var o := Vector2(zones[zone].x, zones[zone].z) + d * along + perp * side
+	return Vector3(o.x, zones[zone].y, o.y)
 
 
 func is_server() -> bool:
@@ -162,6 +233,7 @@ func interact(peer: int, allowed: Array = []) -> void:
 			if _all_loaded() and step == "crates":
 				step = "road"
 				_log("Tout est chargé. Cap sur le barrage de l'avenue du Bosc-Tenney !")
+				_radio("chargement", "Tout est à bord ? Alors roulez doux : chaque cahot coûte une bouteille.")
 		"enter":
 			van.driver = peer
 			van.controller = peer
@@ -223,18 +295,102 @@ func _physics_process(delta: float) -> void:
 	if elapsed >= time_limit:
 		_finish(false, "Temps écoulé : la foire est finie, le calva reste à la cave.")
 	elif step == "road" and van and zones.has("barrage"):
-		if van.global_position.distance_to(zones.barrage) < ZONE_RADIUS:
-			barrage_passed = true
-			step = "fair"
-			_log("Barrage : le gendarme croit à votre bluff (« c'est pour la bonne cause »).")
+		var d := van.global_position.distance_to(zones.barrage)
+		if d < 220.0:
+			_radio("barrage_vu", "Barrage en vue plus loin : un gendarme et sa moustache. Ginette est en position, Kévin aussi.")
+		if d < ZONE_RADIUS:
+			step = "checkpoint"
+			checkpoint_left = CHECKPOINT_TIME
+			failed_options.clear()
+			_log("Barrage ! [1] Bluffer · [2] Contourner (+%d s) · [3] Diversion de Kévin. Décidez vite." % int(DETOUR_COST))
+			_radio("barrage", "Le barrage est devant vous ! Moi je dis : laissez parler Ginette.")
 			_mark()
+	elif step == "checkpoint":
+		checkpoint_left -= delta
+		if checkpoint_left <= 0.0:
+			# Personne n'a tranché : Ginette bluffe si elle est sur place, sinon on contourne.
+			if distance_to_zone(ID_GINETTE, "barrage") < NEAR_BARRAGE:
+				_log("Personne ne dit rien : Ginette prend la parole.")
+				choose("bluff")
+			else:
+				_log("Personne ne dit rien : on contourne par les chemins.")
+				choose("detour")
 	elif step == "fair" and van and zones.has("stand"):
 		if van.global_position.distance_to(zones.stand) < ZONE_RADIUS and van.speed_kmh() < 12.0:
 			_finish(true, "")
+	if started and step in ["crates", "road", "checkpoint", "fair"] and time_limit - elapsed < 180.0:
+		_radio("trois_minutes", "Plus que trois minutes avant la fin de la foire !")
 	_sync_t += delta
 	if _sync_t >= SYNC_PERIOD and (_dirty or fmod(elapsed, 1.0) < delta):
 		_sync_t = 0.0
 		_push_state()
+
+
+# --- Barrage : choix d'équipe ---------------------------------------------------------------
+
+## Tranche le barrage (serveur). `option` : bluff | detour | diversion.
+func choose(option: String) -> void:
+	if not is_server() or step != "checkpoint" or not (option in OPTIONS):
+		return
+	match option:
+		"bluff":
+			var ginette_here := distance_to_zone(ID_GINETTE, "barrage") < NEAR_BARRAGE
+			var p := BLUFF_WITH_GINETTE if ginette_here else BLUFF_BASE
+			var roll := test_roll if test_roll >= 0.0 else rng.randf()
+			if ginette_here:
+				_log("Ginette s'avance : « Bonjour mon p'tit gars, c'est pour la bonne cause ! »")
+			else:
+				_log("Vous tentez le bluff, sans Ginette pour amadouer le gendarme…")
+			if roll < p:
+				_log("Ça passe : le gendarme lève la barrière en souriant.")
+			else:
+				var lost := mini(CONFISCATED, cargo)
+				cargo -= lost
+				_log("Raté ! Le gendarme « goûte pour vérifier » : %d bouteilles saisies." % lost)
+			_open_barrier()
+		"detour":
+			elapsed += DETOUR_COST
+			_log("Détour par les chemins de terre : +%d s au compteur." % int(DETOUR_COST))
+			_open_barrier()
+		"diversion":
+			if distance_to_zone(ID_KEVIN, "barrage") < NEAR_DIVERSION:
+				_log("Kévin hurle « Au feu ! » en agitant un fanion : tous les gendarmes courent. La voie est libre !")
+				_open_barrier()
+			else:
+				elapsed += DIVERSION_FAIL_COST
+				failed_options.append("diversion")
+				checkpoint_left = CHECKPOINT_TIME
+				_log("Pas de Kévin à portée : la diversion tombe à plat (+%d s). Choisissez autre chose." % int(DIVERSION_FAIL_COST))
+	_mark()
+
+
+func _open_barrier() -> void:
+	barrage_passed = true
+	barrier_open = true
+	step = "fair"
+	checkpoint_left = 0.0
+	_radio("foire", "La voie est libre ! Le stand du Comité est place Carnot, je vous vois d'ici.")
+
+
+func _radio(key: String, text: String) -> void:
+	if _radio_flags.has(key) or actor(ID_RADIO) == null:
+		return
+	_radio_flags[key] = true
+	_log("Kévin Radio : " + text)
+	_mark()
+
+
+func request_choice(option: String) -> void:
+	if is_server():
+		choose(option)
+	else:
+		_request_choice.rpc_id(1, option)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_choice(option: String) -> void:
+	if is_server():
+		choose(option)
 
 
 func _on_impact(strength: float) -> void:
@@ -293,7 +449,8 @@ func state() -> Dictionary:
 	for id in crates:
 		cs[id] = [crates[id].state, crates[id].carrier]
 	return {"step": step, "started": started, "elapsed": elapsed, "cargo": cargo, "broken": broken,
-		"medal": medal, "money": money, "driver": driver, "crates": cs, "messages": messages, "barrage": barrage_passed}
+		"medal": medal, "money": money, "driver": driver, "crates": cs, "messages": messages, "barrage": barrage_passed,
+		"cp_left": checkpoint_left, "failed": failed_options, "open": barrier_open}
 
 
 func _push_state() -> void:
@@ -321,6 +478,9 @@ func _sync(s: Dictionary) -> void:
 	driver = s.driver
 	messages = s.messages
 	barrage_passed = s.barrage
+	checkpoint_left = s.cp_left
+	failed_options = s.failed
+	barrier_open = s.open
 	for id in s.crates:
 		if crates.has(id):
 			crates[id].state = s.crates[id][0]
@@ -387,6 +547,8 @@ func _make_crate_node(id: String) -> Node3D:
 
 
 func _refresh_nodes() -> void:
+	if _barrier_body:
+		_barrier_body.collision_layer = 0 if (barrier_open or step in ["fair", "done"]) else 1
 	for id in _crate_nodes:
 		var n: Node3D = _crate_nodes[id]
 		var c: Dictionary = crates[id]
@@ -407,8 +569,10 @@ func _process(_delta: float) -> void:
 			if p:
 				(_crate_nodes[id] as Node3D).global_position = p.global_position + Vector3(0, 2.15, 0)
 	# Les clients prolongent le chronomètre entre deux synchronisations.
-	if not is_server() and started and step in ["crates", "road", "fair"]:
+	if not is_server() and started and step in ["crates", "road", "checkpoint", "fair"]:
 		elapsed += _delta
+		if step == "checkpoint":
+			checkpoint_left = maxf(checkpoint_left - _delta, 0.0)
 	# Le drapeau « porte une caisse » vient de l'état de mission, côté client aussi.
 	if _players_root:
 		for p in _players_root.get_children():
@@ -427,6 +591,9 @@ func objective() -> String:
 			return "Récupérez les %d caisses (cave, grange, poulailler, fumier) et chargez-les dans la camionnette. Reste : %d." % [crates.size(), left]
 		"road":
 			return "Conduisez, avec douceur : ça casse ! Direction le barrage de l'avenue du Bosc-Tenney."
+		"checkpoint":
+			var opts := "[1] Bluffer (Ginette)  ·  [2] Contourner (+%d s)  ·  [3] Diversion (Kévin)%s" % [int(DETOUR_COST), "  — diversion ratée" if "diversion" in failed_options else ""]
+			return "Barrage de gendarmes ! %s. Décision dans %d s, sinon Ginette s'en charge." % [opts, int(ceil(checkpoint_left))]
 		"fair":
 			return "Le barrage est passé. Rendez-vous au stand du Comité des fêtes, place Carnot."
 		"done":

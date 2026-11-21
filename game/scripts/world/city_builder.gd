@@ -637,6 +637,16 @@ func _add_prop(root: Node3D, prop: String) -> void:
 			_box(root, Vector3(6.2, 0.25, 0.12), Vector3(0, 1.0, 0), Color(0.85, 0.2, 0.18))
 			_box(root, Vector3(1.0, 0.25, 0.14), Vector3(-1.5, 1.0, 0), Color(0.97, 0.97, 0.97))
 			_box(root, Vector3(1.0, 0.25, 0.14), Vector3(1.5, 1.0, 0), Color(0.97, 0.97, 0.97))
+			# Collision réelle : la camionnette doit s'arrêter (ou casser des bouteilles).
+			var body := StaticBody3D.new()
+			body.name = "Collision"
+			var shape := CollisionShape3D.new()
+			var box := BoxShape3D.new()
+			box.size = Vector3(6.4, 1.4, 0.5)
+			shape.shape = box
+			shape.position.y = 0.7
+			body.add_child(shape)
+			root.add_child(body)
 		"stand":
 			# Stand de foire : comptoir, quatre poteaux, toit rayé.
 			_box(root, Vector3(3.6, 1.0, 1.2), Vector3(0, 0.5, 0), Color(0.62, 0.42, 0.28))

@@ -130,14 +130,61 @@ func _run() -> void:
 	van.forced_input = {"move": Vector2.ZERO, "jump": true}
 	await frames(60)
 
-	# --- Barrage puis stand ------------------------------------------------------------------
-	place(van, mission.zones.barrage + Vector3(0, 0.6, 0))
-	van.speed = 0.0
+	# --- Barrage : choix d'équipe (sans compagnons : ni Ginette ni Kévin sur place) ---------------------
+	var barrier = world.city.get_node_or_null("LieuxDeMission/Lieu_barrage_bosc_tenney/Collision")
+	check(barrier != null and barrier.collision_layer == 1, "la barrière du barrage est solide")
+	var to_barrage := func():
+		mission.step = "road"
+		mission.barrier_open = false
+		place(van, mission.zones.barrage + Vector3(0, 0.6, 0) + van.forward() * -6.0)
+		van.speed = 0.0
+	van.forced_input = {"move": Vector2.ZERO, "jump": true}
+	await frames(30)
+	var cargo0: int = mission.cargo
+	# 1. Détour : +45 s, aucune perte.
+	to_barrage.call()
 	await frames(10)
-	check(mission.step == "fair" and mission.barrage_passed, "barrage franchi, étape foire")
+	check(mission.step == "checkpoint" and mission.checkpoint_left > 11.0, "barrage : choix ouvert (12 s)")
+	check(mission.objective().contains("Bluffer") and mission.objective().contains("Diversion"), "consigne : les trois options sont affichées")
+	var t0: float = mission.elapsed
+	mission.choose("detour")
+	check(mission.step == "fair" and mission.elapsed - t0 >= 44.9 and mission.cargo == cargo0, "détour : +45 s, cargaison intacte")
+	await frames(2)
+	check(barrier.collision_layer == 0, "barrière ouverte une fois le barrage franchi")
+	# 2. Bluff raté, sans Ginette : le gendarme saisit 3 bouteilles.
+	to_barrage.call()
+	await frames(10)
+	check(barrier.collision_layer == 1, "barrière refermée au nouveau passage")
+	mission.test_roll = 0.99
+	mission.choose("bluff")
+	check(mission.step == "fair" and mission.cargo == cargo0 - 3, "bluff raté : 3 bouteilles saisies (%d → %d)" % [cargo0, mission.cargo])
+	# 3. Bluff réussi (tirage chanceux) : rien de perdu.
+	var cargo1: int = mission.cargo
+	to_barrage.call()
+	await frames(10)
+	mission.test_roll = 0.05
+	mission.choose("bluff")
+	check(mission.step == "fair" and mission.cargo == cargo1, "bluff réussi : cargaison intacte")
+	mission.test_roll = -1.0
+	# 4. Diversion sans Kévin : échec, +20 s, on reste au barrage.
+	to_barrage.call()
+	await frames(10)
+	t0 = mission.elapsed
+	mission.choose("diversion")
+	check(mission.step == "checkpoint" and "diversion" in mission.failed_options and mission.elapsed - t0 >= 19.9, "diversion sans Kévin : échec (+20 s), choix rouvert")
+	# 5. Personne ne tranche : sans Ginette, on contourne automatiquement.
+	mission.checkpoint_left = 0.01
+	t0 = mission.elapsed
+	await frames(10)
+	check(mission.step == "fair" and mission.elapsed - t0 >= 44.9, "délai écoulé sans Ginette : contournement automatique")
+	# 6. Ordres invalides ignorés.
+	mission.choose("detour")
+	check(mission.step == "fair", "un choix hors barrage est ignoré")
+	# 7. Arrivée au stand.
 	place(van, mission.zones.stand + Vector3(0, 0.6, 0))
 	van.speed = 0.0
 	await frames(10)
+
 	var intact: int = mission.cargo
 	if intact < mission.min_delivered:
 		check(mission.step == "failed" and mission.medal == "", "moins de %d bouteilles (%d) : mission échouée" % [mission.min_delivered, intact])
