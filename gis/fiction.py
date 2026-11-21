@@ -143,6 +143,8 @@ def lieux_fictifs(tuiles: dict, taille: float) -> list[dict]:
     return pois
 
 
+TAU_16 = math.tau / 16.0
+
 # --- Mission 01 « Le Calva de Tonton Gégé » : lieux de blockout -------------------------------------
 M01 = "m01_calva_gege"
 LABELS_M01 = {
@@ -212,21 +214,36 @@ def lieux_mission01(tuiles: dict, taille: float, normaliser, spawn) -> list[dict
         petit, grand = annexes[0], annexes[-1]
         (x, z), f = emplacement_enseigne(grand["footprint"], routes)
         out.append(_poi("grange_pommiers", "mission_target", LABELS_M01["grange_pommiers"], x, z, f, taille, "crates", building=grand["id"]))
-        # Le tas de fumier va derrière la grange, hors de tout bâtiment (marge de 3 m).
+        # Le tas de fumier va à côté de la grange, hors de tout bâtiment (marge de 3 m) et
+        # ACCESSIBLE à pied : la ligne droite depuis la rue la plus proche ne doit croiser aucun bâtiment
+        # (les compagnons IA suivent les rues ; on préfère le côté de la grange, pas sa façade).
         polys = [Polygon(b["footprint"]) for b in batiments]
         c = Polygon(grand["footprint"]).centroid
-        fx, fz = c.x, c.y
-        for d in range(6, 60, 2):
-            for da in (0.0, 0.5, -0.5, 1.0, -1.0):
-                a = f + math.pi + da
+        best, best_score = None, None
+        for d in range(5, 46, 3):
+            for k in range(16):
+                a = TAU_16 * k
                 x, z = c.x + math.sin(a) * d, c.y + math.cos(a) * d
                 pt = Point(x, z)
-                if not any(p_.distance(pt) < 3.0 for p_ in polys):
-                    fx, fz = x, z
-                    break
-            else:
-                continue
-            break
+                if any(p_.distance(pt) < 3.0 for p_ in polys):
+                    continue
+                if routes:
+                    road = min(routes, key=lambda r: r.distance(pt))
+                    foot = nearest_points(road, pt)[0]
+                    if foot.distance(pt) > 28.0:
+                        continue
+                    ray = LineString([(foot.x, foot.y), (x, z)])
+                    if any(p_.intersects(ray) for p_ in polys):
+                        continue
+                    score = d + 0.4 * foot.distance(pt)
+                else:
+                    score = d
+                # Pas devant la façade (là où s'ouvre l'enseigne) : on veut un coin discret.
+                if math.sin(a) * math.sin(f) + math.cos(a) * math.cos(f) > 0.6:
+                    score += 12.0
+                if best_score is None or score < best_score:
+                    best, best_score = (x, z), score
+        fx, fz = best if best else (c.x, c.y)
         out.append(_poi("fumier_tas", "mission_target", LABELS_M01["fumier_tas"], fx, fz, f + math.pi, taille, "crates", prop="fumier"))
         (x, z), f = emplacement_enseigne(petit["footprint"], routes)
         out.append(_poi("poulailler_ginette", "mission_target", LABELS_M01["poulailler_ginette"], x, z, f, taille, "crates", building=petit["id"]))

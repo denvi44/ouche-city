@@ -82,12 +82,32 @@ static func format_time(seconds: float) -> String:
 	return "%d:%02d" % [s / 60, s % 60]
 
 
+static func companions_of(m: MissionM01) -> Array:
+	var out := []
+	if m._players_root:
+		for p in m._players_root.get_children():
+			if p is Player and (p as Player).is_ai:
+				out.append(p)
+	return out
+
+
+## Ce que fait un compagnon, déduit de l'état public (valable sur tous les pairs).
+static func companion_status(c: Player, m: MissionM01) -> String:
+	if c.carrying:
+		return "porte une caisse à la camionnette"
+	if m.step == "crates":
+		return "s'occupe des caisses"
+	return "attend près de la camionnette"
+
+
 ## Texte du panneau de mission (fonction pure, testée).
 static func mission_text(m: MissionM01) -> String:
 	var lines: PackedStringArray = [m.title]
 	lines.append(m.objective())
 	if m.step in ["crates", "road", "fair"]:
 		lines.append("Bouteilles intactes : %d / %d   (cassées : %d)   ·   Temps restant : %s" % [m.cargo, m.bottles_total, m.broken, format_time(m.time_limit - m.elapsed)])
+	for c in companions_of(m):
+		lines.append("• %s : %s" % [c.display_name, companion_status(c, m)])
 	for msg in m.messages.slice(maxi(m.messages.size() - 3, 0)):
 		lines.append("• " + msg)
 	return "\n".join(lines)

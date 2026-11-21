@@ -128,6 +128,25 @@ func _run() -> void:
 	check(cm.leg_angle_l < -0.5, "saut : jambe gauche repliée (%.2f rad)" % cm.leg_angle_l)
 	cm.free()
 
+	# --- Navigation piétonne (graphe routier) ---
+	var RN = load("res://scripts/ai/road_nav.gd")
+	var nav = RN.load_default()
+	check(nav.point_count() > 5000, "graphe routier densifié (%d points)" % nav.point_count())
+	var from_pt := Vector2(1399.0, 1462.0)       # rue Sainte-Foy
+	var to_pt := Vector2(1419.7, 1564.5)       # camionnette
+	var path: PackedVector2Array = nav.find_path(from_pt, to_pt)
+	var straight := from_pt.distance_to(to_pt)
+	var plen: float = RN.length_of(path)
+	check(path.size() >= 3 and path[0] == from_pt and path[path.size() - 1] == to_pt, "chemin : départ, rues, arrivée (%d points)" % path.size())
+	check(plen >= straight - 0.01 and plen < straight * 2.5, "chemin raisonnable : %.0f m pour %.0f m à vol d'oiseau" % [plen, straight])
+	var gap := 0.0
+	for i in range(path.size() - 1):
+		gap = maxf(gap, path[i].distance_to(path[i + 1]))
+	check(gap < 12.0, "pas de segment de plus de 12 m (%.1f m)" % gap)
+	var empty = RN.new()
+	var direct: PackedVector2Array = empty.find_path(from_pt, to_pt)
+	check(direct.size() == 2, "sans graphe : ligne droite")
+
 	print("%d tests, %d échec(s)" % [_count, _fails])
 	quit(1 if _fails > 0 else 0)
 

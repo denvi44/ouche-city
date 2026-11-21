@@ -47,6 +47,11 @@ func neutral_input() -> Dictionary:
 	return {}
 
 
+## Entrée simulée par le serveur pour un corps sans contrôleur (neutre, ou cerveau IA).
+func server_input(_delta: float) -> Dictionary:
+	return neutral_input()
+
+
 func pack_input(_inp: Dictionary) -> PackedFloat32Array:
 	return PackedFloat32Array()
 
@@ -102,7 +107,9 @@ func _physics_process(delta: float) -> void:
 				_pending.pop_front()
 			_submit_input.rpc_id(1, _seq, pack_input(inp))
 	elif server:
-		if controller == 0 or _server_queue.is_empty():
+		if controller == 0:
+			simulate(server_input(delta), delta)
+		elif _server_queue.is_empty():
 			simulate(neutral_input(), delta)
 		else:
 			# Rattrapage doux si des paquets arrivent groupés.

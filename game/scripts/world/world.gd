@@ -40,6 +40,7 @@ func _ready() -> void:
 			await get_tree().physics_frame
 			_spawn(1, Settings.player_name, find_free_spawn(spawn_point))
 			Net.players[1].ready = true
+			_spawn_companions()
 		var t := Timer.new()
 		t.wait_time = 1.0
 		t.autostart = true
@@ -82,6 +83,15 @@ func _build_van_and_mission() -> void:
 	mission.name = "Mission"
 	add_child(mission)
 	mission.setup(pois, builder.height_at, van, players_root)
+
+
+## Compagnons IA : en solo, Tonton Gégé tient le rôle d'arrimeur (--no-companions pour les tests).
+func _spawn_companions() -> void:
+	if Net.mode != Net.Mode.SOLO or Net.arg("no-companions") != null or mission == null:
+		return
+	var id := -1
+	var gege := _spawn(id, Player.OUTFITS[id].nom, find_free_spawn(spawn_point + Vector3(3.0, 0.0, 3.0)))
+	gege.brain = CompanionBrain.new(gege, mission, RoadNav.load_default())
 
 
 func _unhandled_input(event: InputEvent) -> void:

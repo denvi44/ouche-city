@@ -13,7 +13,15 @@ const ACCEL := 35.0
 const PALETTE := [Color(0.85, 0.3, 0.25), Color(0.25, 0.5, 0.8), Color(0.95, 0.75, 0.2), Color(0.35, 0.65, 0.35),
 	Color(0.65, 0.4, 0.75), Color(0.95, 0.55, 0.25), Color(0.3, 0.7, 0.7), Color(0.8, 0.45, 0.6)]
 
+## Tenues des compagnons IA (identifiants négatifs) : identiques sur tous les pairs.
+const OUTFITS := {
+	-1: {"nom": "Tonton Gégé (IA)", "shirt": Color(0.72, 0.52, 0.3), "trousers": Color(0.3, 0.38, 0.55), "hat": Color(0.6, 0.5, 0.35), "role": "arrimeur"},
+}
+
 var peer_id := 1
+## Compagnon IA : identifiant négatif, simulé par le serveur via son cerveau.
+var is_ai := false
+var brain: CompanionBrain
 var display_name := "Normand"
 var facing := 0.0
 ## Porte une caisse (replicated par la mission).
@@ -33,7 +41,8 @@ var _was_driving := false
 
 func _ready() -> void:
 	peer_id = name.to_int()
-	controller = peer_id
+	is_ai = peer_id < 0
+	controller = 0 if is_ai else peer_id
 	_shape = CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
 	capsule.radius = 0.35
@@ -70,7 +79,11 @@ func _build_visual() -> void:
 	visual.name = "Visuel"
 	add_child(visual)
 	var color: Color = PALETTE[absi(peer_id) % PALETTE.size()]
-	model = CharacterModel.make(color)
+	if OUTFITS.has(peer_id):
+		var o: Dictionary = OUTFITS[peer_id]
+		model = CharacterModel.make(o.shirt, o.trousers, o.hat)
+	else:
+		model = CharacterModel.make(color)
 	visual.add_child(model)
 	var label := Label3D.new()
 	label.text = display_name
@@ -124,6 +137,14 @@ func neutral_input() -> Dictionary:
 	return {"move": Vector2.ZERO, "yaw": _last_yaw, "jump": false, "sprint": false}
 
 
+func server_input(delta: float) -> Dictionary:
+	if brain:
+		var inp := brain.think(delta)
+		_last_yaw = inp.yaw
+		return inp
+	return neutral_input()
+
+
 func pack_input(inp: Dictionary) -> PackedFloat32Array:
 	return PackedFloat32Array([inp.move.x, inp.move.y, inp.yaw, 1.0 if inp.jump else 0.0, 1.0 if inp.sprint else 0.0])
 
@@ -174,7 +195,7 @@ func _physics_process(delta: float) -> void:
 		controller = 0
 		global_position = vehicle.global_position + Vector3(0, 0.6, 0)
 		return
-	controller = peer_id
+	controller = 0 if is_ai else peer_id
 	super._physics_process(delta)
 
 

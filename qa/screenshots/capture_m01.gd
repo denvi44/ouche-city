@@ -1,6 +1,6 @@
 extends SceneTree
 ## Captures de gameplay de la mission 01 (agent 09), avec le vrai joueur, la vraie caméra et le HUD.
-## Usage : godot --path game -s ../qa/screenshots/capture_m01.gd -- --out=DIR   (Vulkan conseillé)
+## Usage : godot --path game -s ../qa/screenshots/capture_m01.gd -- --out=DIR --no-companions   (Vulkan conseillé)
 ## Le script joue la mission par ses propres fonctions serveur (comme qa/integration/m01_flow.gd)
 ## et photographie chaque moment clé.
 

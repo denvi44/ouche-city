@@ -76,3 +76,26 @@ def test_lieux_fictifs_uniques_et_rattaches(tmp_path):
     assert len(labels) == len(set(labels))
     assert all(p["source"] == "design" and isinstance(p["facing"], float) for p in lieux)
     assert any(p["id"] == "eglise" and p["label"] == fiction.MONUMENTS["eglise"] for p in pois)
+
+
+def test_fumier_accessible_a_pied(tmp_path):
+    """Le tas de fumier est hors de tout bâtiment et joignable en ligne droite depuis une rue
+    (les compagnons IA suivent le graphe routier, pas un maillage de navigation complet)."""
+    from shapely.geometry import LineString, Point, Polygon
+    from shapely.ops import nearest_points
+    out = ROOT / "gis/out"
+    pois = {p["id"]: p for p in json.loads((out / "poi.json").read_text())["pois"]}
+    if "fumier_tas" not in pois:
+        return
+    pt = Point(pois["fumier_tas"]["position"])
+    polys, routes = [], []
+    for f in (out / "tiles").glob("*.json"):
+        t = json.loads(f.read_text())
+        polys += [Polygon(b["footprint"]) for b in t["buildings"]]
+        routes += [LineString(r["points"]) for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    assert all(p.distance(pt) >= 2.9 for p in polys), "fumier trop près d'un bâtiment"
+    road = min(routes, key=lambda r: r.distance(pt))
+    foot = nearest_points(road, pt)[0]
+    assert foot.distance(pt) <= 28.0
+    ray = LineString([(foot.x, foot.y), (pt.x, pt.y)])
+    assert not any(p.intersects(ray) for p in polys), "un bâtiment barre l'accès au fumier"

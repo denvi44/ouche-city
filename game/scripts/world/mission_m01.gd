@@ -137,13 +137,16 @@ func resolve(peer: int, pos: Vector3) -> Dictionary:
 
 
 ## Exécute l'interaction (serveur uniquement).
-func interact(peer: int) -> void:
+## `allowed` : types d'action permis (vide = tous) ; un compagnon IA n'essaie jamais de conduire.
+func interact(peer: int, allowed: Array = []) -> void:
 	if not is_server():
 		return
 	var player := _players_root.get_node_or_null(str(peer)) as Player
 	if player == null:
 		return
 	var r := resolve(peer, player.global_position)
+	if not allowed.is_empty() and not (r.get("kind", "") in allowed):
+		return
 	match r.get("kind", ""):
 		"pickup":
 			crates[r.id].state = "carried"

@@ -1,6 +1,6 @@
 extends SceneTree
 ## Test d'intégration de la mission 01 (agent 09), en solo headless, sans souris ni clavier.
-## Usage : godot --headless --path game -s ../qa/integration/m01_flow.gd
+## Usage : godot --headless --path game -s ../qa/integration/m01_flow.gd -- --no-companions
 ## Déroulé : 4 caisses → camionnette → conduite → descente/remontée → choc (bouteilles cassées)
 ## → barrage → stand → médaille. Chaque étape est vérifiée ; code de sortie 1 au premier échec.
 

@@ -29,7 +29,8 @@ test-godot:
 	$(GODOT) --headless --path game --import >/dev/null 2>&1 || true
 	$(GODOT) --headless --path game -s ../qa/unit/run_gdscript_tests.gd
 	bash qa/integration/two_players.sh
-	$(GODOT) --headless --path game -s ../qa/integration/m01_flow.gd
+	$(GODOT) --headless --path game -s ../qa/integration/m01_flow.gd -- --no-companions
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/companion_flow.gd -- --sec=600 --need=4
 	bash qa/integration/drive_online.sh
 
 ## Captures 1920×1080 de la scène témoin (GPU conseillé ; sinon rendu Compatibility).
