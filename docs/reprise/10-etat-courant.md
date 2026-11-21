@@ -64,9 +64,9 @@ pytest 190 ; tests GDScript 256 ; audit de faisabilité : m01 746 s/1110, m02 43
 - Audit de faisabilité m05 : vache coincée contre le côté de l'enclos → `MissionM05.push_goal` (viser le devant de la porte).
 - Runs 56–59 : étapes intermédiaires (données SIG changées avant `make city`, bot de la mission 4 bloqué par le charbon dans une ruelle, Kévin bloqué par la chute sous la carte).
 
-## Test instable connu
-`qa/integration/drive_online.sh` échoue de temps en temps **sur la CI seulement** (la camionnette reste à l'arrêt alors que le conducteur est bien monté ; local : toujours vert).
-Cause non élucidée ; le script refait une tentative. À investiguer : entrées du pilote distant côté serveur sur machine lente.
+## Test instable (cause trouvée)
+`qa/integration/drive_online.sh` échouait sur la CI : la distance parcourue se mesurait depuis le premier rapport « 2 joueurs ». Sur une machine lente le spectateur arrive après que le pilote a déjà roulé
+(≈ 50 m, la camionnette s'arrête ensuite), d'où « 0 m ». Corrigé : la distance se mesure depuis le tout premier rapport du serveur. Le script garde une seconde tentative par prudence.
 
 ## Prochaines étapes conseillées (dans l'ordre)
 1. Terminer le correctif des props enterrés, relancer `make test`, pousser, vérifier la CI.

@@ -29,14 +29,15 @@ def vans(path):
     out = []
     for l in open(path):
         m = re.search(r"van=([-\d.]+),([-\d.]+),([-\d.]+) conducteur=(\d+) etape=(\w+)", l)
-        if m and "joueurs=2" in l:
+        if m:   # tous les rapports (la distance se mesure depuis le TOUT premier : sur une machine lente le pilote a déjà roulé quand le spectateur arrive)
             out.append((float(m[1]), float(m[3]), int(m[4]), m[5]))
     return out
 srv, wat, drv = vans(f"{log}/server.log"), vans(f"{log}/watcher.log"), vans(f"{log}/driver.log")
 ok = True
 def fail(msg):
     global ok; ok = False; print("ÉCHEC :", msg)
-if not srv: fail("le serveur n'a jamais vu 2 joueurs"); sys.exit(1)
+if not srv: fail("le serveur n'a aucun rapport"); sys.exit(1)
+if not any("joueurs=2" in l for l in open(f"{log}/server.log")): fail("le serveur n'a jamais vu 2 joueurs"); sys.exit(1)
 start = srv[0]
 dist = lambda a, b: math.hypot(a[0]-b[0], a[1]-b[1])
 srv_max = max(dist(start, v) for v in srv)
