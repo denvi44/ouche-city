@@ -24,6 +24,8 @@ var colorblind_mode: String = "aucun"
 var cinematics: bool = true
 ## En solo, les compagnons IA ne font que guider (suivre, montrer le chemin) ; vrai : ils tiennent aussi leurs rôles (tâches de mission).
 var companions_help: bool = false
+## Vie ambiante : passants et voitures qui circulent (décor, non solides). Désactivable pour les petites configurations.
+var ambient_life: bool = true
 
 
 func _ready() -> void:
@@ -49,6 +51,7 @@ func load_settings() -> void:
 	colorblind_mode = cfg.get_value("accessibilite", "daltonisme", colorblind_mode)
 	cinematics = cfg.get_value("jeu", "cinematiques", cinematics)
 	companions_help = cfg.get_value("jeu", "compagnons_aident", companions_help)
+	ambient_life = cfg.get_value("jeu", "vie_ambiante", ambient_life)
 
 
 func save_settings() -> void:
@@ -67,4 +70,5 @@ func save_settings() -> void:
 	cfg.set_value("accessibilite", "daltonisme", colorblind_mode)
 	cfg.set_value("jeu", "cinematiques", cinematics)
 	cfg.set_value("jeu", "compagnons_aident", companions_help)
+	cfg.set_value("jeu", "vie_ambiante", ambient_life)
 	cfg.save(PATH)

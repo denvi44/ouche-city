@@ -99,6 +99,8 @@ jobs:
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/guide_mode.gd
       - name: Décors et mobilier (rien dans un mur ni sur la chaussée)
         run: godot --headless --path game -s ../qa/integration/props_audit.gd
+      - name: Vie ambiante (passants, voitures, fumée d'échappement)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/ambient_audit.gd
       - name: Édifices publics (emprise du modèle hors chaussée)
         run: godot --headless --path game -s ../qa/integration/landmarks_audit.gd
       - name: Cinématiques (plans valides, caméra hors des murs, lecture complète)

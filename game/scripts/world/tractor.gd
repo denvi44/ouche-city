@@ -11,6 +11,7 @@ var path := PackedVector2Array()
 var _wp := 0
 var finished := false
 var _loop: AudioStreamPlayer3D
+var _exhaust: ExhaustFx
 
 
 func _ready() -> void:
@@ -34,6 +35,11 @@ func set_active(a: bool) -> void:
 			_loop.play()
 		elif not a:
 			_loop.stop()
+
+
+func _process(_delta: float) -> void:
+	if _exhaust:
+		_exhaust.set_level(0.0 if (not active or finished) else 0.7)
 
 
 func start_route(p: PackedVector2Array) -> void:
@@ -71,6 +77,7 @@ func _build_visual() -> void:
 	_part(visual, tris, Vector3(1.0, 0.5, 0.3), Vector3(0, 0.7, -1.95), rouge, 0.2)         # calandre
 	_part(visual, tris, Vector3(1.2, 0.2, 1.0), Vector3(0, 0.75, 1.9), Color(0.35, 0.3, 0.28))  # attelage
 	_finish_hull(visual, tris)
+	_exhaust = ExhaustFx.attach(visual, Vector3(0.45, 2.5, -1.55), Vector3(0, 1, 0.2))   # le tuyau monte : la fumée aussi
 	# Roues : grandes à l'arrière, petites à l'avant.
 	for spec in [[-1.0, 0.95, 0.75], [1.0, 0.95, 0.75], [-0.85, -1.3, 0.42], [0.85, -1.3, 0.42]]:
 		var cyl := CylinderMesh.new()

@@ -308,6 +308,17 @@ func _build_pause(root: Control) -> void:
 		Settings.companions_help = on
 		Settings.save_settings())
 	box.add_child(help)
+	var amb := CheckButton.new()
+	amb.text = "Vie ambiante : passants et voitures (décor)"
+	amb.button_pressed = Settings.ambient_life
+	amb.toggled.connect(func(on: bool):
+		Settings.ambient_life = on
+		Settings.save_settings()
+		var w := get_tree().current_scene
+		var al := w.get_node_or_null("VieAmbiante") if w else null
+		if al:
+			al.set_enabled(on))
+	box.add_child(amb)
 	var keys := Button.new()
 	keys.text = "Touches et souris"
 	keys.pressed.connect(func(): root.add_child(preload("res://ui/controls_menu.gd").new()))

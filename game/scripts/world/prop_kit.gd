@@ -1096,3 +1096,27 @@ static func quarry_fence_cached() -> PropKit:
 	if _fence_cache == null:
 		_fence_cache = quarry_fence()
 	return _fence_cache
+
+
+## Voiture de circulation (décor) : trois gabarits fictifs sans marque. Avant = +Z (convention des accessoires). Dimensions ≈ 1,8 × 1,5 × 3,6–4,4 m.
+## `kind` : 0 citadine, 1 break, 2 fourgonnette.
+static func traffic_car(color: Color, kind := 0) -> PropKit:
+	var k := PropKit.new()
+	var long: float = [3.7, 4.5, 4.2][kind]
+	var cab_len: float = [1.7, 2.6, 2.9][kind]
+	var cab_h: float = [0.62, 0.66, 0.95][kind]
+	var cab_z: float = [-0.1, -0.35, -0.5][kind]
+	var dark := Color(0.14, 0.16, 0.2)
+	k.add_box(Vector3(1.78, 0.62, long), Vector3(0, 0.62, 0), color)
+	k.add_box(Vector3(1.62, cab_h, cab_len), Vector3(0, 0.93 + cab_h * 0.5, cab_z), color.lightened(0.12))
+	k.add_box(Vector3(1.64, cab_h * 0.55, cab_len * 0.8), Vector3(0, 0.98 + cab_h * 0.55, cab_z), dark)         # vitres
+	k.add_box(Vector3(0.32, 0.18, 0.06), Vector3(-0.6, 0.72, long * 0.5), Color(1.0, 0.93, 0.6), Vector3.ZERO, true)         # phares
+	k.add_box(Vector3(0.32, 0.18, 0.06), Vector3(0.6, 0.72, long * 0.5), Color(1.0, 0.93, 0.6), Vector3.ZERO, true)
+	k.add_box(Vector3(0.3, 0.16, 0.06), Vector3(-0.62, 0.74, -long * 0.5), Color(0.8, 0.12, 0.1), Vector3.ZERO, true)        # feux arrière
+	k.add_box(Vector3(0.3, 0.16, 0.06), Vector3(0.62, 0.74, -long * 0.5), Color(0.8, 0.12, 0.1), Vector3.ZERO, true)
+	k.add_box(Vector3(1.84, 0.16, 0.2), Vector3(0, 0.38, long * 0.5), Color(0.82, 0.82, 0.84))
+	k.add_box(Vector3(1.84, 0.16, 0.2), Vector3(0, 0.38, -long * 0.5), Color(0.82, 0.82, 0.84))
+	for sx in [-1.0, 1.0]:
+		for sz in [-1.0, 1.0]:
+			k.add_cyl(0.34, 0.34, 0.24, Vector3(sx * 0.88, 0.34, sz * long * 0.32), Color(0.12, 0.11, 0.1), Vector3(0, 0, PI / 2.0), 10)
+	return k

@@ -58,6 +58,10 @@ func _ready() -> void:
 		add_child(preload("res://ui/hud.gd").new())
 	if DisplayServer.get_name() != "headless":
 		add_child(LabelDeclutter.new())     # noms flottants : jamais les uns sur les autres
+	if AmbientLife.is_available():
+		var life := AmbientLife.new()
+		add_child(life)
+		life.setup(self, builder)
 	var director := CinematicDirector.new()
 	director.name = "Cinematiques"
 	add_child(director)

@@ -55,6 +55,9 @@ var _last_pos := Vector3.ZERO
 ## Vitesse mesurée sur le déplacement visible (utile aux pairs qui ne simulent pas ce véhicule).
 var measured_speed := 0.0
 var _jolt := 0.0                 # secousse visuelle (nid-de-poule), décroît seule
+var _exhaust: ExhaustFx
+## Position locale du pot d'échappement (repère de la caisse, avant = -Z) : à l'arrière.
+var exhaust_pos := Vector3(0.62, 0.3, 2.3)
 
 
 func _ready() -> void:
@@ -68,6 +71,8 @@ func _ready() -> void:
 	shape.position.y = 0.95
 	add_child(shape)
 	_build_visual()
+	if _body_visual:
+		_exhaust = ExhaustFx.attach(_body_visual, exhaust_pos)
 	_engine = Sfx.make_loop("engine", -9.0)
 	if _engine:
 		add_child(_engine)
@@ -195,6 +200,9 @@ func _process(delta: float) -> void:
 	_last_pos = global_position
 	measured_speed = lerpf(measured_speed, Vector2(dp.x, dp.z).length() / maxf(delta, 0.0001), clampf(8.0 * delta, 0.0, 1.0))
 	_update_engine_sound()
+	if _exhaust:
+		var running := driver != 0 or engine_on
+		_exhaust.set_level(0.0 if not running else 0.2 + 0.8 * clampf(absf(speed) / maxf(max_speed, 1.0), 0.0, 1.0))
 	if _body_visual:
 		_jolt = maxf(_jolt - delta * 2.5, 0.0)
 		_body_visual.position.y = sin(Time.get_ticks_msec() * 0.045) * 0.13 * _jolt

@@ -34,6 +34,10 @@ var _hull_tris: Array = []   # triangles du bâti en cours : [a, b, c] (Vector3)
 ## Grilles de relief des tuiles chargées : "x_y" -> { origin, size, res, heights }
 var grids := {}
 var bounds := Rect2()   # emprise couverte par les tuiles (repère local x, z)
+## Routes carrossables (pour la vie ambiante) : [{"pts": PackedVector2Array, "width": float, "kind": String, "len": float}]
+var road_lines: Array = []
+## Contours des bâtiments (PackedVector2Array) : la vie ambiante n'y place personne.
+var building_rings: Array = []
 
 
 static func read_json(path: String) -> Variant:
@@ -1240,6 +1244,7 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 				for v in bd.footprint:
 					rg.append(Vector2(float(v[0]), float(v[1])))
 				all_rings.append(rg)
+				building_rings.append(rg)
 				ring_by_id[str(bd.id)] = rg
 			for rd in data.roads:
 				if str(rd.kind) in ["footway", "track"]:
@@ -1248,6 +1253,10 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 				for v in rd.points:
 					pl.append(Vector2(float(v[0]), float(v[1])))
 				all_roads.append([pl, float(rd.get("width", 5.0)) / 2.0])
+				var ln := 0.0
+				for k in range(pl.size() - 1):
+					ln += pl[k].distance_to(pl[k + 1])
+				road_lines.append({"pts": pl, "width": float(rd.get("width", 5.0)), "kind": str(rd.kind), "len": ln})
 		root.add_child(build_signs(poi.get("pois", []), ring_by_id))
 		root.add_child(build_landmarks(poi.get("pois", [])))
 		root.add_child(StreetFurniture.build_shops(poi.get("pois", []), height_at, all_rings, all_roads))
