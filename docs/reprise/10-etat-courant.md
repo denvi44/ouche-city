@@ -63,6 +63,10 @@ pytest 190 ; tests GDScript 256 ; audit de faisabilité : m01 746 s/1110, m02 43
 - Audit de faisabilité m05 : vache coincée contre le côté de l'enclos → `MissionM05.push_goal` (viser le devant de la porte).
 - Runs 56–59 : étapes intermédiaires (données SIG changées avant `make city`, bot de la mission 4 bloqué par le charbon dans une ruelle, Kévin bloqué par la chute sous la carte).
 
+## Test instable connu
+`qa/integration/drive_online.sh` échoue de temps en temps **sur la CI seulement** (la camionnette reste à l'arrêt alors que le conducteur est bien monté ; local : toujours vert).
+Cause non élucidée ; le script refait une tentative. À investiguer : entrées du pilote distant côté serveur sur machine lente.
+
 ## Prochaines étapes conseillées (dans l'ordre)
 1. Terminer le correctif des props enterrés, relancer `make test`, pousser, vérifier la CI.
 2. Fiche de spécification « choix du héros » (avec le propriétaire), puis implémentation réseau d'abord.

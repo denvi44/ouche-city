@@ -68,6 +68,11 @@ else:
 sys.exit(0 if ok else 1)
 PY
 STATUS=$?
+# Échec isolé sur la CI (machine lente : la camionnette ne démarre parfois pas, cause non élucidée, jamais en local) : une seconde tentative.
+if [ $STATUS -ne 0 ] && [ -z "${DRIVE_RETRY:-}" ]; then
+  echo "(échec isolé, seconde tentative)"
+  DRIVE_RETRY=1 exec bash "$0"
+fi
 if [ $STATUS -ne 0 ]; then
   echo "--- serveur ---"; tail -20 "$LOG/server.log"; echo "--- pilote ---"; tail -12 "$LOG/driver.log"
   exit 1
