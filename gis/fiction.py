@@ -1109,7 +1109,7 @@ EMPRISE_DECOR = {
     "coop": (1.4, 4.2, 0.4, 3.6), "garage": (2.0, 4.0, 0.6, 1.6), "junkyard": (-4.3, 5.8, 0.2, 4.3), "stand": (-1.9, 1.9, -0.7, 0.8),
     "wc": (-0.8, 0.8, -0.8, 0.8), "fumier": (-1.5, 1.5, -1.5, 1.5),
 }
-MARGE_DECOR = 0.35          # m de dégagement autour de l'emprise
+MARGE_DECOR = 1.0           # m de dégagement autour de l'emprise : un joueur doit pouvoir passer entre le décor et les murs
 RAYON_DECOR = 32.0          # m : distance maximale de déplacement
 
 
@@ -1133,9 +1133,21 @@ def degager_decors(pois: list[dict], tuiles: dict, taille: float) -> int:
                 continue
             obst.append(LineString(r["points"]).buffer(float(r.get("width", 5.0)) / 2.0 + 0.2))
     arbre = STRtree(obst)
+    batis = [Polygon(b["footprint"]) for t in tuiles.values() for b in t["buildings"]]
+    arbre_b = STRtree(batis)
+    lignes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    arbre_r = STRtree(lignes)
 
     def gene(rect: Polygon) -> float:
         return sum(obst[int(i)].intersection(rect).area for i in arbre.query(rect))
+
+    def acces(rect: Polygon) -> bool:
+        """Le centre du décor voit la route la plus proche sans qu'un bâtiment (élargi de 45 cm) s'interpose : pas d'arrière-cour fermée."""
+        c = rect.centroid
+        ligne = lignes[int(arbre_r.nearest(c))]
+        _, q = nearest_points(c, ligne)
+        corridor = LineString([(c.x, c.y), (q.x, q.y)]).buffer(0.45)
+        return all(batis[int(i)].intersection(corridor).area <= 0.05 for i in arbre_b.query(corridor))
 
     occupes: list[Polygon] = []
     deplaces = 0
@@ -1144,7 +1156,7 @@ def degager_decors(pois: list[dict], tuiles: dict, taille: float) -> int:
         x0, z0 = p["position"]
         f0 = float(p.get("facing", 0.0))
         rect0 = _rect_decor(x0, z0, f0, e)
-        if gene(rect0) <= 0.05 and not any(rect0.intersects(o) for o in occupes):
+        if gene(rect0) <= 0.05 and acces(rect0) and not any(rect0.intersects(o) for o in occupes):
             occupes.append(rect0)
             continue
         cands = []
@@ -1158,7 +1170,7 @@ def degager_decors(pois: list[dict], tuiles: dict, taille: float) -> int:
         cands.sort()
         for _, dx, dz, f in cands:
             r = _rect_decor(x0 + dx, z0 + dz, f, e)
-            if gene(r) <= 0.05 and not any(r.intersects(o) for o in occupes):
+            if gene(r) <= 0.05 and acces(r) and not any(r.intersects(o) for o in occupes):
                 p["position"] = [_r(x0 + dx), _r(z0 + dz)]
                 p["facing"] = _r(f)
                 p["tile"] = f"{int((x0 + dx) // taille)}_{int((z0 + dz) // taille)}"

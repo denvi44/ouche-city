@@ -158,3 +158,23 @@ def test_lieux_de_mission_atteignables():
             if bid != p["building"] and (poly.contains(pt) or poly.distance(pt) < 0.6):
                 mauvais.append((p["id"], bid))
     assert not mauvais, f"lieux de mission coincés contre un autre bâtiment : {mauvais}"
+
+
+def test_decors_de_mission_hors_des_murs_et_de_la_chaussee():
+    """L'emprise de chaque décor (avec 1 m de dégagement) ne touche ni un bâtiment ni une chaussée (qa/integration/props_audit.gd le vérifie sur les vrais maillages)."""
+    from gis.fiction import EMPRISE_DECOR, _rect_decor
+    batis = [Polygon(b["footprint"]) for b in BATIMENTS.values()]
+    corridors = [LineString(r["points"]).buffer(float(r.get("width", 5.0)) / 2.0)
+                 for t in TUILES for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    mauvais = []
+    nb = 0
+    for p in POIS.values():
+        e = EMPRISE_DECOR.get(p.get("prop"))
+        if not e:
+            continue
+        nb += 1
+        rect = _rect_decor(p["position"][0], p["position"][1], float(p.get("facing", 0.0)), e)
+        if any(rect.intersects(g) and rect.intersection(g).area > 0.05 for g in batis + corridors):
+            mauvais.append(p["id"])
+    assert nb >= 9
+    assert not mauvais, f"décors qui mordent sur un mur ou la chaussée : {mauvais}"
