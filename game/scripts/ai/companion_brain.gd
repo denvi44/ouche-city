@@ -339,7 +339,7 @@ func _guide(delta: float) -> Dictionary:
 	var slot := _guide_slot()
 	if d_me > GUIDE_TELEPORT:
 		var a := float(slot) * 2.1
-		body.global_position = pp + Vector3(cos(a) * 3.0, 0.5, sin(a) * 3.0)
+		body.global_position = pp + Vector3(cos(a) * 8.0, 0.5, sin(a) * 8.0)
 		body.velocity = Vector3.ZERO
 		return idle()
 	var marks: Array = m.focus_markers()

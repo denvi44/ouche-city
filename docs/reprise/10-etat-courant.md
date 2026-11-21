@@ -32,6 +32,10 @@ les runs 56 à 59 sont rouges pour des raisons connues et corrigées (voir « Hi
   le premier passe devant vers la balise d'objectif (`focus_markers()[0]`) et l'attend, une réplique `mNN_guide` toutes les 45 s si le joueur est loin ; **aucune action de mission**.
   Le mode « coéquipiers » (tâches faites par l'IA) reste disponible : case dans le menu pause, et les tests `*_companions.gd`/l'audit « avec compagnons » le forcent à vrai.
   Test : `qa/integration/guide_mode.gd`. Le HUD affiche `companion_line(c)` (« te montre le chemin… » ou la tâche).
+- **Décors et mobilier hors des murs et de la chaussée** : `gis/fiction.py::degager_decors` déplace (≤ 32 m, plus petit déplacement) tout décor de mission dont l'emprise
+  (`EMPRISE_DECOR`, mesurée par `props_audit.gd`, lignes `EXT`) mord sur un bâtiment ou une route ; `StreetFurniture.blocked` supprime les bancs, jardinières et bornes
+  qui seraient dans un mur ou sur la chaussée ; une enseigne n'est plus posée pour un décor déplacé hors du mur (`build_signs`). Audit : `qa/integration/props_audit.gd`.
+  Si tu ajoutes ou modifies un décor de `_add_prop`, mets à jour `EMPRISE_DECOR`.
 - Plan de reprise (ce dossier), décisions 0015 à 0018.
 
 ## Chiffres de contrôle

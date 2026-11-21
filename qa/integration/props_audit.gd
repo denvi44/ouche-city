@@ -118,7 +118,7 @@ func _run() -> void:
 		for xf: Transform3D in spots[kind]:
 			var c := Vector2(xf.origin.x, xf.origin.z)
 			var side := Vector2(xf.basis.x.x, xf.basis.x.z).normalized()
-			var half := 0.9 if kind == "bench" else 0.5
+			var half := 0.9 if kind == "bench" else (0.5 if kind == "planter" else 0.0)
 			for s in [-1.0, 0.0, 1.0]:
 				var q: Vector2 = c + side * s * half
 				if _in_building(q, 0.2) or _on_road(q, 0.1):

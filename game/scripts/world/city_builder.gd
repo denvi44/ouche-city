@@ -739,7 +739,7 @@ func _add_carriere(root: Node3D) -> void:
 
 ## Enseignes des lieux fictifs (POI v2 portant `building` et `facing`) : panneau crème bordé
 ## de bois, posé sur la façade côté rue, à 3 m du sol.
-func build_signs(pois: Array) -> Node3D:
+func build_signs(pois: Array, rings_by_id: Dictionary = {}) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Enseignes"
 	var board_mat := ShaderMaterial.new()
@@ -748,6 +748,15 @@ func build_signs(pois: Array) -> Node3D:
 	for p in pois:
 		if not p.has("building") or not p.has("facing") or p.has("facility"):
 			continue
+		# Un décor déplacé hors du mur (cuisine du méchoui, scène…) n'a plus de façade où accrocher son enseigne.
+		if p.has("prop") and rings_by_id.has(str(p.building)):
+			var ring: PackedVector2Array = rings_by_id[str(p.building)]
+			var at := Vector2(float(p.position[0]), float(p.position[1]))
+			var dmin := INF
+			for i in ring.size():
+				dmin = minf(dmin, Geometry2D.get_closest_point_to_segment(at, ring[i], ring[(i + 1) % ring.size()]).distance_to(at))
+			if dmin > 0.8:
+				continue
 		var label_text: String = p.label
 		var x := float(p.position[0])
 		var z := float(p.position[1])
@@ -1223,8 +1232,26 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 		root.add_child(build_apron())
 	var poi = read_json(dir.path_join("poi.json"))
 	if poi is Dictionary:
-		root.add_child(build_signs(poi.get("pois", [])))
+		# Contours de bâtiments et chaussées : le mobilier de commerce ne se pose ni dans un mur ni sur la route.
+		var all_rings: Array = []
+		var all_roads: Array = []
+		var ring_by_id := {}
+		for data in tiles:
+			for bd in data.buildings:
+				var rg := PackedVector2Array()
+				for v in bd.footprint:
+					rg.append(Vector2(float(v[0]), float(v[1])))
+				all_rings.append(rg)
+				ring_by_id[str(bd.id)] = rg
+			for rd in data.roads:
+				if str(rd.kind) in ["footway", "track"]:
+					continue
+				var pl := PackedVector2Array()
+				for v in rd.points:
+					pl.append(Vector2(float(v[0]), float(v[1])))
+				all_roads.append([pl, float(rd.get("width", 5.0)) / 2.0])
+		root.add_child(build_signs(poi.get("pois", []), ring_by_id))
 		root.add_child(build_landmarks(poi.get("pois", [])))
-		root.add_child(StreetFurniture.build_shops(poi.get("pois", []), height_at))
+		root.add_child(StreetFurniture.build_shops(poi.get("pois", []), height_at, all_rings, all_roads))
 		root.add_child(build_mission_markers(poi.get("pois", []), mission_id))
 	return root

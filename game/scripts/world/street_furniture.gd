@@ -131,7 +131,7 @@ static func _collisions(root: Node3D, xfs: Array, offset: Vector3, box: Variant,
 
 ## Devant chaque commerce (POI portant `building` et `facing`, genre « shop ») : deux jardinières de part et d'autre de
 ## la porte, un banc pour un commerce sur trois et une borne à chaque extrémité.
-static func shop_spots(pois: Array, height_at: Callable) -> Dictionary:
+static func shop_spots(pois: Array, height_at: Callable, rings: Array = [], roads: Array = []) -> Dictionary:
 	var out := {"planter": [], "bench": [], "bollard": []}
 	var n := 0
 	# Rien sur l'emplacement des véhicules et accessoires de mission (camionnette, voiture, barrage…).
@@ -150,17 +150,38 @@ static func shop_spots(pois: Array, height_at: Callable) -> Dictionary:
 		var yaw := Basis(Vector3.UP, f)
 		for s in [-1.0, 1.0]:
 			var q: Vector2 = Vector2(x, z) + fwd * 0.45 + side * s * 1.7
-			if not _near_any(q, clear):
+			if not _near_any(q, clear) and not blocked(q, side, 0.5, rings, roads):
 				out.planter.append(Transform3D(yaw, Vector3(q.x, height_at.call(q.x, q.y), q.y)))
 			var c: Vector2 = Vector2(x, z) + fwd * 1.0 + side * s * 3.4
-			if not _near_any(c, clear):
+			if not _near_any(c, clear) and not blocked(c, side, 0.0, rings, roads):
 				out.bollard.append(Transform3D(yaw, Vector3(c.x, height_at.call(c.x, c.y), c.y)))
 		if n % 3 == 0:
 			var q2 := Vector2(x, z) + fwd * 1.1 + side * 4.6
-			if not _near_any(q2, clear):
+			if not _near_any(q2, clear) and not blocked(q2, side, 0.9, rings, roads):
 				out.bench.append(Transform3D(yaw, Vector3(q2.x, height_at.call(q2.x, q2.y), q2.y)))
 		n += 1
 	return out
+
+
+## Un objet de rue (centre `p`, demi-largeur `half` le long de `side`) est-il dans un mur, contre un mur voisin ou sur la chaussée ?
+## `rings` : contours de bâtiments (PackedVector2Array) ; `roads` : [PackedVector2Array, demi-largeur] des routes carrossables.
+static func blocked(p: Vector2, side: Vector2, half: float, rings: Array, roads: Array) -> bool:
+	if rings.is_empty() and roads.is_empty():
+		return false
+	for k in [-1.0, 0.0, 1.0]:
+		var q: Vector2 = p + side * k * half
+		for ring: PackedVector2Array in rings:
+			if Geometry2D.is_point_in_polygon(q, ring):
+				return true
+			for i in ring.size():
+				if Geometry2D.get_closest_point_to_segment(q, ring[i], ring[(i + 1) % ring.size()]).distance_to(q) < 0.2:
+					return true
+		for r in roads:
+			var pts: PackedVector2Array = r[0]
+			for i in pts.size() - 1:
+				if Geometry2D.get_closest_point_to_segment(q, pts[i], pts[i + 1]).distance_to(q) < float(r[1]) - 0.1:
+					return true
+	return false
 
 
 const CLEAR_RADIUS := 6.0                       # m : dégagement autour des accessoires de mission
@@ -173,10 +194,10 @@ static func _near_any(p: Vector2, pts: Array) -> bool:
 	return false
 
 
-static func build_shops(pois: Array, height_at: Callable) -> Node3D:
+static func build_shops(pois: Array, height_at: Callable, rings: Array = [], roads: Array = []) -> Node3D:
 	var root := Node3D.new()
 	root.name = "MobilierCommerces"
-	var spots := shop_spots(pois, height_at)
+	var spots := shop_spots(pois, height_at, rings, roads)
 	for name in spots:
 		_multimesh(root, name.capitalize(), kit(name), spots[name])
 	# On ne traverse ni les jardinières, ni les bancs, ni les bornes.

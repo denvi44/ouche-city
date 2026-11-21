@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from qa import roads_audit as ra  # noqa: E402
 
+from gis.fiction import EMPRISE_DECOR as EMPRISE  # noqa: E402
+
 POIS = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
 TUILES = [json.loads(Path(f).read_text(encoding="utf-8")) for f in sorted(glob.glob(str(ROOT / "gis/out/tiles/*.json")))]
 BATIMENTS = {b["id"]: b for t in TUILES for b in t["buildings"]}
@@ -115,8 +117,8 @@ def test_enseignes_plaquees_aux_murs():
     mauvais = []
     nb = 0
     for p in POIS.values():
-        if "building" not in p or "facing" not in p or p.get("facility"):
-            continue
+        if "building" not in p or "facing" not in p or p.get("facility") or p.get("prop") in EMPRISE:
+            continue          # un décor de mission déplacé hors du mur n'a pas d'enseigne collée
         nb += 1
         pts = [tuple(q) for q in BATIMENTS[p["building"]]["footprint"]]
         aire = _aire(pts)

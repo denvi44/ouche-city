@@ -1098,3 +1098,73 @@ def poi_carriere(site, taille: float) -> dict:
     cx, cz, cap = site
     return {"id": "carriere_pierres", "kind": "landmark", "label": "Carrière de pierres du Bocage", "position": [_r(cx), _r(cz)],
             "tile": f"{int(cx // taille)}_{int(cz // taille)}", "radius": 62.0, "source": "design", "facing": _r(cap), "prop": "carriere"}
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------
+# Décors de mission : aucun ne traverse un mur ni ne bloque la chaussée.
+# Emprise locale (xmin, xmax, zmin, zmax) en mètres dans le repère du POI (+Z = cap, vers la rue), mesurée sur les maillages réels de
+# `CityBuilder._add_prop` par qa/integration/props_audit.gd (ligne « EXT »). À mettre à jour si un décor change de taille.
+EMPRISE_DECOR = {
+    "fete": (-4.1, 5.4, -2.5, 0.5), "stage": (-3.5, 3.5, -1.8, 1.8), "pyre": (-2.5, 2.5, -2.3, 2.3), "pressoir": (-3.2, 4.1, -0.9, 1.8),
+    "coop": (1.4, 4.2, 0.4, 3.6), "garage": (2.0, 4.0, 0.6, 1.6), "junkyard": (-4.3, 5.8, 0.2, 4.3), "stand": (-1.9, 1.9, -0.7, 0.8),
+    "wc": (-0.8, 0.8, -0.8, 0.8), "fumier": (-1.5, 1.5, -1.5, 1.5),
+}
+MARGE_DECOR = 0.35          # m de dégagement autour de l'emprise
+RAYON_DECOR = 32.0          # m : distance maximale de déplacement
+
+
+def _rect_decor(x: float, z: float, cap: float, e: tuple) -> Polygon:
+    c, s = math.cos(cap), math.sin(cap)
+    pts = []
+    for lx, lz in ((e[0] - MARGE_DECOR, e[2] - MARGE_DECOR), (e[1] + MARGE_DECOR, e[2] - MARGE_DECOR),
+                   (e[1] + MARGE_DECOR, e[3] + MARGE_DECOR), (e[0] - MARGE_DECOR, e[3] + MARGE_DECOR)):
+        pts.append((x + lx * c + lz * s, z - lx * s + lz * c))     # Basis(UP, cap) * (lx, 0, lz) projeté sur (x, z)
+    return Polygon(pts)
+
+
+def degager_decors(pois: list[dict], tuiles: dict, taille: float) -> int:
+    """Déplace (par le plus petit déplacement possible, orientation d'origine d'abord) tout décor de mission dont l'emprise mord sur un
+    bâtiment ou sur la chaussée. Renvoie le nombre de décors déplacés. Déterministe."""
+    from shapely.strtree import STRtree
+    obst: list[Polygon] = [Polygon(b["footprint"]) for t in tuiles.values() for b in t["buildings"]]
+    for t in tuiles.values():
+        for r in t["roads"]:
+            if r["kind"] in ("footway", "track"):
+                continue
+            obst.append(LineString(r["points"]).buffer(float(r.get("width", 5.0)) / 2.0 + 0.2))
+    arbre = STRtree(obst)
+
+    def gene(rect: Polygon) -> float:
+        return sum(obst[int(i)].intersection(rect).area for i in arbre.query(rect))
+
+    occupes: list[Polygon] = []
+    deplaces = 0
+    for p in sorted((p for p in pois if p.get("prop") in EMPRISE_DECOR), key=lambda p: p["id"]):
+        e = EMPRISE_DECOR[p["prop"]]
+        x0, z0 = p["position"]
+        f0 = float(p.get("facing", 0.0))
+        rect0 = _rect_decor(x0, z0, f0, e)
+        if gene(rect0) <= 0.05 and not any(rect0.intersects(o) for o in occupes):
+            occupes.append(rect0)
+            continue
+        cands = []
+        n = int(RAYON_DECOR)
+        for dx in range(-n, n + 1):
+            for dz in range(-n, n + 1):
+                d = math.hypot(dx, dz)
+                if d <= RAYON_DECOR:
+                    for k, rot in enumerate((0.0, math.pi / 2, -math.pi / 2, math.pi)):
+                        cands.append((d + (0.0 if k == 0 else 1.5), dx, dz, f0 + rot))
+        cands.sort()
+        for _, dx, dz, f in cands:
+            r = _rect_decor(x0 + dx, z0 + dz, f, e)
+            if gene(r) <= 0.05 and not any(r.intersects(o) for o in occupes):
+                p["position"] = [_r(x0 + dx), _r(z0 + dz)]
+                p["facing"] = _r(f)
+                p["tile"] = f"{int((x0 + dx) // taille)}_{int((z0 + dz) // taille)}"
+                occupes.append(r)
+                deplaces += 1
+                break
+        else:
+            occupes.append(rect0)
+    return deplaces

@@ -512,6 +512,8 @@ def main(argv=None) -> int:
     ids_fictifs = {p["id"] for p in fictifs}
     # Les monuments trouvés dans la zone remplacent leurs homologues lointains.
     poi["pois"] = [p for p in poi["pois"] if not (p["id"] == "eglise_lointaine" and "eglise" in ids_fictifs)] + fictifs
+    deplaces = fiction.degager_decors(poi["pois"], tuiles, emp.taille_tuile_m)
+    print("décors de mission déplacés hors des murs et de la chaussée :", deplaces)
     retires = vegetation.nettoyer(tuiles, poi["pois"])
     print("arbres retirés des lieux de mission :", retires)
     tiles_dir = args.out / "tiles"

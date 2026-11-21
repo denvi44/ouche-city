@@ -110,6 +110,11 @@ func _run() -> void:
 	var mission = world.mission
 	var van = mission.van
 	var player = world.players_root.get_node("1")
+	for c in world.players_root.get_children():       # les compagnons (guides) ne doivent pas se retrouver sur la rampe d'essai
+		if c.peer_id < 0:
+			c.brain = null
+			c.global_position = Vector3(0, -500, 0)
+			c.set_physics_process(false)
 	for id in mission.crates:
 		mission.crates[id].state = "loaded"
 	mission.step = "road"
