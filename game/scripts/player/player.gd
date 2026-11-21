@@ -40,6 +40,10 @@ var vehicle: Vehicle = null
 
 var camera_rig: Node3D
 var model: CharacterModel
+## Apparence : « humain » ou « oie » (mission 08). À fixer avant l'entrée dans l'arbre.
+var avatar := "humain"
+## Facteur sur les vitesses de marche et de course (l'oie est plus lente qu'un humain).
+var speed_scale := 1.0
 
 var _shape: CollisionShape3D
 var _last_yaw := 0.0
@@ -58,10 +62,12 @@ func _ready() -> void:
 	controller = 0 if is_ai else peer_id
 	_shape = CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
-	capsule.radius = 0.35
-	capsule.height = 1.8
+	capsule.radius = 0.35 if avatar != "oie" else 0.3
+	capsule.height = 1.8 if avatar != "oie" else 1.0
 	_shape.shape = capsule
-	_shape.position.y = 0.9
+	_shape.position.y = 0.9 if avatar != "oie" else 0.5
+	if avatar == "oie":
+		speed_scale = 0.85
 	add_child(_shape)
 	_build_visual()
 	if is_local() and Net.has_local_player() and DisplayServer.get_name() != "headless":
@@ -69,6 +75,8 @@ func _ready() -> void:
 		camera_rig.name = "Camera"
 		camera_rig.target = self
 		add_child(camera_rig)
+		if avatar == "oie":
+			camera_rig.distance = 3.4
 
 
 func is_local() -> bool:
@@ -100,7 +108,9 @@ func _build_visual() -> void:
 	visual.name = "Visuel"
 	add_child(visual)
 	var color: Color = PALETTE[absi(peer_id) % PALETTE.size()]
-	if OUTFITS.has(peer_id):
+	if avatar == "oie":
+		model = GooseModel.make_goose(2 if peer_id == 1 else absi(peer_id) % 2)
+	elif OUTFITS.has(peer_id):
 		var o: Dictionary = OUTFITS[peer_id]
 		model = CharacterModel.make(o.shirt, o.trousers, o.hat, o.get("style", {}))
 	else:
@@ -111,7 +121,7 @@ func _build_visual() -> void:
 	var label := Label3D.new()
 	label.text = display_name
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.position.y = 2.5
+	label.position.y = 2.5 if avatar != "oie" else 1.7
 	label.font_size = 48
 	label.outline_size = 12
 	label.pixel_size = 0.004
@@ -194,7 +204,7 @@ func on_input_consumed(inp: Dictionary) -> void:
 func simulate(inp: Dictionary, delta: float) -> void:
 	var mv: Vector2 = (inp.move as Vector2).limit_length(1.0)
 	var dir := Vector3(mv.x, 0.0, mv.y).rotated(Vector3.UP, float(inp.yaw))
-	var speed := SPRINT_SPEED if inp.sprint else WALK_SPEED
+	var speed := (SPRINT_SPEED if inp.sprint else WALK_SPEED) * speed_scale
 	if carrying:
 		speed *= CARRY_FACTOR
 	speed = minf(speed, speed_cap)

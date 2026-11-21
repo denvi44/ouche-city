@@ -127,6 +127,14 @@ func _build() -> void:
 		Net.mission_id = "m07"
 		_solo())
 	box.add_child(m7)
+	var m8_ok: bool = Progress.is_available("m08_oies_en_greve", ["m07_jus_de_pomme"])
+	var m8 := Button.new()
+	m8.text = "Solo : Les oies font grève (mission 8)" if m8_ok else "Mission 8 : terminez d'abord le jus de pomme"
+	m8.disabled = not m8_ok
+	m8.pressed.connect(func():
+		Net.mission_id = "m08"
+		_solo())
+	box.add_child(m8)
 	_button(box, "Touches et souris", func():
 		var cm = preload("res://ui/controls_menu.gd").new()
 		add_child(cm))
@@ -152,7 +160,7 @@ func _build() -> void:
 			break
 
 
-const CHAIN := ["m01_calva_gege", "m02_tuning_samedi", "m03_battle_sono", "m04_mechoui_saint_jean", "m05_vaches_en_goguette", "m06_courses_de_8h", "m07_jus_de_pomme"]
+const CHAIN := ["m01_calva_gege", "m02_tuning_samedi", "m03_battle_sono", "m04_mechoui_saint_jean", "m05_vaches_en_goguette", "m06_courses_de_8h", "m07_jus_de_pomme", "m08_oies_en_greve"]
 const MEDAL_TXT := {"": "–", "bronze": "bronze", "silver": "argent", "gold": "or"}
 
 

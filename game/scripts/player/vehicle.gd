@@ -20,6 +20,7 @@ const HANDBRAKE_DECEL := 24.0
 const WHEELBASE := 2.9
 const MAX_STEER := 0.6           # rad aux roues, à l'arrêt
 const GRAVITY := 22.0
+const MAX_TILT := 0.2                  # rad : inclinaison visuelle maximale de la caisse (≈ 11°)
 const SEAT_OFFSET := Vector3(-1.9, 0.0, -0.4)   # côté conducteur, pour descendre
 
 ## Caractéristiques (initialisées aux constantes ; les voitures les surchargent).
@@ -211,6 +212,8 @@ func _process(delta: float) -> void:
 			var local := global_transform.basis.inverse() * n
 			target_pitch = atan2(-local.z, local.y) * 0.9
 			target_roll = atan2(local.x, local.y) * 0.9
+			target_pitch = clampf(target_pitch, -MAX_TILT, MAX_TILT)       # rue de vallée très inclinée : la caisse ne se couche pas
+			target_roll = clampf(target_roll, -MAX_TILT, MAX_TILT)
 		target_roll += _steer_visual * absf(speed) / max_speed * 0.12
 		_body_visual.rotation.x = lerp_angle(_body_visual.rotation.x, target_pitch, clampf(8.0 * delta, 0.0, 1.0))
 		_body_visual.rotation.z = lerp_angle(_body_visual.rotation.z, target_roll, clampf(8.0 * delta, 0.0, 1.0))

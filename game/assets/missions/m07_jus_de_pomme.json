@@ -1,20 +1,97 @@
 {
   "id": "m07_jus_de_pomme",
   "title": "Le jus de pomme de Tonton Gégé",
-  "requires": ["m06_courses_de_8h"],
-  "players": { "min": 1, "max": 4 },
-  "summary": "Fête de la pomme, seize heures. Le jus « maison » de Tonton Gégé était un peu vif : ça gargouille, ça se tord, et les toilettes sont chez vous, tout là-bas, au bout de la rue. Courez, serrez, négociez avec Mme Hubert, et ne vous faites surtout pas dessus.",
-  "roles": ["victime", "portier", "diversion", "file"],
-  "companions": { "portier": "ginette", "diversion": "kevin", "file": "kevin_radio" },
-  "timeLimitSec": 150,
-  "pressure": { "start": 0.15, "baseRate": 0.0045, "walkAdd": 0.0015, "runAdd": 0.008, "cobbleAdd": 0.010, "clenchFactor": 0.3, "clenchSpeedMs": 2.5, "spasmEverySec": [9, 13] },
-  "events": ["pavés", "mme_hubert", "toilettes_publiques", "chien_du_portail", "porte_fermee_a_cle"],
-  "steps": [
-    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
-    { "id": "run", "type": "time_trial", "events": ["pavés", "mme_hubert", "toilettes_publiques", "chien_du_portail"] },
-    { "id": "door", "type": "event", "events": ["porte_fermee_a_cle"] },
-    { "id": "outro", "type": "cutscene", "variants": ["gold", "silver", "bronze", "accident"] }
+  "requires": [
+    "m06_courses_de_8h"
   ],
-  "medals": { "gold": { "homeWithPressureAtMost": 0.75 }, "silver": { "home": true }, "bronze": { "publicToilets": true } },
-  "rewards": { "reputation": { "comite_fetes": 1 }, "unlocks": [] }
+  "players": {
+    "min": 1,
+    "max": 4
+  },
+  "summary": "Fête de la pomme, seize heures. Le jus « maison » de Tonton Gégé était un peu vif : ça gargouille, ça se tord, et les toilettes sont chez vous, tout là-bas, au bout de la rue. Courez, serrez, négociez avec Mme Hubert, et ne vous faites surtout pas dessus.",
+  "roles": [
+    "victime",
+    "portier",
+    "diversion",
+    "file"
+  ],
+  "companions": {
+    "portier": "ginette",
+    "diversion": "kevin",
+    "file": "kevin_radio"
+  },
+  "timeLimitSec": 150,
+  "pressure": {
+    "start": 0.15,
+    "baseRate": 0.0045,
+    "walkAdd": 0.0015,
+    "runAdd": 0.008,
+    "cobbleAdd": 0.01,
+    "clenchFactor": 0.3,
+    "clenchSpeedMs": 2.5,
+    "spasmEverySec": [
+      9,
+      13
+    ]
+  },
+  "events": [
+    "pavés",
+    "mme_hubert",
+    "toilettes_publiques",
+    "chien_du_portail",
+    "porte_fermee_a_cle"
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "type": "cutscene",
+      "skip": "majority_vote"
+    },
+    {
+      "id": "run",
+      "type": "time_trial",
+      "events": [
+        "pavés",
+        "mme_hubert",
+        "toilettes_publiques",
+        "chien_du_portail"
+      ]
+    },
+    {
+      "id": "door",
+      "type": "event",
+      "events": [
+        "porte_fermee_a_cle"
+      ]
+    },
+    {
+      "id": "outro",
+      "type": "cutscene",
+      "variants": [
+        "gold",
+        "silver",
+        "bronze",
+        "accident"
+      ]
+    }
+  ],
+  "medals": {
+    "gold": {
+      "homeWithPressureAtMost": 0.75
+    },
+    "silver": {
+      "home": true
+    },
+    "bronze": {
+      "publicToilets": true
+    }
+  },
+  "rewards": {
+    "reputation": {
+      "comite_fetes": 1
+    },
+    "unlocks": [
+      "m08_oies_en_greve"
+    ]
+  }
 }

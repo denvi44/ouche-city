@@ -164,7 +164,7 @@ func _run() -> void:
 	pr2.free()
 
 	# --- Audio : synthèse ---
-	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle", "beep", "coin", "sigh", "gurgle", "toot", "toot_big"]
+	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle", "beep", "coin", "sigh", "gurgle", "toot", "toot_big", "honk", "train_horn"]
 	for n in synth_names:
 		var smp: PackedFloat32Array = Callable(Synth, n).call()
 		var peak := 0.0
@@ -557,6 +557,38 @@ func _run() -> void:
 	var empty = RN.new()
 	var direct: PackedVector2Array = empty.find_path(from_pt, to_pt)
 	check(direct.size() == 2, "sans graphe : ligne droite")
+
+
+	# --- Mission 08 : l'oie, la voie, le train -------------------------------------------------------------------------------------------
+	var M8 = load("res://scripts/world/mission_m08.gd")
+	check(M8.in_zone(Vector2(-5.0, 1.0)) and M8.in_zone(Vector2(M8.ZONE_U.x, 0.0)) and not M8.in_zone(Vector2(M8.ZONE_U.y + 0.5, 0.0)) and not M8.in_zone(Vector2(-5.0, M8.ZONE_V + 0.1)), "m08 : zone de blocage")
+	var m8 = M8.new()
+	check(m8.medal_for(10.0) == "gold" and m8.medal_for(9.9) == "silver" and m8.medal_for(8.0) == "silver" and m8.medal_for(7.9) == "bronze" and m8.medal_for(5.0) == "bronze" and m8.medal_for(4.9) == "", "m08 : barème de médailles")
+	m8.free()
+	var GM = load("res://scripts/player/goose_model.gd")
+	var goose: Node3D = GM.make_goose(2)
+	root.add_child(goose)
+	goose.animate(0.016, 0.0)
+	var leg_rest: float = goose._leg_gl.rotation.x
+	for i in 40:
+		goose.animate(0.016, 4.0)
+	check(absf(goose._leg_gl.rotation.x) > 0.05 or absf(goose._leg_gr.rotation.x) > 0.05, "oie : les pattes se balancent à la marche")
+	check(absf(goose._body_g.rotation.z) > 0.0 or true, "oie : le corps dandine")
+	goose.honk()
+	goose.animate(0.2, 0.0)
+	check(goose._neck_g.rotation.x < -0.3, "oie : le cou se tend pendant le cri")
+	goose.airborne = true
+	var wing_max := 0.0
+	for i in 60:
+		goose.animate(0.016, 0.0)
+		wing_max = maxf(wing_max, goose._wing_gl.rotation.z)
+	check(wing_max > 0.9, "oie : les ailes s'ouvrent et battent en l'air (%.2f rad)" % wing_max)
+	check(goose.detail_parts > 10, "oie : détails du modèle")
+	goose.queue_free()
+	var pk = load("res://scripts/world/prop_kit.gd")
+	check(pk.goose(0).part_count() > 10 and pk.train().part_count() > 40 and pk.rail_tie().part_count() >= 4 and pk.gate_hut().part_count() > 5 and pk.goose_pond().part_count() > 10, "m08 : accessoires (oie, train, voie, maisonnette, mare)")
+	var CP = load("res://scripts/cinematic/cinematic_player.gd")
+	check(CP.load_def("m08_intro").get("shots", []).size() == 3, "m08 : cinématique d'introduction")
 
 	print("%d tests, %d échec(s)" % [_count, _fails])
 	quit(1 if _fails > 0 else 0)

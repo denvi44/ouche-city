@@ -774,6 +774,11 @@ func _add_prop(root: Node3D, prop: String) -> void:
 			cshape.position = Vector3(2.8, 0.95, 1.2)
 			cbody.add_child(cshape)
 			root.add_child(cbody)
+		"rail":
+			_add_rail(root)
+		"pond":
+			var pond := PropKit.goose_pond().build()
+			root.add_child(pond)
 		"fumier":
 			var heap := SphereMesh.new()
 			heap.radius = 1.6; heap.height = 1.8; heap.radial_segments = 8; heap.rings = 4
@@ -782,6 +787,32 @@ func _add_prop(root: Node3D, prop: String) -> void:
 			hi.mesh = heap
 			hi.position.y = 0.2
 			root.add_child(hi)
+
+
+## Voie ferrée de la mission 08 : traverses, rails et ballast tous les mètres sur toute la longueur du POI (cap de la voie = +Z local),
+## posés sur le relief ; croix de Saint-André au passage à niveau et maisonnette du garde-barrière.
+func _add_rail(root: Node3D) -> void:
+	var poi: Dictionary = root.get_meta("poi", {})
+	var length := float(poi.get("length", 360.0))
+	var basis := Basis(Vector3.UP, root.rotation.y)
+	var xfs := []
+	var z := -length / 2.0
+	while z <= length / 2.0:
+		var w0 := root.position + basis * Vector3(0, 0, z - 1.0)
+		var w1 := root.position + basis * Vector3(0, 0, z + 1.0)
+		var wm := root.position + basis * Vector3(0, 0, z)
+		var y0 := height_at(w0.x, w0.z)
+		var y1 := height_at(w1.x, w1.z)
+		var ym := height_at(wm.x, wm.z)
+		var pitch := -atan2(y1 - y0, 2.0)
+		xfs.append(Transform3D(Basis.from_euler(Vector3(pitch, 0, 0)), Vector3(0, ym - root.position.y + 0.02, z)))
+		z += 1.0
+	StreetFurniture._multimesh(root, "Voie", StreetFurniture.kit("rail_tie"), xfs)
+	root.add_child(PropKit.crossing_signs().build())
+	var hut := PropKit.gate_hut().build()
+	hut.position = Vector3(16.0, 0.0, -3.0)
+	hut.rotation.y = -PI / 2.0
+	root.add_child(hut)
 
 
 ## Piste de drag : bitume de 14 m de large sur 400 m (axe +Z local), bandes latérales, lignes de
@@ -836,6 +867,7 @@ func build_mission_markers(pois: Array, mission_id := "") -> Node3D:
 		n.position = Vector3(x, height_at(x, z), z)
 		n.rotation.y = float(p.get("facing", 0.0))
 		if p.has("prop") and p.prop != "van" and p.prop != "car":
+			n.set_meta("poi", p)
 			_add_prop(n, p.prop)   # camionnette et voiture sont de vrais véhicules, pas des accessoires
 		var color: Color = STEP_COLOR.get(p.step, Color.WHITE)
 		# Balise : cylindre translucide visible de loin.

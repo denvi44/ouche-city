@@ -423,6 +423,38 @@ func numeric_m03() -> void:
 	await shutdown()
 
 
+# --- Mission 08 : l'oie meneuse, seule ---------------------------------------------------------------------------------------------
+
+## Joueur seul : un cri à la mare, on mène la basse-cour sur la voie et on crie toutes les 2,5 s (rassurer les oies, faire reculer le
+## garde-barrière) jusqu'à la fin de la tenue. Les temps de réaction humains sont simulés.
+func scenario_m08(companions: bool) -> void:
+	await boot("m08", companions)
+	var real_limit: float = mission.time_limit
+	mission.time_left = 1500.0
+	await react()
+	mission.interact(1, ["honk"])
+	await react()
+	var c: Vector3 = mission.spot("crossing")
+	# On mène la file : on avance par étapes pour que les oies suivent.
+	await go(mission.zones.pond + Vector3(10, 0, 10), 2.0, 30.0)
+	await go(c, 1.2, 90.0)
+	var t0: float = 1500.0 - mission.time_left
+	var guard := 0
+	var next_honk := 0.0
+	while mission.step in ["gather", "block"] and guard < 60 * 420:
+		guard += 1
+		next_honk -= 1.0 / 60.0
+		if next_honk <= 0.0:
+			await react()
+			mission.interact(1, ["honk"])
+			next_honk = 2.5
+		await physics_frame
+	var t: float = 1500.0 - mission.time_left
+	var ok: bool = mission.step == "done" and mission.result == "win" and t <= real_limit
+	record("m08", "joueur %s : oies rassemblées, train bloqué, tenue de %d s" % ["avec compagnons" if companions else "seul", int(mission.hold_required)], ok, "%s, médaille %s, moyenne %.1f oies, cris %d" % [mission.result if mission.result != "" else mission.step, mission.medal if mission.medal != "" else "aucune", mission.avg_blockers, mission.honks], t, real_limit, "tenue %d s" % int(mission.hold_required))
+	await shutdown()
+
+
 func M3_POLICE() -> float:
 	return 0.7
 
@@ -454,6 +486,10 @@ func _run() -> void:
 			await scenario_m07(pol, false)
 		if with_companions:
 			await scenario_m07("malin", true)
+	if only in ["", "m08"]:
+		await scenario_m08(false)
+		if with_companions:
+			await scenario_m08(true)
 	print("--- faisabilité : ", "OK" if fails == 0 else "%d scénario(s) infaisable(s)" % fails)
 	quit(1 if fails > 0 else 0)
 

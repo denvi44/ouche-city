@@ -646,3 +646,35 @@ static func toot_big() -> PackedFloat32Array:
 		var flutter := 0.5 + 0.5 * sin(TAU * (34.0 + 12.0 * s) * s)
 		out[i] = (_lookup(_saw(), ph) * 0.8 * flutter + _noise() * 0.14) * _env(s, 1.25, 0.02, 0.35)
 	return normalized(out, 0.85)
+
+
+# --- Les oies font grève (mission 08) ------------------------------------------------------------------------------------------------------
+
+## « HONK ! » d'oie : voix nasale qui monte puis retombe, grain rauque (modulation d'amplitude rapide) et un souffle.
+static func honk() -> PackedFloat32Array:
+	_rng.seed = 1010
+	var out := _buf(0.55)
+	var ph := 0.0
+	for i in out.size():
+		var s := float(i) / RATE
+		var f := 380.0 + 190.0 * sin(PI * clampf(s / 0.5, 0.0, 1.0)) - 50.0 * s
+		ph += f / RATE
+		var rough := 0.62 + 0.38 * sin(TAU * 34.0 * s)
+		var v := _lookup(_saw(), ph) * 0.55 + _lookup(_reed(), ph * 2.0) * 0.35 + _noise() * 0.07
+		out[i] = v * rough * _env(s, 0.55, 0.025, 0.14)
+	return normalized(out, 0.85)
+
+
+## Klaxon de train : accord de trois notes tenues, léger vibrato, attaque franche.
+static func train_horn() -> PackedFloat32Array:
+	var out := _buf(1.5)
+	var ph := [0.0, 0.0, 0.0]
+	var freqs := [196.0, 247.0, 294.0]
+	for i in out.size():
+		var s := float(i) / RATE
+		var v := 0.0
+		for k in 3:
+			ph[k] += (freqs[k] * (1.0 + 0.004 * sin(TAU * 5.0 * s))) / RATE
+			v += _lookup(_reed(), ph[k]) * (0.5 - 0.1 * k)
+		out[i] = v * _env(s, 1.5, 0.03, 0.35)
+	return normalized(out, 0.8)

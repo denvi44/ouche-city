@@ -169,5 +169,20 @@ func _run() -> void:
 		if ph == 3:
 			m.victims[1].fz = ""
 			m.victims[1].p = 0.9)
+	await audit("m08", "m08", func(m, w, ph):
+		if ph == 1:
+			for i in 6:
+				m.geese[i].st = "follow"
+				m.geese[i].lead = 1
+		if ph == 2:
+			for i in 8:
+				m.geese[i].st = "block"
+				m.geese[i].slot = i
+			m.train.st = "stopped"
+			m.train.hold = 12.0
+			m.master.st = "walk"
+		if ph == 3:
+			m.train.st = "stopped"
+			m.train.hold = 28.0)
 	print("--- hud_audit : ", "OK" if fails == 0 else "%d échec(s)" % fails)
 	quit(1 if fails > 0 else 0)

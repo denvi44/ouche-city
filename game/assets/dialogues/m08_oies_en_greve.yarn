@@ -1,0 +1,53 @@
+// Les oies font grève — dialogues de la mission 08. Humour tendre : les Parisiens sont attendrissants, jamais ridicules.
+title: m08_intro
+---
+Mémé Odette: Mes oies ont décidé de faire grève, mon p'tit. Contre le train de dix-sept heures quarante-deux. #line:m08_intro_01
+Gégé: Elles ont raison : ces Parisiens arrivent toujours en retard pour les vendanges et en avance pour la sieste. #line:m08_intro_02
+Mémé Odette: Tu es l'oie meneuse. Un « HONK ! » et elles te suivent. Deux « HONK ! » et elles tiennent bon. #line:m08_intro_03 #onoma:HONK !
+===
+title: m08_gather
+---
+Ginette: Approche-toi de la mare et crie ! Celles qui t'entendent te suivront en file. #line:m08_gather_01 #onoma:HONK !
+Kévin: Il faut en emmener au moins cinq. Dix, c'est la médaille d'or. Douze, c'est Mémé Odette qui pleure. #line:m08_gather_02
+===
+title: m08_block
+---
+Kévin Radio: Ici Radio Pommiers : le Train des Vacances approche du passage à niveau. Prévoyez des oies. #line:m08_block_01 #onoma:KSSSH…
+Ginette: Installez-les sur la voie, bien alignées. Et ne bougez plus, mesdames ! #line:m08_block_02
+===
+title: m08_honk_recruit
+---
+Kévin: Ça marche : elles te suivent en file indienne. Enfin, en file oie-ienne. #line:m08_honk_recruit_01 #onoma:HONK !
+===
+title: m08_train_stops
+---
+Parisien: Euh… Il y a des oies sur la voie. Beaucoup d'oies. Une oie nous regarde. #line:m08_train_stops_01
+Gégé: Tenez bon ! Il y a la sécurité, le train freine toujours. Vous ne risquez rien, mes chéries. #line:m08_train_stops_02 #onoma:POUUUT POUUUT !
+===
+title: m08_master
+---
+Garde-barrière: Hé ! Ouste ! Pas sur ma voie ! C'est une voie ferrée, pas une mare ! #line:m08_master_01
+Ginette: Fais-lui un grand « HONK ! » dans les oreilles. Il adore ça. #line:m08_master_02 #onoma:HONK !
+===
+title: m08_done
+---
+Mémé Odette: Les oies ont gagné ! Et toi aussi, ma grande. #line:m08_done_01
+===
+title: m08_done_win
+---
+Parisienne: Ce sont les oies les plus élégantes que j'aie jamais vues. On reste, finalement. #line:m08_done_win_01
+Parisien: Ça sent bon la pomme et le foin. Quelqu'un a un pique-nique ? #line:m08_done_win_02
+Gégé: On a même du calva pour les nerfs. #line:m08_done_win_03
+===
+title: m08_done_lose
+---
+Garde-barrière: Elles ne tiennent pas longtemps, vos oies. Le train repartira à la première sieste. #line:m08_done_lose_01
+===
+title: m08_failed
+---
+Parisien: On a vu des oies à la fenêtre. Ce n'était pas les vacances que je pensais. #line:m08_failed_01
+===
+title: m08_failed_lose
+---
+Mémé Odette: Il est passé… Les oies ont boudé jusqu'à l'apéro. #line:m08_failed_lose_01
+===

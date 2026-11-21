@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "m08_done",
+  "mission": "m08",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "passage_niveau",
+        "off": [
+          10,
+          2.6,
+          -12
+        ]
+      },
+      "look": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "passage_niveau",
+        "off": [
+          7,
+          2.2,
+          -9
+        ]
+      },
+      "caption": {
+        "who": "Parisienne",
+        "text": "Ce sont les oies les plus élégantes que j'aie jamais vues. On reste, finalement."
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          30,
+          -24
+        ]
+      },
+      "look": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          20,
+          -16
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Le Train des Vacances est à l'arrêt. Les vacances commencent ici."
+      }
+    }
+  ]
+}

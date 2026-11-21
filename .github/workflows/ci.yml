@@ -77,10 +77,20 @@ jobs:
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m07_companions.gd -- --mission=m07
       - name: Mission 07 en ligne (le serveur impose la mission)
         run: bash qa/integration/m07_online.sh
-      - name: HUD des sept missions (jauges et balises valides)
+      - name: Mission 08 de bout en bout (oies, voie, train, garde-barrière, tenue, défaite)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m08_flow.gd -- --mission=m08 --no-companions
+      - name: Mission 08 avec compagnons (Kévin rassemble, Ginette guette, Gégé rassure)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m08_companions.gd -- --mission=m08
+      - name: Mission 08 en ligne (le serveur impose la mission)
+        run: bash qa/integration/m08_online.sh
+      - name: HUD des huit missions (jauges et balises valides)
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
       - name: Mouvements et collisions (saut, murs, bordures, rampes)
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd
+      - name: Véhicule sur les pentes (montée, crête, descente) et repères un par un
+        run: |
+          godot --headless --fixed-fps 60 --path game -s ../qa/integration/vehicle_slope_audit.gd
+          godot --headless --fixed-fps 60 --path game -s ../qa/integration/focus_audit.gd
       - name: Écran titre et sauvegarde (Continuer, aller-retour disque, sauvegarde corrompue)
         run: godot --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json
       - name: Choix des touches (remappage, échange, sauvegarde, écran)

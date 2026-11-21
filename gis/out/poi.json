@@ -1938,6 +1938,43 @@
    "step": "wc",
    "facing": 0.22,
    "prop": "wc"
+  },
+  {
+   "id": "passage_niveau",
+   "kind": "mission_target",
+   "label": "Passage à niveau du Pays d'Ouche",
+   "position": [
+    1250.0,
+    2090.0
+   ],
+   "tile": "5_8",
+   "radius": 14.0,
+   "source": "design",
+   "missions": [
+    "m08_oies_en_greve"
+   ],
+   "step": "block",
+   "facing": 1.4,
+   "prop": "rail",
+   "length": 480.0
+  },
+  {
+   "id": "etang_oies",
+   "kind": "mission_target",
+   "label": "La mare des oies de Mémé Odette",
+   "position": [
+    1236.11,
+    2168.78
+   ],
+   "tile": "4_8",
+   "radius": 14.0,
+   "source": "design",
+   "missions": [
+    "m08_oies_en_greve"
+   ],
+   "step": "gather",
+   "facing": 2.97,
+   "prop": "pond"
   }
  ]
 }

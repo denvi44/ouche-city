@@ -52,8 +52,13 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m07_flow.gd -- --mission=m07 --no-companions
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m07_companions.gd -- --mission=m07
 	bash qa/integration/m07_online.sh
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m08_flow.gd -- --mission=m08 --no-companions
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m08_companions.gd -- --mission=m08
+	bash qa/integration/m08_online.sh
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/vehicle_slope_audit.gd
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/focus_audit.gd
 	$(GODOT) --headless --path game -s ../qa/integration/controls_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/cinematic_audit.gd
 	$(GODOT) --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json

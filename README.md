@@ -8,7 +8,7 @@ GTA-like en cel-shading, made in Normandie : une reproduction de Conches-en-Ouch
 
 ## Jouer (M0)
 
-Ouvrir `game/` dans Godot 4.4.1, puis lancer (F5). Menu : *Jouer en solo* (mission 1), *Tuning du samedi soir* (mission 2, une fois la mission 1 terminée), *Battle de sono* (mission 3, une fois la mission 2 terminée), *Le méchoui de la Saint-Jean* (mission 4, une fois la mission 3 terminée), *Les vaches sont de sortie* (mission 5, une fois la mission 4 terminée), *Les courses de 8 h* (mission 6, une fois la mission 5 terminée), *Le jus de pomme de Tonton Gégé* (mission 7, une fois la mission 6 terminée), *Héberger*, *Rejoindre*.
+Ouvrir `game/` dans Godot 4.4.1, puis lancer (F5). Menu : *Jouer en solo* (mission 1), *Tuning du samedi soir* (mission 2, une fois la mission 1 terminée), *Battle de sono* (mission 3, une fois la mission 2 terminée), *Le méchoui de la Saint-Jean* (mission 4, une fois la mission 3 terminée), *Les vaches sont de sortie* (mission 5, une fois la mission 4 terminée), *Les courses de 8 h* (mission 6, une fois la mission 5 terminée), *Le jus de pomme de Tonton Gégé* (mission 7, une fois la mission 6 terminée), *Les oies font grève* (mission 8 : vous êtes l'oie meneuse et bloquez le Train des Vacances, une fois la mission 7 terminée), *Touches et souris*, *Héberger*, *Rejoindre*.
 
 En ligne de commande :
 
@@ -20,6 +20,7 @@ godot --path game -- --solo --mission=m04   # mission 4 directement
 godot --path game -- --solo --mission=m05   # mission 5 directement
 godot --path game -- --solo --mission=m06   # mission 6 directement
 godot --path game -- --solo --mission=m07   # mission 7 directement
+godot --path game -- --solo --mission=m08   # mission 8 directement
 godot --path game -- --host                 # héberger (port 24680/UDP)
 godot --path game -- --join=192.168.1.20    # rejoindre
 godot --headless --path game -- --server    # serveur dédié (ou : make server)

@@ -780,3 +780,109 @@ static func flowerpot() -> PropKit:
 		k.add_cyl(0.012, 0.012, 0.22, Vector3(cos(a) * 0.07, 0.45, sin(a) * 0.07), GREEN, Vector3.ZERO, 4)
 		k.add_sphere(0.07, Vector3(cos(a) * 0.09, 0.6 + (i % 2) * 0.03, sin(a) * 0.09), Color(0.9, 0.2, 0.25), Vector3(1, 0.8, 1), 6)
 	return k
+
+# --- Mission 08 : l'oie, la voie ferrée et le train ---------------------------------------------------------------------------------------
+
+## Oie (+Z = devant) : corps ovale, cou, tête, bec orange, queue, ailes repliées et pattes. `variant` 0 : blanche, 1 : grise, 2 : meneuse (collier rouge).
+static func goose(variant := 0) -> PropKit:
+	var k := PropKit.new()
+	var body := Color(0.97, 0.96, 0.92) if variant != 1 else Color(0.66, 0.64, 0.6)
+	var wing := Color(0.9, 0.89, 0.84) if variant != 1 else Color(0.5, 0.48, 0.45)
+	var orange := Color(0.96, 0.58, 0.12)
+	k.add_sphere(0.24, Vector3(0, 0.5, 0), body, Vector3(0.85, 0.82, 1.45), 9)
+	k.add_sphere(0.17, Vector3(0, 0.55, -0.3), body, Vector3(0.9, 0.9, 1.1), 8)                       # croupion
+	k.add_box(Vector3(0.12, 0.05, 0.22), Vector3(0, 0.66, -0.52), body, Vector3(-0.35, 0, 0))          # queue
+	k.add_cyl(0.07, 0.1, 0.55, Vector3(0, 0.85, 0.28), body, Vector3(0.3, 0, 0), 7)                    # cou
+	k.add_sphere(0.1, Vector3(0, 1.13, 0.4), body, Vector3(0.9, 0.95, 1.1), 8)                          # tête
+	k.add_box(Vector3(0.09, 0.05, 0.16), Vector3(0, 1.1, 0.53), orange)                                # bec
+	k.add_box(Vector3(0.07, 0.03, 0.08), Vector3(0, 1.14, 0.5), orange)
+	for sx in [-1.0, 1.0]:
+		k.add_sphere(0.022, Vector3(sx * 0.07, 1.16, 0.45), Color(0.05, 0.04, 0.04), Vector3.ONE, 4)   # yeux
+		k.add_sphere(0.2, Vector3(sx * 0.19, 0.52, -0.02), wing, Vector3(0.28, 0.6, 1.35), 7)          # ailes repliées
+		k.add_cyl(0.022, 0.03, 0.3, Vector3(sx * 0.09, 0.2, 0.0), orange, Vector3.ZERO, 5)             # pattes
+		k.add_box(Vector3(0.1, 0.02, 0.15), Vector3(sx * 0.09, 0.02, 0.05), orange)                    # pieds palmés
+	if variant == 2:
+		k.add_cyl(0.085, 0.09, 0.07, Vector3(0, 0.78, 0.33), Color(0.85, 0.2, 0.2), Vector3(0.3, 0, 0), 8)   # collier rouge
+	return k
+
+
+## Un mètre de voie : traverse en bois, deux rails d'acier et un peu de ballast (placé tous les mètres par `RailLine`).
+static func rail_tie() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(3.0, 0.16, 0.34), Vector3(0, 0.08, 0), Color(0.42, 0.3, 0.2))
+	for sx in [-0.72, 0.72]:
+		k.add_box(Vector3(0.1, 0.16, 1.08), Vector3(sx, 0.24, 0), Color(0.55, 0.57, 0.6))
+		k.add_box(Vector3(0.2, 0.04, 1.08), Vector3(sx, 0.17, 0), Color(0.35, 0.36, 0.38))
+	k.add_box(Vector3(3.6, 0.1, 1.08), Vector3(0, 0.03, 0), Color(0.6, 0.57, 0.52))                    # ballast
+	return k
+
+
+## Train des vacances (+Z = devant) : locomotive et trois voitures bleu et crème, vitres, pare-chocs et phare.
+static func train() -> PropKit:
+	var k := PropKit.new()
+	var blue := Color(0.2, 0.42, 0.7)
+	var cream := Color(0.95, 0.92, 0.82)
+	var dark := Color(0.2, 0.22, 0.26)
+	var glass := Color(0.55, 0.78, 0.9)
+	# Locomotive (avant, z > 0) : 0 → +9 m ; voitures derrière.
+	k.add_box(Vector3(2.9, 1.2, 9.0), Vector3(0, 1.0, 4.5), blue)
+	k.add_box(Vector3(2.9, 1.5, 3.2), Vector3(0, 2.35, 2.2), blue)                                     # cabine
+	k.add_box(Vector3(2.6, 0.5, 0.06), Vector3(0, 2.75, 3.82), glass)                                  # pare-brise
+	k.add_box(Vector3(3.0, 0.14, 9.2), Vector3(0, 1.62, 4.5), cream)                                   # bandeau
+	k.add_box(Vector3(2.2, 0.3, 0.3), Vector3(0, 0.55, 9.1), dark)                                      # pare-chocs
+	k.add_box(Vector3(0.5, 0.3, 0.1), Vector3(-0.8, 1.7, 9.02), Color(1.0, 0.95, 0.6), Vector3.ZERO, true)  # phares
+	k.add_box(Vector3(0.5, 0.3, 0.1), Vector3(0.8, 1.7, 9.02), Color(1.0, 0.95, 0.6), Vector3.ZERO, true)
+	k.add_cyl(0.16, 0.2, 0.5, Vector3(0, 1.85, 6.5), dark, Vector3.ZERO, 8)                            # cheminée d'échappement
+	for i in 3:
+		var z0 := -1.0 - i * 15.0
+		k.add_box(Vector3(2.9, 2.5, 14.2), Vector3(0, 1.9, z0 - 6.0), cream)
+		k.add_box(Vector3(2.95, 0.7, 14.2), Vector3(0, 0.7, z0 - 6.0), blue)
+		k.add_box(Vector3(3.0, 0.1, 14.2), Vector3(0, 1.4, z0 - 6.0), blue)
+		for j in 6:
+			for sx in [-1.0, 1.0]:
+				k.add_box(Vector3(0.06, 0.8, 1.6), Vector3(sx * 1.46, 2.2, z0 - 11.8 + j * 2.3), glass)
+		k.add_box(Vector3(2.9, 0.12, 14.4), Vector3(0, 3.2, z0 - 6.0), Color(0.7, 0.72, 0.75))         # toit
+	for bz in [8.0, 5.5, 1.0, -4.0, -9.0, -14.0, -19.0, -24.0, -29.0, -34.0, -39.0, -44.0]:
+		for sx in [-1.0, 1.0]:
+			k.add_cyl(0.46, 0.46, 0.22, Vector3(sx * 1.3, 0.46, bz), dark, Vector3(0, 0, PI / 2.0), 10)
+	return k
+
+
+## Maisonnette du garde-barrière (+Z = vers la voie) : murs crème, toit rouge, porte et petite fenêtre.
+static func gate_hut() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(3.2, 2.4, 3.0), Vector3(0, 1.2, 0), Color(0.94, 0.88, 0.74))
+	k.add_box(Vector3(3.6, 0.12, 3.4), Vector3(0, 2.46, 0), Color(0.75, 0.25, 0.2), Vector3(0.0, 0.0, 0.0))
+	k.add_box(Vector3(3.5, 0.1, 1.9), Vector3(0, 2.78, -0.8), Color(0.75, 0.25, 0.2), Vector3(0.45, 0, 0))
+	k.add_box(Vector3(3.5, 0.1, 1.9), Vector3(0, 2.78, 0.8), Color(0.75, 0.25, 0.2), Vector3(-0.45, 0, 0))
+	k.add_box(Vector3(0.9, 1.8, 0.06), Vector3(-0.6, 0.9, 1.52), Color(0.4, 0.26, 0.17))
+	k.add_box(Vector3(0.8, 0.7, 0.06), Vector3(0.8, 1.4, 1.52), Color(0.55, 0.78, 0.9))
+	k.add_box(Vector3(0.26, 0.6, 0.26), Vector3(1.0, 3.2, -0.6), Color(0.6, 0.35, 0.3))                # cheminée
+	return k
+
+
+## Croix de Saint-André et feu de passage à niveau (barrières relevées) : deux mâts, une croix rouge et blanche.
+static func crossing_signs() -> PropKit:
+	var k := PropKit.new()
+	for sx in [-4.2, 4.2]:
+		k.add_cyl(0.06, 0.07, 3.2, Vector3(sx, 1.6, 0), Color(0.9, 0.9, 0.9), Vector3.ZERO, 6)
+		k.add_box(Vector3(1.3, 0.14, 0.06), Vector3(sx, 3.05, 0.04), Color(0.85, 0.18, 0.15), Vector3(0, 0, 0.7))
+		k.add_box(Vector3(1.3, 0.14, 0.06), Vector3(sx, 3.05, 0.04), Color(0.85, 0.18, 0.15), Vector3(0, 0, -0.7))
+		k.add_sphere(0.11, Vector3(sx, 2.55, 0.1), Color(1.0, 0.3, 0.25), Vector3.ONE, 6, true)
+		k.add_sphere(0.11, Vector3(sx, 2.3, 0.1), Color(1.0, 0.3, 0.25), Vector3.ONE, 6, true)
+	return k
+
+
+## Mare des oies : disque d'eau, roseaux et cabane à oies.
+static func goose_pond() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(7.5, 7.5, 0.1, Vector3(0, 0.03, 0), Color(0.36, 0.6, 0.78), Vector3.ZERO, 18)
+	k.add_cyl(8.2, 8.2, 0.06, Vector3(0, 0.0, 0), Color(0.5, 0.42, 0.28), Vector3.ZERO, 18)
+	for i in 14:
+		var a := float(i) * 0.9
+		var r := 7.0 + 0.8 * sin(float(i) * 2.3)
+		k.add_cyl(0.025, 0.03, 1.1 + 0.4 * sin(float(i)), Vector3(cos(a) * r, 0.6, sin(a) * r), Color(0.45, 0.6, 0.3), Vector3.ZERO, 4)
+		k.add_sphere(0.05, Vector3(cos(a) * r, 1.2 + 0.4 * sin(float(i)), sin(a) * r), Color(0.5, 0.35, 0.2), Vector3(1, 2.2, 1), 5)
+	k.add_box(Vector3(1.6, 1.0, 1.2), Vector3(9.5, 0.5, 2.0), Color(0.55, 0.38, 0.24))                   # cabane
+	k.add_box(Vector3(1.9, 0.1, 1.5), Vector3(9.5, 1.15, 2.0), Color(0.36, 0.25, 0.17), Vector3(0, 0, 0.12))
+	return k

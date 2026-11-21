@@ -26,7 +26,7 @@ func _run() -> void:
 	var anchors := {}
 	var space: PhysicsDirectSpaceState3D
 	var count := 0
-	for m in ["m01", "m02", "m03", "m04", "m05", "m06", "m07"]:
+	for m in ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08"]:
 		# Un monde par mission : les décors de mission (supermarché, scène, enclos…) ne sont construits que pour la mission active.
 		if world:
 			world.queue_free()

@@ -738,3 +738,75 @@ def lieux_mission07(tuiles: dict, taille: float, normaliser, spawn, utilises: se
         _poi7("chez_soi", LABELS_M07["chez_soi"], hx, hz, hf, taille, "home", building=home_b["id"], radius=3.0, kind="hideout"),
         _poi7("wc_publics", LABELS_M07["wc_publics"], wx, wz, wf, taille, "wc", prop="wc", radius=3.0),
     ]
+
+
+# --- Mission 08 « Les oies font grève » : la voie ferrée et la mare des oies ---------------------------------
+M08 = "m08_oies_en_greve"
+LABELS_M08 = {
+    "passage_niveau": "Passage à niveau du Pays d'Ouche",
+    "etang_oies": "La mare des oies de Mémé Odette",
+}
+RAIL_LENGTHS = (480.0, 400.0, 340.0, 280.0)
+RAIL_WIDTH = 14.0
+POND_RADIUS = 14.0
+
+
+def _poi8(pid, label, x, z, facing, taille, step, prop=None, radius=5.0, length=None):
+    p = _poi2(pid, "mission_target", label, x, z, facing, taille, step, prop=prop, radius=radius)
+    p["missions"] = [M08]
+    if length is not None:
+        p["length"] = length
+    return p
+
+
+def lieux_mission08(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Voie ferrée : couloir rectiligne de 280 à 480 m (14 m de large) sans bâtiment, route ni eau, le plus plat possible ; le
+    passage à niveau est en son milieu et son cap est celui de la voie. Mare des oies : disque de 14 m de rayon libre, à 60-120 m du
+    passage à niveau, d'un côté ou de l'autre de la voie (balayage déterministe). Les joueurs de la mission apparaissent près de la mare."""
+    from shapely.strtree import STRtree
+    par_xy = {(t["tile"]["x"], t["tile"]["y"]): t for t in tuiles.values()}
+    res = None
+    longueur = 0.0
+    for longueur in RAIL_LENGTHS:
+        res = trouver_piste(par_xy, taille, longueur=longueur, largeur=RAIL_WIDTH)
+        if res:
+            break
+    if not res:
+        return []
+    _, cap, cx, cz = res
+    a = math.radians(cap)
+    d = (math.sin(a), math.cos(a))
+    p = (-d[1], d[0])
+    obstacles = []
+    for t in tuiles.values():
+        obstacles += [Polygon(b["footprint"]).buffer(3.0) for b in t["buildings"]]
+        obstacles += [LineString(r["points"]).buffer(r["width"] / 2 + 2.0) for r in t["roads"] if r["kind"] not in ("footway", "track")]
+        obstacles += [Polygon(v["polygon"]) for v in t["vegetation"] if v["kind"] == "water"]
+    arbre = STRtree(obstacles)
+    voie = LineString([(cx - d[0] * longueur / 2, cz - d[1] * longueur / 2), (cx + d[0] * longueur / 2, cz + d[1] * longueur / 2)])
+    pond = None
+    for dist in (80.0, 70.0, 90.0, 100.0, 60.0, 110.0, 120.0):
+        for s in (1, -1):
+            for dec in (0.0, 40.0, -40.0, 80.0, -80.0):
+                px = cx + p[0] * dist * s + d[0] * dec
+                pz = cz + p[1] * dist * s + d[1] * dec
+                if (int(px // taille), int(pz // taille)) not in par_xy:
+                    continue
+                disque = Point(px, pz).buffer(POND_RADIUS + 3.0)
+                if any(obstacles[i].intersects(disque) for i in arbre.query(disque)):
+                    continue
+                if voie.distance(Point(px, pz)) < POND_RADIUS + 8.0:
+                    continue
+                pond = (px, pz)
+                break
+            if pond:
+                break
+        if pond:
+            break
+    if not pond:
+        return []
+    f = math.atan2(d[0], d[1])
+    return [
+        _poi8("passage_niveau", LABELS_M08["passage_niveau"], cx, cz, f, taille, "block", prop="rail", radius=14.0, length=longueur),
+        _poi8("etang_oies", LABELS_M08["etang_oies"], pond[0], pond[1], math.atan2(cx - pond[0], cz - pond[1]), taille, "gather", prop="pond", radius=POND_RADIUS),
+    ]

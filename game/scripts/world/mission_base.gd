@@ -144,6 +144,11 @@ static func format_time(seconds: float) -> String:
 	return "%d:%02d" % [s / 60, s % 60]
 
 
+## Point d'apparition propre à la mission (Vector3.ZERO : le point d'apparition commun).
+func spawn_hint() -> Vector3:
+	return Vector3.ZERO
+
+
 ## Pose les lieux et accessoires d'après les POI du cartographe (appelé par le monde).
 func setup(_pois: Array, _ground: Callable, _vehicle: Vehicle, _players: Node3D) -> void:
 	pass

@@ -68,3 +68,7 @@ Tonton Gégé (calva, rôle d'arrimeur), Kévin (mécano, diversion), Kévin Rad
 - **M0** : préproduction, POC carto de la rue Sainte-Foy, première build signée Windows + macOS.
 - **M1** : centre médiéval complet, conduite, PNJ, mission 01 jouable de bout en bout en solo et à 4.
 - **M2–M5** : missions 02–03, radios, extension 3 × 3 km, optimisation, bêta.
+
+## Mission 8 — Les oies font grève
+Vous êtes l'oie meneuse de Mémé Odette. Un « HONK ! » rassemble la basse-cour, un autre la rassure, un troisième fait reculer le garde-barrière :
+barrez la voie et arrêtez le Train des Vacances de 17 h 42 (il freine toujours) le temps que les Parisiens descendent et s'attendrissent.

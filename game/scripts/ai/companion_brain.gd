@@ -68,7 +68,7 @@ func idle() -> Dictionary:
 func think(delta: float) -> Dictionary:
 	_act_cooldown = maxf(_act_cooldown - delta, 0.0)
 	_clock += delta
-	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06 or mission is MissionM07)):
+	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06 or mission is MissionM07 or mission is MissionM08)):
 		status = "attend"
 		return idle()
 	match role:
@@ -98,6 +98,12 @@ func think(delta: float) -> Dictionary:
 			return _serve_m04(delta)
 		"rabatteur":
 			return _herd_m05(delta)
+		"rabatteuse":
+			return _goose_gather(delta)
+		"sentinelle":
+			return _goose_sentry(delta)
+		"ferme_file":
+			return _goose_line(delta)
 		"portier":
 			return _hold("porte", "file ouvrir la porte", "attend à la porte, la clé à la main", delta)
 		"diversion" when mission is MissionM07:
@@ -292,6 +298,56 @@ func _herd_m05(delta: float) -> Dictionary:
 		_last_yaw = yaw2
 		return {"move": Vector2(0, -1), "yaw": yaw2, "jump": false, "sprint": d.length() > 8.0}
 	return _walk_to(target, delta)
+
+
+## Mission 08, rabatteuse : va vers l'oie libre la plus proche, crie quand elle est à portée, puis mène la file jusqu'à la voie.
+func _goose_gather(delta: float) -> Dictionary:
+	var m = mission
+	var pos := body.global_position
+	var here := Vector2(pos.x, pos.z)
+	var mine: Array = m.followers_of(body.peer_id)
+	var free: Dictionary = m.nearest_free(here)
+	if not mine.is_empty() and (free.is_empty() or mine.size() >= 6):
+		status = "mène les oies jusqu'à la voie"
+		return _walk_to(m.spot("crossing"), delta)
+	if not free.is_empty() and m.train.st in ["wait", "run"]:
+		var fp := Vector3(float(free.x), 0.0, float(free.z))
+		status = "va chercher une oie égarée"
+		if _horizontal(pos, fp) < 9.0:
+			_try_interact(["honk"])
+			status = "crie pour rassembler les oies"
+			return idle()
+		return _walk_to(fp, delta)
+	status = "tient la voie avec les autres"
+	return _hold("line_side", "gagne la voie", "tient la voie avec les autres", delta)
+
+
+## Mission 08, sentinelle : attend près de la maisonnette ; quand le garde-barrière approche, elle fonce et lui crie dans les oreilles.
+func _goose_sentry(delta: float) -> Dictionary:
+	var m = mission
+	var pos := body.global_position
+	var mp := Vector3(float(m.master.x), 0.0, float(m.master.z))
+	if m.master.st in ["walk", "shoo"]:
+		status = "fonce sur le garde-barrière"
+		if _horizontal(pos, mp) < 6.0:
+			_try_interact(["honk"])
+			return idle()
+		return _walk_to(mp, delta)
+	return _hold("hut_side", "gagne la maisonnette du garde-barrière", "guette le garde-barrière", delta)
+
+
+## Mission 08, ferme-file : se poste au bord de la voie et crie à intervalles réguliers pour rassurer les oies qui y sont.
+func _goose_line(delta: float) -> Dictionary:
+	var m = mission
+	var out := _hold("line_side", "gagne le bord de la voie", "rassure les oies sur la voie", delta)
+	if m.blockers() > 0 and m.train.st in ["brake", "stopped"] and at_post_goose():
+		_try_interact(["honk"])
+	return out
+
+
+func at_post_goose() -> bool:
+	var s: Vector3 = mission.spot("line_side")
+	return s != Vector3.ZERO and _horizontal(body.global_position, s) < 3.5
 
 
 ## Mission 04, serveuse : prend une assiette au foyer et la porte à la table qui en a le moins reçu.
