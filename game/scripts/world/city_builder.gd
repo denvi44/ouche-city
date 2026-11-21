@@ -597,7 +597,8 @@ func build_signs(pois: Array) -> Node3D:
 const STEP_COLOR := {"crates": Color(0.95, 0.75, 0.2), "vehicle": Color(0.3, 0.6, 0.9), "checkpoint": Color(0.85, 0.25, 0.2), "fair": Color(0.4, 0.75, 0.35),
 	"parts": Color(0.95, 0.75, 0.2), "assembly": Color(0.7, 0.5, 0.9), "test_drive": Color(0.3, 0.6, 0.9), "meet": Color(0.95, 0.5, 0.7), "drag": Color(0.85, 0.25, 0.2),
 	"stage": Color(0.3, 0.8, 0.95), "rival": Color(0.9, 0.3, 0.6), "setup": Color(0.95, 0.75, 0.2),
-	"fire": Color(0.95, 0.5, 0.15), "gather": Color(0.95, 0.75, 0.2), "bonfire": Color(0.9, 0.25, 0.2)}
+	"fire": Color(0.95, 0.5, 0.15), "gather": Color(0.95, 0.75, 0.2), "bonfire": Color(0.9, 0.25, 0.2),
+	"pen": Color(0.45, 0.8, 0.4), "herd": Color(0.95, 0.95, 0.9)}
 
 
 func _toon(color: Color) -> ShaderMaterial:
@@ -675,6 +676,8 @@ func _add_prop(root: Node3D, prop: String) -> void:
 				root.add_child(n)
 		"pyre":
 			root.add_child(PropKit.pyre().build())
+		"pen":
+			root.add_child(PropKit.pen(6.0).build())
 		"strip":
 			_add_strip(root)
 		"stage":

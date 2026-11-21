@@ -26,6 +26,7 @@ const CATALOG := {
 	"bark": {"gen": "bark", "caption": "[Aboiement]", "db": -3.0, "bus": "Effets"},
 	"sizzle": {"gen": "sizzle", "caption": "", "db": -9.0, "bus": "Effets"},
 	"firework": {"gen": "firework", "caption": "[Feu d'artifice]", "db": -4.0, "bus": "Effets"},
+	"whistle": {"gen": "whistle", "caption": "[Sifflet du berger]", "db": -3.0, "bus": "Effets"},
 	"bird": {"gen": "bird", "caption": "", "db": -10.0, "bus": "Ambiance"},
 }
 const LOOPS := {

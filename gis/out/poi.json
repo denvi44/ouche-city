@@ -1829,6 +1829,41 @@
    "step": "gather",
    "facing": 1.87,
    "building": "b_18809"
+  },
+  {
+   "id": "enclos_odette",
+   "kind": "mission_target",
+   "label": "Enclos de la ferme de Mémé Odette",
+   "position": [
+    1484.0,
+    1292.0
+   ],
+   "tile": "5_5",
+   "radius": 6.0,
+   "source": "design",
+   "missions": [
+    "m05_vaches_en_goguette"
+   ],
+   "step": "pen",
+   "facing": 1.57,
+   "prop": "pen"
+  },
+  {
+   "id": "pre_vaches",
+   "kind": "mission_target",
+   "label": "Le pré où les vaches ont filé",
+   "position": [
+    1584.0,
+    1292.0
+   ],
+   "tile": "6_5",
+   "radius": 25.0,
+   "source": "design",
+   "missions": [
+    "m05_vaches_en_goguette"
+   ],
+   "step": "herd",
+   "facing": 0.0
   }
  ]
 }

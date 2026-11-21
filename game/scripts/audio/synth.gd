@@ -530,3 +530,23 @@ static func firework() -> PackedFloat32Array:
 				v += _noise() * 0.8
 		out[i] = v
 	return normalized(out, 0.85)
+
+
+## Sifflet de berger : deux notes aiguës montantes puis une longue descendante, vibrato léger.
+static func whistle() -> PackedFloat32Array:
+	var out := _buf(1.1)
+	var ph := 0.0
+	for i in out.size():
+		var s := float(i) / RATE
+		var f: float
+		if s < 0.18:
+			f = 1900.0 + 600.0 * s / 0.18
+		elif s < 0.36:
+			f = 2100.0 + 700.0 * (s - 0.18) / 0.18
+		else:
+			f = 2800.0 - 1500.0 * clampf((s - 0.36) / 0.7, 0.0, 1.0)
+		f *= 1.0 + 0.012 * sin(TAU * 18.0 * s)
+		ph += f / RATE
+		var gate := 1.0 if (s < 0.16 or (s > 0.2 and s < 0.34) or s > 0.38) else 0.0
+		out[i] = (sin(TAU * ph) * 0.8 + sin(TAU * ph * 2.0) * 0.12) * gate * _env(s, 1.1, 0.01, 0.2)
+	return normalized(out, 0.75)

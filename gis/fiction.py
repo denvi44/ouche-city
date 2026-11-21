@@ -555,3 +555,64 @@ def lieux_mission04(tuiles: dict, taille: float, normaliser, spawn, utilises: se
         out.append(_poi4(pid, LABELS_M04[pid], x, z, f, taille, "gather", building=b["id"], radius=3.0))
         pris.append(centre(b))
     return out
+
+
+# --- Mission 05 « Les vaches sont de sortie » : lieux de blockout ---------------------------------------
+M05 = "m05_vaches_en_goguette"
+LABELS_M05 = {
+    "enclos_odette": "Enclos de la ferme de Mémé Odette",
+    "pre_vaches": "Le pré où les vaches ont filé",
+}
+PEN_FRONT = 0.0           # m : le centre de l'enclos est le point du POI
+PEN_RADIUS = 6.0          # demi-côté de l'enclos (m)
+
+
+def _poi5(pid, label, x, z, facing, taille, step, prop=None, building=None, radius=5.0):
+    p = _poi2(pid, "mission_target", label, x, z, facing, taille, step, prop=prop, building=building, radius=radius)
+    p["missions"] = [M05]
+    return p
+
+
+def lieux_mission05(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Enclos et pré des vaches, tous deux en terrain dégagé. L'enclos (12 × 12 m, ouvert vers le pré) est cherché à 60-200 m
+    de l'apparition ; le pré (rayon 25 m, sans bâtiment) est à 80-140 m de l'enclos, relié à lui par un couloir de 10 m sans
+    bâtiment : les vaches peuvent être rabattues en ligne droite. Balayage déterministe d'une grille de 15 m."""
+    from shapely.strtree import STRtree
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    obstacles = [Polygon(b["footprint"]) for t in tuiles.values() for b in t["buildings"]]
+    arbre = STRtree(obstacles)
+    en_zone = {(t["tile"]["x"], t["tile"]["y"]) for t in tuiles.values()}
+
+    def libre(poly):
+        return not any(obstacles[i].intersects(poly) for i in arbre.query(poly))
+
+    sx, sz = spawn
+    sites = []
+    for x in range(int(sx) - 200, int(sx) + 200, 15):
+        for z in range(int(sz) - 200, int(sz) + 200, 15):
+            d = math.hypot(x - sx, z - sz)
+            if 60 < d < 200 and (int(x // taille), int(z // taille)) in en_zone:
+                sites.append((_h("m05", f"{x}_{z}"), x, z))
+    sites.sort()
+    for _, x, z in sites:
+        if not libre(Point(x, z).buffer(PEN_RADIUS * 1.5 + 2.0)):
+            continue
+        if any(r.distance(Point(x, z)) < PEN_RADIUS * 1.5 for r in routes):
+            continue
+        for rayon in (100.0, 115.0, 130.0, 90.0, 140.0):
+            for k in range(24):
+                a = TAU_FICTION * k / 24.0
+                px, pz = x + math.cos(a) * rayon, z + math.sin(a) * rayon
+                if (int(px // taille), int(pz // taille)) not in en_zone:
+                    continue
+                if not libre(Point(px, pz).buffer(25.0)) or not libre(LineString([(x, z), (px, pz)]).buffer(5.0)):
+                    continue
+                f = math.atan2(px - x, pz - z)           # la porte de l'enclos regarde le pré
+                return [
+                    _poi5("enclos_odette", LABELS_M05["enclos_odette"], x, z, f, taille, "pen", prop="pen", radius=PEN_RADIUS),
+                    _poi5("pre_vaches", LABELS_M05["pre_vaches"], px, pz, 0.0, taille, "herd", radius=25.0),
+                ]
+    return []
+
+
+TAU_FICTION = 2 * math.pi

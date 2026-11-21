@@ -19,5 +19,5 @@
     { "id": "outro", "type": "cutscene", "variants": ["gold", "win", "default"] }
   ],
   "medals": { "gold": { "satisfaction": 85 }, "silver": { "satisfaction": 65 }, "bronze": { "satisfaction": 40 } },
-  "rewards": { "reputation": { "comite_fetes": 1 }, "unlocks": [] }
+  "rewards": { "reputation": { "comite_fetes": 1 }, "unlocks": ["m05_vaches_en_goguette"] }
 }

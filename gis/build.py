@@ -496,6 +496,8 @@ def main(argv=None) -> int:
     fictifs += fiction.lieux_mission03(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
     deja_pris |= {p["building"] for p in fictifs if p.get("building")}
     fictifs += fiction.lieux_mission04(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
+    deja_pris |= {p["building"] for p in fictifs if p.get("building")}
+    fictifs += fiction.lieux_mission05(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
     ids_fictifs = {p["id"] for p in fictifs}
     # Les monuments trouvés dans la zone remplacent leurs homologues lointains.
     poi["pois"] = [p for p in poi["pois"] if not (p["id"] == "eglise_lointaine" and "eglise" in ids_fictifs)] + fictifs

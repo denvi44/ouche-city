@@ -450,3 +450,72 @@ static func charcoal() -> PropKit:
 		k.add_box(Vector3(0.14, 0.1, 0.12), Vector3(-0.28 + i * 0.14, 0.58 + (i % 2) * 0.05, (i % 3 - 1) * 0.1), Color(0.14, 0.14, 0.15), Vector3(0.2 * i, 0.3 * i, 0.1))
 	k.add_sphere(0.3, Vector3(0.7, 0.28, 0.1), Color(0.72, 0.6, 0.4), Vector3(1.0, 0.9, 0.7), 8)
 	return k
+
+
+# --- Ferme (mission 05) ------------------------------------------------------------------------------------------------------------
+
+## Vache normande : corps blanc taché de brun, pis, tête à mufle rose, cornes, oreilles, queue à houppe, quatre pattes, étiquettes
+## d'oreille. `variant` 1 : Marguerite, plus sombre, avec sa cloche dorée au cou.
+static func cow(variant := 0) -> PropKit:
+	var k := PropKit.new()
+	var white := Color(0.95, 0.93, 0.88)
+	var brown := Color(0.52, 0.31, 0.17) if variant == 0 else Color(0.32, 0.2, 0.12)
+	var pink := Color(0.93, 0.66, 0.66)
+	k.add_sphere(0.55, Vector3(0, 1.05, 0), white if variant == 0 else Color(0.82, 0.78, 0.72), Vector3(0.95, 0.9, 1.75), 10)
+	k.add_sphere(0.3, Vector3(0.28, 1.2, 0.35), brown, Vector3(0.7, 0.9, 1.1), 7)
+	k.add_sphere(0.32, Vector3(-0.3, 1.1, -0.35), brown, Vector3(0.7, 0.8, 1.2), 7)
+	k.add_sphere(0.22, Vector3(0.1, 1.45, -0.2), brown, Vector3(1.0, 0.5, 1.0), 6)
+	k.add_sphere(0.2, Vector3(0, 0.62, -0.62), pink, Vector3(1.0, 0.8, 1.0), 7)
+	for sx in [-0.09, 0.09]:
+		k.add_cyl(0.025, 0.02, 0.12, Vector3(sx, 0.48, -0.62), pink, Vector3.ZERO, 5)
+	k.add_box(Vector3(0.36, 0.38, 0.5), Vector3(0, 1.28, 0.95), white if variant == 0 else Color(0.82, 0.78, 0.72))
+	k.add_box(Vector3(0.28, 0.2, 0.2), Vector3(0, 1.12, 1.25), pink)
+	k.add_box(Vector3(0.18, 0.1, 0.06), Vector3(0, 1.1, 1.36), Color(0.75, 0.45, 0.45))
+	for sx in [-1.0, 1.0]:
+		k.add_box(Vector3(0.22, 0.07, 0.14), Vector3(sx * 0.27, 1.38, 0.85), brown, Vector3(0, 0, sx * 0.3))
+		k.add_cyl(0.025, 0.04, 0.16, Vector3(sx * 0.2, 1.55, 0.92), CREAM, Vector3(0, 0, sx * 0.6), 5)
+		for sz in [-0.55, 0.62]:
+			k.add_cyl(0.07, 0.055, 0.7, Vector3(sx * 0.27, 0.35, sz), white, Vector3.ZERO, 6)
+			k.add_cyl(0.065, 0.065, 0.1, Vector3(sx * 0.27, 0.05, sz), Color(0.2, 0.17, 0.15), Vector3.ZERO, 6)
+	k.add_cyl(0.025, 0.04, 0.8, Vector3(0, 0.95, -0.95), white, Vector3(0.25, 0, 0), 5)
+	k.add_sphere(0.07, Vector3(0, 0.52, -1.0), brown, Vector3(1, 1.4, 1), 5)
+	k.add_box(Vector3(0.05, 0.06, 0.02), Vector3(0.26, 1.34, 0.9), Color(0.95, 0.8, 0.2))
+	if variant == 1:
+		k.add_cyl(0.1, 0.12, 0.14, Vector3(0, 0.98, 0.75), Color(0.95, 0.75, 0.2), Vector3.ZERO, 8)
+		k.add_box(Vector3(0.5, 0.05, 0.05), Vector3(0, 1.12, 0.72), Color(0.4, 0.25, 0.15))
+	return k
+
+
+## Enclos de ferme : clôture sur trois côtés (côté +Z ouvert, porte de 4,4 m), auge et botte de foin au fond.
+static func pen(half := 6.0) -> PropKit:
+	var k := PropKit.new()
+	var n := int(half * 2.0 / 2.0)
+	for i in n + 1:
+		var t := -half + i * 2.0
+		k.add_box(Vector3(0.14, 1.2, 0.14), Vector3(t, 0.6, -half), WOOD_DARK)
+		k.add_box(Vector3(0.14, 1.2, 0.14), Vector3(-half, 0.6, t), WOOD_DARK)
+		k.add_box(Vector3(0.14, 1.2, 0.14), Vector3(half, 0.6, t), WOOD_DARK)
+	for h in [0.45, 0.95]:
+		k.add_box(Vector3(half * 2.0, 0.1, 0.06), Vector3(0, h, -half), WOOD)
+		k.add_box(Vector3(0.06, 0.1, half * 2.0), Vector3(-half, h, 0), WOOD)
+		k.add_box(Vector3(0.06, 0.1, half * 2.0), Vector3(half, h, 0), WOOD)
+		for sx in [-1.0, 1.0]:
+			k.add_box(Vector3(half - 2.2, 0.1, 0.06), Vector3(sx * (2.2 + (half - 2.2) / 2.0), h, half), WOOD)
+	for sx in [-2.2, 2.2]:
+		k.add_box(Vector3(0.2, 1.6, 0.2), Vector3(sx, 0.8, half), WOOD_DARK)
+		k.add_box(Vector3(0.26, 0.06, 0.26), Vector3(sx, 1.62, half), WOOD)
+	k.add_box(Vector3(2.2, 0.4, 0.55), Vector3(0, 0.2, -half + 1.0), WOOD)
+	k.add_box(Vector3(2.0, 0.06, 0.4), Vector3(0, 0.38, -half + 1.0), Color(0.3, 0.5, 0.75))
+	k.append(hay_bale(), Transform3D(Basis(Vector3.UP, 0.5), Vector3(-half + 1.4, 0, -half + 1.6)))
+	return k
+
+
+## Vantail de porte d'enclos (2,2 m, charnière à l'origine, s'étend vers +X).
+static func gate_leaf() -> PropKit:
+	var k := PropKit.new()
+	for h in [0.3, 0.7, 1.1]:
+		k.add_box(Vector3(2.1, 0.1, 0.06), Vector3(1.1, h, 0), WOOD)
+	k.add_box(Vector3(0.1, 1.2, 0.08), Vector3(0.05, 0.6, 0), WOOD_DARK)
+	k.add_box(Vector3(0.1, 1.2, 0.08), Vector3(2.15, 0.6, 0), WOOD_DARK)
+	k.add_box(Vector3(2.2, 0.08, 0.05), Vector3(1.1, 0.7, 0.0), WOOD_DARK, Vector3(0, 0, 0.5))
+	return k

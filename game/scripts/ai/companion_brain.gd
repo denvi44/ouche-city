@@ -66,7 +66,7 @@ func idle() -> Dictionary:
 func think(delta: float) -> Dictionary:
 	_act_cooldown = maxf(_act_cooldown - delta, 0.0)
 	_clock += delta
-	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04)):
+	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05)):
 		status = "attend"
 		return idle()
 	match role:
@@ -94,6 +94,12 @@ func think(delta: float) -> Dictionary:
 			return _post_m03("garde", "prend position", "garde le méchoui", delta)
 		"serveur":
 			return _serve_m04(delta)
+		"rabatteur":
+			return _herd_m05(delta)
+		"guetteur" when mission is MissionM05:
+			return _hold("watch", "gagne son poste de guet", "guette le troupeau", delta)
+		"barriere":
+			return _hold("gate", "gagne la barrière", "tient la barrière", delta)
 	var me := body.peer_id
 	var pos := body.global_position
 	# 1. Une caisse sur l'épaule : direction la camionnette, puis chargement.
@@ -155,6 +161,34 @@ func _post_m03(spot_name: String, going: String, there: String, delta: float) ->
 				return idle()
 			return _walk_to(target, delta)
 	return _hold(spot_name, going, there, delta)
+
+
+## Mission 05, rabatteur : se place derrière la vache libre la plus proche (côté opposé à l'enclos) et siffle quand il est près.
+func _herd_m05(delta: float) -> Dictionary:
+	var m = mission
+	if m.step != "herd":
+		return _hold("gate", "gagne la barrière", "se repose", delta)
+	var pos := body.global_position
+	var here := Vector2(pos.x, pos.z)
+	var target: Vector3 = m.herd_target(here)
+	if target == Vector3.ZERO:
+		return idle()
+	var stray: Dictionary = m.nearest_stray(Vector2(m.zones.pen.x, m.zones.pen.z))
+	status = "rabat %s" % MissionM05.COW_NAMES[int(stray.id) % MissionM05.COW_NAMES.size()]
+	if _horizontal(pos, target) < 3.0:
+		# En place : on avance vers la vache pour la pousser, et on siffle si elle est loin.
+		if here.distance_to(Vector2(stray.x, stray.z)) < float(m.whistle_range) - 2.0:
+			_try_interact(["whistle"])
+		var toward := Vector2(stray.x, stray.z) - here
+		var yaw := atan2(-toward.x, -toward.y)
+		_last_yaw = yaw
+		return {"move": Vector2(0, -1), "yaw": yaw, "jump": false, "sprint": false}
+	if _clear(here, Vector2(target.x, target.z)):
+		var d := Vector2(target.x, target.z) - here
+		var yaw2 := atan2(-d.x, -d.y)
+		_last_yaw = yaw2
+		return {"move": Vector2(0, -1), "yaw": yaw2, "jump": false, "sprint": d.length() > 8.0}
+	return _walk_to(target, delta)
 
 
 ## Mission 04, serveuse : prend une assiette au foyer et la porte à la table qui en a le moins reçu.

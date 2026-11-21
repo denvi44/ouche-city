@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
@@ -169,3 +169,21 @@ def test_lieux_de_mission04():
     autres = [p for p in pois.values() if p.get("missions") and p["missions"] != ["m04_mechoui_saint_jean"] and p.get("building")]
     bat4 = {pois[i]["building"] for i in ids}
     assert not (bat4 & {p["building"] for p in autres}), "un bâtiment sert à deux missions"
+
+
+def test_lieux_de_mission05():
+    """L'enclos et le pré existent ; le pré est dégagé et relié à l'enclos par un couloir sans bâtiment."""
+    import math
+    from shapely.geometry import LineString, Point, Polygon
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    assert "enclos_odette" in pois and "pre_vaches" in pois
+    enclos, pre = pois["enclos_odette"], pois["pre_vaches"]
+    assert enclos["prop"] == "pen" and enclos["missions"] == ["m05_vaches_en_goguette"]
+    centre = tuple(enclos["position"])
+    assert 60 < math.dist(centre, pre["position"]) < 160
+    batiments = []
+    for fch in (ROOT / "gis/out/tiles").glob("*.json"):
+        batiments += [Polygon(b["footprint"]) for b in json.loads(fch.read_text())["buildings"]]
+    couloir = LineString([centre, pre["position"]]).buffer(5.0)
+    assert not any(b.intersects(couloir) for b in batiments), "un bâtiment barre le couloir"
+    assert not any(b.intersects(Point(pre["position"]).buffer(25.0)) for b in batiments), "le pré n'est pas dégagé"
