@@ -19,6 +19,7 @@ city:
 	rm -rf game/assets/city && mkdir -p game/assets/city
 	cp -r gis/out/tiles gis/out/poi.json gis/out/road_graph.json gis/out/manifest.json game/assets/city/
 	rm -rf game/assets/missions && mkdir -p game/assets/missions && cp missions/*.json game/assets/missions/
+	rm -rf game/assets/dialogues && mkdir -p game/assets/dialogues && cp narrative/dialogues/*.yarn game/assets/dialogues/
 
 test: test-py test-godot
 

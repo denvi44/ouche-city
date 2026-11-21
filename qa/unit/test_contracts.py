@@ -211,3 +211,66 @@ def test_supermarche_mission06():
     assert not any(r.intersects(emprise) for r in routes), "une route traverse l'emprise"
     devant = LineString([(x, z), (x + fx * 60, z + fz * 60)])
     assert any(r.distance(devant) < 1.0 for r in routes), "la porte ne regarde pas une route"
+
+
+def _yarn_files():
+    return sorted((ROOT / "narrative/dialogues").glob("*.yarn"))
+
+
+def test_dialogues_valides():
+    """Chaque réplique : « Locuteur: texte #line:identifiant », identifiants uniques et stables, nœuds préfixés par la mission."""
+    import re
+    locuteurs = {"Gégé", "Ginette", "Kévin", "Kévin Radio", "Dylan", "Gendarme", "Père Bernard", "Marguerite", "Josette", "Mme Hubert",
+                 "Lemoine", "Lebrun", "Client pressé", "Vous"}
+    ids, titres = set(), set()
+    n_lignes = 0
+    for f in _yarn_files():
+        prefix = f.name[:3]
+        titre = None
+        corps = False
+        for brut in f.read_text(encoding="utf-8").splitlines():
+            l = brut.strip()
+            if not l or l.startswith("//"):
+                continue
+            if not corps:
+                if l.startswith("title:"):
+                    titre = l[6:].strip()
+                    assert titre.startswith(prefix + "_"), f"{f.name} : nœud {titre} sans le préfixe {prefix}"
+                    assert titre not in titres, f"nœud en double : {titre}"
+                    titres.add(titre)
+                elif l == "---":
+                    corps = True
+                continue
+            if l == "===":
+                corps = False
+                continue
+            if l.startswith("<<"):
+                continue
+            m = re.match(r"^([^:]+): (.+?)( #line:([a-z0-9_]+))( #\w+:.+)*$", l)
+            assert m, f"{f.name} / {titre} : réplique mal formée : {l[:60]}"
+            assert m.group(1) in locuteurs, f"locuteur inconnu : {m.group(1)}"
+            assert len(m.group(2)) <= 150, f"réplique trop longue ({len(m.group(2))}) : {l[:50]}"
+            ident = m.group(4)
+            assert ident.startswith(titre) and ident not in ids, f"identifiant {ident} incorrect ou en double"
+            ids.add(ident)
+            n_lignes += 1
+    assert len(titres) >= 60 and n_lignes >= 100, (len(titres), n_lignes)
+
+
+def test_dialogues_importes_dans_godot():
+    for f in _yarn_files():
+        dst = ROOT / "game/assets/dialogues" / f.name
+        assert dst.exists() and dst.read_bytes() == f.read_bytes(), f"{f.name} : lancer make city"
+
+
+def test_noeuds_appeles_par_les_missions_existent():
+    """Tout `say("…")` / `bark("…")` des missions désigne un nœud de dialogue ; chaque mission a une intro et un nœud par étape principale."""
+    import re
+    titres = set()
+    for f in _yarn_files():
+        titres |= set(re.findall(r"^title: (\S+)", f.read_text(encoding="utf-8"), re.M))
+    for f in (ROOT / "game/scripts/world").glob("mission_m0*.gd"):
+        for nom in re.findall(r'(?:say|bark)\("([a-z0-9_]+)"', f.read_text(encoding="utf-8")):
+            assert nom in titres, f"{f.name} appelle le nœud inexistant {nom}"
+    for m in sorted((ROOT / "missions").glob("m0*.json")):
+        assert m.name[:3] + "_intro" in titres, f"{m.name} : pas d'intro"

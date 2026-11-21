@@ -245,6 +245,7 @@ func interact(peer: int, allowed: Array = []) -> void:
 			crates[r.id].carrier = peer
 			player.carrying = true
 			_log("%s prend une caisse (%s)." % [player.display_name, CRATE_NAMES.get(r.id, r.id)])
+			bark("m01_crate_pickup", 40.0)
 		"load":
 			crates[r.id].state = "loaded"
 			crates[r.id].carrier = 0
@@ -510,6 +511,7 @@ func _hit_pothole(i: int) -> void:
 		cargo -= lost
 		broken += lost
 		_log("Nid-de-poule à %d km/h : %d bouteille%s de moins !" % [int(spd * 3.6), lost, "s" if lost > 1 else ""])
+		bark("m01_pothole_hit", 25.0)
 	else:
 		_log("Nid-de-poule : vous passez doucement, rien de cassé.")
 	_mark()
@@ -532,6 +534,7 @@ func _tick_hazards(delta: float) -> void:
 		tractor_active = true
 		tractor.set_active(true)
 		_log("Un tracteur s'engage sur la route, devant vous. Doublez prudemment… ou prenez votre mal en patience.")
+		bark("m01_tractor", 60.0)
 		_radio("tracteur", "Tracteur devant ! Il fait du 11 à l'heure, c'est Lepommier, il ne s'arrête jamais.")
 		_mark()
 	if tractor_active and tractor.finished:
@@ -547,6 +550,7 @@ func _tick_hazards(delta: float) -> void:
 			cw.set_active(true)
 			cw.state = "to_road"
 		_log("Des vaches traversent la route ! Freinez, ou klaxonnez [H] pour les presser.")
+		bark("m01_cows", 60.0)
 		_radio("vaches", "Les vaches ! Elles sont trois, elles broutent le bitume. Un coup de klaxon et elles décampent.")
 		_mark()
 	if cows_active and not cows_done:
@@ -570,6 +574,7 @@ func horn() -> void:
 			scared += 1
 	horn_serial += 1
 	_log("Pouet pouet !" + (" Les vaches détalent." if scared > 0 else ""))
+	bark("m01_horn", 30.0)
 	_mark()
 
 
@@ -608,10 +613,12 @@ func choose(option: String) -> void:
 				_log("Vous tentez le bluff, sans Ginette pour amadouer le gendarme…")
 			if roll < p:
 				_log("Ça passe : le gendarme lève la barrière en souriant.")
+				bark("m01_bluff_ok", 60.0)
 			else:
 				var lost := mini(CONFISCATED, cargo)
 				cargo -= lost
 				_log("Raté ! Le gendarme « goûte pour vérifier » : %d bouteilles saisies." % lost)
+				bark("m01_bluff_fail", 60.0)
 			_open_barrier()
 		"detour":
 			elapsed += DETOUR_COST
@@ -620,6 +627,7 @@ func choose(option: String) -> void:
 		"diversion":
 			if distance_to_zone(ID_KEVIN, "barrage") < NEAR_DIVERSION:
 				_log("Kévin hurle « Au feu ! » en agitant un fanion : tous les gendarmes courent. La voie est libre !")
+				bark("m01_diversion", 60.0)
 				_open_barrier()
 			else:
 				elapsed += DIVERSION_FAIL_COST
@@ -667,6 +675,7 @@ func _on_impact(strength: float) -> void:
 	cargo -= lost
 	broken += lost
 	_log("Aïe ! %d bouteille%s cassée%s (choc à %d km/h)." % [lost, "s" if lost > 1 else "", "s" if lost > 1 else "", int(strength * 3.6)])
+	bark("m01_bottles_broken", 20.0)
 	_mark()
 
 

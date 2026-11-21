@@ -9,6 +9,10 @@ var invert_y: bool = false
 ## Échelle des textes de l'interface (accessibilité : 1.0 à 2.0).
 var text_scale: float = 1.0
 var subtitles: bool = true
+## Onomatopées en bulles (POUET !, BOUM !…) au-dessus des sons : équivalent visuel des bruitages (accessibilité).
+var onomatopees: bool = true
+## Bulles de dialogue au-dessus des personnages (les sous-titres du bas restent affichés).
+var speech_bubbles: bool = true
 ## Volumes (0 à 1) : général, effets, musique (radio), ambiance.
 var volume_master: float = 0.9
 var volume_sfx: float = 1.0
@@ -31,6 +35,8 @@ func load_settings() -> void:
 	invert_y = cfg.get_value("controles", "inverser_y", invert_y)
 	text_scale = clampf(cfg.get_value("accessibilite", "taille_texte", text_scale), 1.0, 2.0)
 	subtitles = cfg.get_value("accessibilite", "sous_titres", subtitles)
+	onomatopees = cfg.get_value("accessibilite", "onomatopees", onomatopees)
+	speech_bubbles = cfg.get_value("accessibilite", "bulles", speech_bubbles)
 	volume_master = clampf(cfg.get_value("audio", "general", volume_master), 0.0, 1.0)
 	volume_sfx = clampf(cfg.get_value("audio", "effets", volume_sfx), 0.0, 1.0)
 	volume_music = clampf(cfg.get_value("audio", "musique", volume_music), 0.0, 1.0)
@@ -45,6 +51,8 @@ func save_settings() -> void:
 	cfg.set_value("controles", "inverser_y", invert_y)
 	cfg.set_value("accessibilite", "taille_texte", text_scale)
 	cfg.set_value("accessibilite", "sous_titres", subtitles)
+	cfg.set_value("accessibilite", "onomatopees", onomatopees)
+	cfg.set_value("accessibilite", "bulles", speech_bubbles)
 	cfg.set_value("audio", "general", volume_master)
 	cfg.set_value("audio", "effets", volume_sfx)
 	cfg.set_value("audio", "musique", volume_music)

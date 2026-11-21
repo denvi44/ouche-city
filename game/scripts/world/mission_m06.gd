@@ -336,6 +336,7 @@ func interact(peer: int, allowed: Array = []) -> void:
 			chat_left = maxf(chat_left - CHAT_CUT, 0.0)
 			if chat_left <= 0.0:
 				_log("« Bon, faut que j'y aille ! » Mme Hubert est vexée pour trois minutes.")
+				bark("m06_chat_cut", 20.0)
 		"pass":
 			_let_pass(player.display_name)
 		"pay":
@@ -372,6 +373,7 @@ func _let_pass(name: String) -> void:
 		if Vector2(c.x, c.z).distance_to(Vector2(0, 0)) < 40.0:
 			c.imp = maxf(float(c.imp) - 0.5, 0.0)
 	_log("%s : « Après vous, je vous en prie ! » La file s'écoule." % name)
+	bark("m06_pass", 8.0)
 
 
 # --- Paiement : compter la monnaie -------------------------------------------------------------------------------------------------
@@ -392,6 +394,7 @@ func _press() -> void:
 		mini_fails += 1
 		penalty += coin_fail_penalty
 		_log("« Ah non, pas cette pièce-là… » Elle fouille encore dans son porte-monnaie (+%d s)." % int(coin_fail_penalty))
+		bark("m06_coin_fail", 10.0)
 
 
 # --- Clients pressés (serveur) ------------------------------------------------------------------------------------------------------
@@ -472,6 +475,7 @@ func _incident(c: Dictionary) -> void:
 	penalty += penalty_sec
 	c.imp = 0.4
 	_log("Un client : « Dites donc, vous allez bouger ?! » (incident %d/%d, +%d s)" % [incidents, max_incidents, int(penalty_sec)])
+	bark("m06_incident", 8.0)
 	_dirty = true
 	if incidents >= max_incidents:
 		_fail("evicted", "M. Lebrun, le gérant, vous raccompagne gentiment à la porte : « Revenez à dix heures, Madame. »")
@@ -537,6 +541,7 @@ func _physics_process(delta: float) -> void:
 			if not (it in items_got):
 				items_got.append(it)
 				_log("Dans le cabas : %s (%d/%d)." % [ITEM_NAMES[it], items_got.size(), ITEMS.size()])
+				bark("m06_item", 20.0)
 			reading = {}
 			_mark()
 	# Causette de Mme Hubert : seulement si Ginette ne l'occupe pas déjà.
@@ -550,6 +555,7 @@ func _physics_process(delta: float) -> void:
 				chat_left = CHAT_TIME
 				chat_done = true
 				_log("Mme Hubert : « Ah, mais c'est vous ! Je vous raconte pour ma hanche… »")
+				bark("m06_hubert", 60.0)
 				_mark()
 				break
 	_tick_customers(delta)

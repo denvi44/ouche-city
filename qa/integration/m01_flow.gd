@@ -51,6 +51,8 @@ func _run() -> void:
 	await frames(60)
 	check(van.is_on_floor(), "la camionnette repose sur le sol")
 	check(mission.started and mission.step == "crates", "mission démarrée à l'étape caisses")
+	var dlg = world.get_node("Dialogues")
+	check("m01_intro_01" in dlg.said_ids and dlg.played_nodes.has("m01_intro"), "dialogue d'introduction : Gégé lance la mission")
 	check(mission.crates.size() == 4, "4 caisses posées (cave, grange, poulailler, fumier)")
 
 	# --- Caisses -------------------------------------------------------------------

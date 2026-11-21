@@ -59,6 +59,9 @@ func _run() -> void:
 		quit(1)
 		return
 	check(mission.started and mission.step == "shop" and mission.zone_ok, "mission démarrée à l'étape courses, supermarché posé")
+	var dlg = world.get_node("Dialogues")
+	check("m06_intro_01" in dlg.said_ids, "dialogue d'introduction lancé (Josette : « Bonjour ! C'est ouvert… »)")
+	check(dlg.played_nodes.has("m06_intro"), "nœud m06_intro joué")
 	check(world.find_child("Supermarche", true, false) != null, "le supermarché est construit")
 	check(abs(world.day_night.hour - 8.0) < 0.2 and abs(mission.clock_min - 480.0) < 1.0, "il est 8 h")
 	check(world.van == null, "les courses se font à pied")
@@ -140,6 +143,7 @@ func _run() -> void:
 			await frames(30)
 	check(mission.incidents == inc0 + 1 and mission.penalty >= mission.penalty_sec, "un client perd patience : incident %d, +%d s au chrono" % [mission.incidents, int(mission.penalty)])
 	check(root.get_node("Sfx").counts.get("sigh", 0) >= 1, "soupir agacé")
+	check("m06_incident_01" in dlg.said_ids and "PFFFF…" in root.get_node("Sfx").onoma_log, "incident : réplique du client pressé et onomatopée « PFFFF… »")
 
 	# --- Fin des courses ---------------------------------------------------------------------------------------------------------
 	for it in M6.ITEMS:

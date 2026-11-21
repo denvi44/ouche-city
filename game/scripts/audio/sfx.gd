@@ -9,6 +9,8 @@ extends Node
 ## Les sons viennent de `Synth` ; un fichier `res://assets/audio/<nom>.ogg|.wav` le remplace s'il existe.
 
 signal caption(text: String, seconds: float)
+## Onomatopée à afficher en bulle : `pos` = null (au-dessus du joueur local) ou Vector3 (monde) ; `tone` : loud, soft, good, bad.
+signal onomatopee(text: String, pos: Variant, tone: String)
 
 ## nom -> {gen: fonction de Synth, caption: sous-titre (vide = aucun), db: niveau, bus}
 const CATALOG := {
@@ -30,8 +32,18 @@ const CATALOG := {
 	"beep": {"gen": "beep", "caption": "[Bip de caisse]", "db": -6.0, "bus": "Effets"},
 	"coin": {"gen": "coin", "caption": "", "db": -5.0, "bus": "Effets"},
 	"sigh": {"gen": "sigh", "caption": "[Soupir agacé d'un client]", "db": -4.0, "bus": "Effets"},
+	"babble": {"gen": "babble", "caption": "", "db": -12.0, "bus": "Effets"},
 	"bird": {"gen": "bird", "caption": "", "db": -10.0, "bus": "Ambiance"},
 }
+## Onomatopée de chaque son (texte, ton) : le bruitage a toujours un équivalent écrit, façon bande dessinée.
+const ONOMA := {
+	"klaxon": ["POUET POUET !", "loud"], "thud": ["BOUM !", "loud"], "glass": ["CRAAAC !", "bad"], "crate": ["TOC !", "soft"],
+	"moo": ["MEUUUH !", "soft"], "chime": ["DING !", "good"], "fail": ["OUPS…", "bad"], "fanfare": ["TADAAAA !", "good"],
+	"radio_blip": ["KSSSH…", "soft"], "bell": ["DING DONG !", "good"], "bark": ["OUAF OUAF !", "loud"], "sizzle": ["TSSSSS", "soft"],
+	"firework": ["BOUM ! PSCHIIIT", "loud"], "whistle": ["FIIIIIT !", "loud"], "beep": ["BIP !", "soft"], "coin": ["CLING !", "good"],
+	"sigh": ["PFFFF…", "bad"],
+}
+const ONOMA_COOLDOWN := 0.35
 const LOOPS := {
 	"engine": {"gen": "engine_loop", "bus": "Effets"},
 	"tractor": {"gen": "tractor_loop", "bus": "Effets"},
@@ -45,6 +57,8 @@ var enabled := true             ## faux en mode headless : on journalise sans jo
 var played: Array[String] = []  ## derniers sons demandés (tests, sous-titres)
 var counts := {}                ## nombre de fois où chaque son a été demandé (tests)
 var radio_on := false
+var onoma_log: Array[String] = []     ## dernières onomatopées émises (tests)
+var _onoma_t := {}
 
 var _cache := {}
 var _pool_2d: Array[AudioStreamPlayer] = []
@@ -113,7 +127,8 @@ func stream_for(name: String) -> AudioStream:
 	return stream
 
 
-func _log(name: String) -> void:
+func _log(name: String, pos: Variant = null) -> void:
+	_onoma(name, pos)
 	counts[name] = counts.get(name, 0) + 1
 	played.append(name)
 	if played.size() > 80:
@@ -121,6 +136,27 @@ func _log(name: String) -> void:
 	var cap: String = CATALOG.get(name, {}).get("caption", "")
 	if cap != "" and Settings.subtitles:
 		caption.emit(cap, 2.6)
+
+
+## Émet l'onomatopée d'un son (au plus une fois par 0,35 s et par son), si l'option est active.
+func _onoma(name: String, pos: Variant) -> void:
+	if not ONOMA.has(name) or not Settings.onomatopees:
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - float(_onoma_t.get(name, -10.0)) < ONOMA_COOLDOWN:
+		return
+	_onoma_t[name] = now
+	say_onoma(ONOMA[name][0], pos, ONOMA[name][1])
+
+
+## Onomatopée libre (étiquette `#onoma:` d'une réplique, événements) : journal + signal pour les bulles.
+func say_onoma(text: String, pos: Variant = null, tone := "loud") -> void:
+	if not Settings.onomatopees:
+		return
+	onoma_log.append(text)
+	if onoma_log.size() > 60:
+		onoma_log.pop_front()
+	onomatopee.emit(text, pos, tone)
 
 
 ## Son non spatialisé (interface, carillons).
@@ -141,7 +177,7 @@ func play(name: String, volume_db := 0.0, pitch := 1.0) -> void:
 
 ## Son spatialisé à une position du monde.
 func play_at(name: String, pos: Vector3, volume_db := 0.0, pitch := 1.0) -> void:
-	_log(name)
+	_log(name, pos)
 	if not enabled:
 		return
 	var s := stream_for(name)

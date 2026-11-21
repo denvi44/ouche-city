@@ -590,3 +590,15 @@ static func sigh() -> PackedFloat32Array:
 		var shape := sin(PI * clampf(s / 0.9, 0.0, 1.0))
 		out[i] = (_lookup(_reed(), ph) * 0.5 + _noise() * 0.35) * shape * _env(s, 0.9, 0.08, 0.3)
 	return normalized(out, 0.7)
+
+
+## Marmonnement de réplique : une courte syllabe voisée (le pas de voix change avec `pitch` à la lecture).
+static func babble() -> PackedFloat32Array:
+	_rng.seed = 707
+	var out := _buf(0.16)
+	var ph := 0.0
+	for i in out.size():
+		var s := float(i) / RATE
+		ph += (210.0 + 40.0 * sin(TAU * 9.0 * s)) / RATE
+		out[i] = (_lookup(_reed(), ph) * 0.8 + _noise() * 0.05) * _env(s, 0.16, 0.015, 0.07)
+	return normalized(out, 0.6)

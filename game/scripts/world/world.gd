@@ -29,6 +29,13 @@ func _ready() -> void:
 	players_root = Node3D.new()
 	players_root.name = "Joueurs"
 	add_child(players_root)
+	# Dialogues, bulles de paroles et onomatopées : mêmes nœuds sur tous les pairs.
+	var dialogues := DialoguePlayer.new()
+	add_child(dialogues)
+	var bubbles := SpeechBubbles.new()
+	add_child(bubbles)
+	bubbles.bind(dialogues)
+	add_child(OnomaLayer.new())
 	_build_van_and_mission()
 	var amb := Ambiance.new()
 	amb.name = "Ambiance"
@@ -61,6 +68,9 @@ func _ready() -> void:
 		add_child(t)
 	else:
 		_client_ready.rpc_id(1)
+	var qa_say = Net.arg("qa-say")
+	if qa_say != null and Net.is_server():
+		get_tree().create_timer(5.0).timeout.connect(func(): mission.say(str(qa_say)))
 	var report = Net.arg("qa-report")
 	if report != null:
 		var rt := Timer.new()
@@ -141,6 +151,8 @@ func _unhandled_input(event: InputEvent) -> void:
 					mission.request_choice(str(i + 1))
 		if event.is_action_pressed("sprint") and van and van.driver == multiplayer.get_unique_id():
 			mission.request_boost()
+	if event.is_action_pressed("dialogue_skip") and mission and Net.has_local_player():
+		mission.request_skip()
 	if event.is_action_pressed("radio_toggle") and van and van.driver == multiplayer.get_unique_id():
 		Sfx.toggle_radio()
 	if event.is_action_pressed("horn") and mission and van and van.driver == multiplayer.get_unique_id():
@@ -317,7 +329,8 @@ func _qa_report() -> void:
 		vinfo = "van=- etape=%s objets=%d cuisson=%d" % [mission.step, mission.items_taken.size(), int(mission.cook * 100.0)]
 	elif mission is MissionM03:
 		vinfo = "van=- etape=%s manche=%d objets=%d" % [mission.step, mission.round_idx, mission.items_taken.size()]
-	print("[qa] mode=%s joueurs=%d %s positions=%s" % [Net.Mode.keys()[Net.mode], players_root.get_child_count(), vinfo, " ".join(parts)])
+	var dlg := get_node_or_null("Dialogues") as DialoguePlayer
+	print("[qa] mode=%s joueurs=%d %s dial=%d positions=%s" % [Net.Mode.keys()[Net.mode], players_root.get_child_count(), vinfo, dlg.said_ids.size() if dlg else 0, " ".join(parts)])
 
 
 func _qa_quit() -> void:

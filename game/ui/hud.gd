@@ -9,6 +9,8 @@ var _hint: Label
 var _speed: Label
 var _result: Label
 var _captions: Label
+var _dialogue: Label
+var _dialogue_until := 0.0
 var _caption_lines: Array = []      # [texte, instant d'expiration (s)]
 
 
@@ -39,8 +41,12 @@ func _ready() -> void:
 	root.add_child(osm)
 	_build_mission(root)
 	_build_captions(root)
+	_build_dialogue(root)
 	_build_pause(root)
 	Sfx.caption.connect(_on_caption)
+	var dlg := get_parent().get_node_or_null("Dialogues") as DialoguePlayer
+	if dlg:
+		dlg.line_started.connect(_on_dialogue_line)
 
 
 func _outlined(l: Label, size: int) -> void:
@@ -89,6 +95,25 @@ func _build_captions(root: Control) -> void:
 	_captions.position += Vector2(24, -24)
 	_outlined(_captions, 24)
 	root.add_child(_captions)
+
+
+## Réplique en cours, en bas au centre : « Locuteur : texte » (le texte reste lisible même sans bulle ni son).
+func _build_dialogue(root: Control) -> void:
+	_dialogue = Label.new()
+	_dialogue.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_dialogue.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_dialogue.custom_minimum_size = Vector2(900, 0)
+	_dialogue.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	_dialogue.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_dialogue.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_dialogue.position.y -= 150
+	_outlined(_dialogue, 28)
+	root.add_child(_dialogue)
+
+
+func _on_dialogue_line(speaker: String, text: String, _id: String, seconds: float, _tags: Dictionary) -> void:
+	_dialogue.text = "%s : %s" % [speaker, text]
+	_dialogue_until = Time.get_ticks_msec() / 1000.0 + seconds + 0.3
 
 
 func _on_caption(text: String, seconds: float) -> void:
@@ -170,6 +195,20 @@ func _build_pause(root: Control) -> void:
 			Settings.save_settings())
 		row.add_child(sl)
 		box.add_child(row)
+	var ono := CheckButton.new()
+	ono.text = "Onomatopées en bulles (POUET !, BOUM !)"
+	ono.button_pressed = Settings.onomatopees
+	ono.toggled.connect(func(on: bool):
+		Settings.onomatopees = on
+		Settings.save_settings())
+	box.add_child(ono)
+	var bub := CheckButton.new()
+	bub.text = "Bulles de dialogue au-dessus des personnages"
+	bub.button_pressed = Settings.speech_bubbles
+	bub.toggled.connect(func(on: bool):
+		Settings.speech_bubbles = on
+		Settings.save_settings())
+	box.add_child(bub)
 	var sub := CheckButton.new()
 	sub.text = "Sous-titres sonores"
 	sub.button_pressed = Settings.subtitles
@@ -227,5 +266,7 @@ func _process(_delta: float) -> void:
 			if me.is_driving() and me.vehicle:
 				_speed.text = "%d km/h   ·   [R] Radio Pommiers %s" % [int(me.vehicle.speed_kmh()), "♪" if Sfx.radio_on else "(éteinte)"]
 		_result.text = mission.result_text()
+	if _dialogue and Time.get_ticks_msec() / 1000.0 > _dialogue_until:
+		_dialogue.text = ""
 	_captions.text = caption_text(_caption_lines, Time.get_ticks_msec() / 1000.0) if Settings.subtitles else ""
 	_info.text = "Rue Sainte-Foy · %02d h %02d · %s · %d joueur(s)" % [int(h), int(fmod(h, 1.0) * 60), mode_txt, maxi(Net.players.size(), 1)]

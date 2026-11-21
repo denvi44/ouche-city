@@ -443,6 +443,7 @@ func _spawn_dog() -> void:
 	dog_seq += 1
 	dogs.append({"id": dog_seq, "x": start.x, "z": start.y, "vx": v.x, "vz": v.y, "st": "run", "t": 0.0})
 	_log("Un chien errant flaire le méchoui !")
+	bark("m04_dog_comes", 8.0)
 
 
 func _shoo(id: int, name: String) -> void:
@@ -451,6 +452,7 @@ func _shoo(id: int, name: String) -> void:
 			_flee(d)
 			shooed += 1
 			_log("%s chasse le chien !" % name)
+			bark("m04_dog_shooed", 8.0)
 			return
 
 
@@ -475,6 +477,7 @@ func _tick_dogs(delta: float) -> void:
 			if Vector2(float(d.x) - s.x, float(d.z) - s.z).length() < DOG_STEAL:
 				stolen += 1
 				_log("Un chien file avec un gigot ! (%d/%d perdus)" % [stolen, 3])
+				bark("m04_dog_stole", 8.0)
 				_flee(d)
 				_dirty = true
 			elif kevin != null and at_post(ID_KEVIN, "garde") and Vector2(kevin.global_position.x - float(d.x), kevin.global_position.z - float(d.z)).length() < KEVIN_RANGE:
@@ -483,6 +486,7 @@ func _tick_dogs(delta: float) -> void:
 					_flee(d)
 					shooed += 1
 					_log("Kévin chasse le chien !")
+					bark("m04_dog_shooed", 8.0)
 					_dirty = true
 		if d.st == "flee" and d.t > 3.0:
 			continue

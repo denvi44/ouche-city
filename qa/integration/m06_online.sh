@@ -9,7 +9,7 @@ PORT="${PORT:-$((27000 + RANDOM % 1000))}"
 LOG="$(mktemp -d)"
 trap 'kill $(jobs -p) 2>/dev/null; rm -rf "$LOG"' EXIT
 
-"$GODOT" --headless --path game -- --server --mission=m06 --port="$PORT" --qa-report=1 --quit-after=10 >"$LOG/server.log" 2>&1 &
+"$GODOT" --headless --path game -- --server --mission=m06 --qa-say=m06_pass --port="$PORT" --qa-report=1 --quit-after=10 >"$LOG/server.log" 2>&1 &
 SERVER=$!
 sleep 3
 "$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Acheteuse --qa-report=1 --quit-after=7 >"$LOG/c1.log" 2>&1 &
@@ -26,10 +26,11 @@ grep -q "joueurs=2" "$LOG/server.log" || { echo "ÉCHEC : le serveur ne voit pas
 for c in c1 c2; do
   grep -q "mission m06" "$LOG/$c.log" || { echo "ÉCHEC : $c n'a pas reçu la mission 6 du serveur"; fail=1; }
   grep -q "etape=shop" "$LOG/$c.log" || { echo "ÉCHEC : $c n'est pas à l'étape « shop »"; fail=1; }
+  grep -Eq "dial=[1-9]" "$LOG/$c.log" || { echo "ÉCHEC : $c n'a pas reçu la réplique du serveur (dialogues répliqués)"; fail=1; }
   grep -q "joueurs=2" "$LOG/$c.log" || { echo "ÉCHEC : $c ne voit pas l'autre joueur"; fail=1; }
 done
 if [ $fail -ne 0 ]; then
   echo "--- serveur ---"; tail -12 "$LOG/server.log"; echo "--- client 1 ---"; tail -12 "$LOG/c1.log"
   exit 1
 fi
-echo "OK : mission 6 en ligne : le serveur impose la mission, les clients la chargent sans erreur"
+echo "OK : mission 6 en ligne : le serveur impose la mission, les clients la chargent sans erreur et reçoivent les dialogues"

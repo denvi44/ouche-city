@@ -493,6 +493,7 @@ func _defend(name: String) -> void:
 		return
 	sab_blocked += 1
 	_log("%s déjoue le sabotage !" % name)
+	bark("m03_sabotage_blocked", 10.0)
 	sab = {"kind": "", "left": 0.0}
 
 
@@ -507,6 +508,7 @@ func _sabotage_lands() -> void:
 			score_p = maxf(score_p - 6.0, 0.0)
 			nuisance += 0.05
 	_log("Sabotage réussi : %s" % SAB_NAMES[sab.kind])
+	bark("m03_sabotage_hit", 10.0)
 	sab = {"kind": "", "left": 0.0}
 
 
@@ -554,9 +556,11 @@ func _tick_play(delta: float) -> void:
 		lemoine_done = true
 		if at_post(ID_GINETTE, "videur"):
 			_log("Lemoine, le voisin, débarque : Ginette le retient à la porte.")
+			bark("m03_lemoine", 60.0)
 		else:
 			nuisance += 0.08
 			_log("Lemoine, le voisin, débarque en robe de chambre (+8 % de nuisance).")
+			bark("m03_lemoine", 60.0)
 	# Sabotages du rival.
 	if sab.kind != "":
 		if str(sab.kind) == "unplug" and at_post(ID_GEGE, "groupe"):
@@ -582,6 +586,7 @@ func _tick_play(delta: float) -> void:
 		police_left = POLICE_TIME
 		_open_menu("police")
 		_log("Les gendarmes arrivent (nuisance %d %%) !" % int(nuisance * 100.0))
+		bark("m03_police", 60.0)
 		_mark()
 	elif play_t >= round_duration() + BEAT:
 		_end_round()

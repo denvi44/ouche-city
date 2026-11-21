@@ -52,6 +52,7 @@ make screenshots   # captures 1920×1080 de la scène témoin (qa/screenshots/ou
 | `missions/m04_mechoui_saint_jean.json` | Le méchoui de la Saint-Jean (jouable) |
 | `missions/m05_vaches_en_goguette.json` | Les vaches sont de sortie (jouable) |
 | `missions/m06_courses_de_8h.json` | Les courses de 8 h (jouable) |
+| `narrative/dialogues/*.yarn` | Dialogues des six missions (voir `narrative/README.md`) |
 
 Scénarios, dialogues et règles détaillées : document « Ouche City — Plan de production ».
 

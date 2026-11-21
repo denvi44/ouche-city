@@ -1,0 +1,59 @@
+// Les courses de 8 h — dialogues de la mission 06.
+title: m06_intro
+---
+Josette: Bonjour ! C'est ouvert, madame ! Prenez votre temps, on a toute la matinée. #line:m06_intro_01 #onoma:BZZZT !
+Vous: J'ai ma liste, mon cabas, et mes lunettes de près. Je ne me presse pas. #line:m06_intro_02
+Gégé: Ginette papote déjà avec Mme Hubert, moi je prends le cidre et les palets. À deux à l'heure, c'est du sport ! #line:m06_intro_03
+===
+title: m06_shop
+---
+Josette: N'oubliez pas, c'est à droite pour le camembert, à gauche pour la litière. Ou l'inverse. #line:m06_shop_01
+===
+title: m06_pay
+---
+Josette: Alors, ça fait dix-sept euros quarante-trois. Vous avez la monnaie ? #line:m06_pay_01
+Vous: Attendez, je dois avoir ça au fond du sac… #line:m06_pay_02 #onoma:CLING !
+===
+title: m06_exit
+---
+Josette: Merci, à demain ! Et bonne journée, madame ! #line:m06_exit_01
+===
+title: m06_done
+---
+Vous: Voilà, le cabas est plein. Quelle matinée ! #line:m06_done_01 #onoma:TADAAAA !
+===
+title: m06_failed_evicted
+---
+Lebrun: Madame, je vous raccompagne gentiment. Revenez à dix heures, il y aura moins de monde. #line:m06_failed_evicted_01
+===
+title: m06_failed_late
+---
+Josette: Nous fermons pour la pause de midi, madame. Revenez cet après-midi. #line:m06_failed_late_01
+===
+title: m06_incident
+---
+Client pressé: Dites donc, vous allez bouger ?! J'ai un train, moi ! #line:m06_incident_01 #onoma:GRRR !
+===
+title: m06_pass
+---
+Vous: Après vous, je vous en prie. Moi, j'ai le temps. #line:m06_pass_01 #onoma:DING !
+Client pressé: Merci, madame. Vraiment. #line:m06_pass_02
+===
+title: m06_coin_fail
+---
+Vous: Pas cette pièce-là… celle-là… ah, non. #line:m06_coin_fail_01 #onoma:CLING ?
+Josette: Prenez votre temps, madame. #line:m06_coin_fail_02
+===
+title: m06_hubert
+---
+Mme Hubert: Ah, mais c'est vous ! Alors, ma hanche, figurez-vous qu'hier… #line:m06_hubert_01 #onoma:BLABLABLA
+===
+title: m06_chat_cut
+---
+Vous: Bon, faut que j'y aille, Mme Hubert, mon camembert m'attend. #line:m06_chat_cut_01
+Mme Hubert: Elle est toujours pressée, celle-là… #line:m06_chat_cut_02 #onoma:HMPF
+===
+title: m06_item
+---
+Vous: Sans conservateurs, sans colorants, sans prise de tête. #line:m06_item_01
+===

@@ -14,6 +14,113 @@ var van: Vehicle        ## véhicule principal de la mission (camionnette, voitu
 var _players_root: Node3D
 
 
+# --- Dialogues : « aboiements » et scènes dites par-dessus l'action (nœuds de narrative/dialogues/*.yarn) ---
+
+var _said_intro := false
+var _last_step_said := "?"
+var _bark_cd := {}
+var _skip_votes := {}
+
+
+func _enter_tree() -> void:
+	changed.connect(_dialogue_hook)
+
+
+## Identifiant court de la mission (m01…m06) : préfixe des nœuds de dialogue.
+func dialogue_prefix() -> String:
+	return str(get("mission_id")).substr(0, 3)
+
+
+func dialogues() -> DialoguePlayer:
+	var w := get_parent()
+	return w.get_node_or_null("Dialogues") as DialoguePlayer if w else null
+
+
+## Serveur : joue le nœud chez tout le monde (les nœuds inconnus sont ignorés).
+func say(node: String, urgent := false) -> void:
+	if not is_server():
+		return
+	var d := dialogues()
+	if d == null or not d.has_node_id(node):
+		return
+	d.play(node, urgent)
+	for id in Net.ready_peers():
+		if id != multiplayer.get_unique_id():
+			_say.rpc_id(id, node, urgent)
+
+
+## Réplique d'ambiance sur un événement : au plus une fois par `cooldown` secondes et par nœud.
+func bark(node: String, cooldown := 20.0) -> void:
+	if not is_server():
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - float(_bark_cd.get(node, -1000.0)) < cooldown:
+		return
+	_bark_cd[node] = now
+	say(node)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _say(node: String, urgent: bool) -> void:
+	var d := dialogues()
+	if d:
+		d.play(node, urgent)
+
+
+## Vote pour passer la scène en cours (« majority_vote » du JSON) : la majorité des humains suffit.
+func request_skip() -> void:
+	if is_server():
+		_skip_vote(multiplayer.get_unique_id())
+	else:
+		_request_skip.rpc_id(1)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_skip() -> void:
+	if is_server():
+		_skip_vote(multiplayer.get_remote_sender_id())
+
+
+func _skip_vote(peer: int) -> void:
+	_skip_votes[peer] = true
+	var humans := 0
+	if _players_root:
+		for p in _players_root.get_children():
+			if p is Player and not (p as Player).is_ai:
+				humans += 1
+	if _skip_votes.size() * 2 > maxi(humans, 1):
+		_skip_votes.clear()
+		var d := dialogues()
+		if d:
+			d.skip()
+		for id in Net.ready_peers():
+			if id != multiplayer.get_unique_id():
+				_skip_dialogue.rpc_id(id)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _skip_dialogue() -> void:
+	var d := dialogues()
+	if d:
+		d.skip()
+
+
+func _dialogue_hook() -> void:
+	if not is_server() or not started:
+		return
+	var prefix := dialogue_prefix()
+	if not _said_intro:
+		_said_intro = true
+		say(prefix + "_intro")
+	if step != _last_step_said:
+		_last_step_said = step
+		say("%s_%s" % [prefix, step])
+		# Variantes selon l'issue : m02_done_win, m06_failed_evicted…
+		var res = get("result")
+		if res != null and str(res) != "" and step in ["done", "failed"]:
+			say("%s_%s_%s" % [prefix, step, str(res)])
+
+
 func is_server() -> bool:
 	return multiplayer.has_multiplayer_peer() and multiplayer.is_server()
 

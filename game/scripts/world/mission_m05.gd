@@ -358,6 +358,7 @@ func _tick_herd(delta: float) -> void:
 			c.vx = 0.0
 			c.vz = 0.0
 			_log("%s est dans l'enclos ! (%d/%d)" % [COW_NAMES[int(c.id) % COW_NAMES.size()], penned() , cow_count])
+			bark("m05_cow_in", 15.0)
 			_dirty = true
 
 

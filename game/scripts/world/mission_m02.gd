@@ -391,9 +391,11 @@ func choose_for(peer: int, option: String) -> void:
 			budget -= offer
 			_add_part("pot", "annonce")
 			_log("%s : « Tope là ! » Pot d'échappement acheté %d €." % [name, offer])
+			bark("m02_haggle_ok", 10.0)
 		else:
 			_haggle_cd = HAGGLE_COOLDOWN
 			_log("Le père Bernard refuse : « Pour ce prix-là, je le garde ! » (réessayez dans %d s)" % int(HAGGLE_COOLDOWN))
+			bark("m02_haggle_no", 10.0)
 	elif menu == "shop":
 		var part: String = PARTS[idx]
 		var price := price_of(part, true)
@@ -426,6 +428,7 @@ func _steal(peer: int, player: Player) -> void:
 	if not ("dylan_recognizes_parts" in flags):
 		flags.append("dylan_recognizes_parts")
 	_log("%s embarque les néons de Dylan ! Recherché niveau 1 : la gendarmerie rôde. Dylan reconnaîtra ses pièces." % player.display_name)
+	bark("m02_steal", 30.0)
 
 
 # --- Casse : fouille furtive -----------------------------------------------------------------------------------------
@@ -458,6 +461,7 @@ func _tick_search(delta: float) -> void:
 			_add_part("jantes", "casse")
 			sources.casse = true
 			_log("Bingo : un jeu de jantes presque neuves dans la casse ! Personne ne vous a vu.")
+			bark("m02_casse_bingo", 30.0)
 		_mark()
 
 
@@ -495,6 +499,7 @@ func _mini_result(ok: bool, by_kevin: bool) -> void:
 	else:
 		mini_fails += 1
 		_log("Raté ! %s monté de travers (−%d point au jury)." % [PART_NAMES.get(part, part), penalty_per_fail])
+		bark("m02_assembly_fail", 10.0)
 	assembly_idx += 1
 	mini_t = 0.0
 	if assembly_idx >= assembly_total:
@@ -622,6 +627,7 @@ func _tick_test_drive(delta: float) -> void:
 		flashed = true
 		budget = maxi(budget - FLASH_FINE, 0)
 		_log("FLASH ! %d km/h au radar : amende de %d €." % [int(absf(car.speed) * 3.6), FLASH_FINE])
+		bark("m02_flash", 20.0)
 		_mark()
 	if cp_index >= cp_total - 1 and cp.distance_to(td_points[cp_total - 1]) < float(NEAR.meet) and absf(car.speed) < 3.0:
 		_do_jury()
@@ -645,6 +651,7 @@ func _do_jury() -> void:
 	step = "drag"
 	_log("Le jury délibère : look %d, son %d, présence %d. Note finale : %d/%d%s" % [jury.look, jury.son, jury.presence, jury.total, jury_max,
 		"  (Dylan a reconnu ses néons : −1)" if "dylan_recognizes_parts" in flags else ""])
+	bark("m02_jury", 30.0)
 	_log("Place au drag : rendez-vous sur la ligne de départ, 400 m contre Dylan. Un seul turbo, à lancer quand le moteur est lancé !")
 	_mark()
 
@@ -701,6 +708,7 @@ func boost(peer: int) -> void:
 	if absf(car.speed) < BOOST_MIN_RATIO * car.max_speed:
 		car.engine_broken = true
 		_log("TURBO TROP TÔT ! Le moteur a surchauffé : plus que %d km/h." % int(Car.BROKEN_SPEED * 3.6))
+		bark("m02_turbo_early", 30.0)
 	else:
 		car.boosting = true
 		_boost_left = BOOST_TIME
