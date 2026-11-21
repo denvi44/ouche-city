@@ -49,7 +49,38 @@ static func build(with_collision := true, lift := 0.0) -> Node3D:
 	var inner := _build_inner(with_collision)
 	inner.position.y = lift
 	root.add_child(inner)
+	if lift > 0.02:
+		_add_ramp(root, lift, with_collision)
 	return root
+
+
+## Rampe d'accès devant la porte : le sol du magasin est relevé de `lift` m au-dessus du terrain ; au-delà de 35 cm (hauteur de marche
+## franchissable) le joueur resterait dehors. Pente douce (≥ 1:4), plus large que la porte.
+static func _add_ramp(root: Node3D, lift: float, with_collision: bool) -> void:
+	var run := maxf(2.0, lift * 4.0)
+	var theta := atan2(lift, run)
+	var length := sqrt(run * run + lift * lift)
+	var width := DOOR_HALF * 2.0 + 1.6
+	var thick := 0.3
+	var mid := Vector3(0.0, lift * 0.5, HALF_Z + run * 0.5)
+	var center := mid - Vector3(0.0, cos(theta), sin(theta)) * (thick * 0.5)
+	var k := PropKit.new()
+	k.add_box(Vector3(width, thick, length), Vector3.ZERO, Color(0.62, 0.62, 0.66))
+	var vis := k.build()
+	vis.position = center
+	vis.rotation.x = theta
+	root.add_child(vis)
+	if with_collision:
+		var body := StaticBody3D.new()
+		body.name = "Rampe"
+		var cs := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3(width, thick, length)
+		cs.shape = box
+		body.add_child(cs)
+		body.position = center
+		body.rotation.x = theta
+		root.add_child(body)
 
 
 ## Hauteur dont il faut relever le sol du magasin : le point le plus haut du terrain sous l'emprise (+ 4 cm), pour qu'aucune

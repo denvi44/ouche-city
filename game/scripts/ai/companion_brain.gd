@@ -449,7 +449,8 @@ func _clear_at(a: Vector2, b: Vector2, h: float) -> bool:
 			return true
 		if hit.collider is StaticBody3D:
 			# Une pente douce du terrain (valleys jusqu'à −48 m) n'est pas un obstacle : on la franchit, on ne s'arrête que sur un mur ou un talus raide.
-			if absf((hit.normal as Vector3).y) < 0.6:
+			# Seulement pour le sol des tuiles (« …/Tuile_x_y/Collisions ») : les meubles et comptoirs restent des obstacles.
+			if absf((hit.normal as Vector3).y) < 0.6 or not str((hit.collider as Node).get_path()).contains("/Tuile_"):
 				return false
 			q.from = (hit.position as Vector3) + dir * 0.1
 			continue

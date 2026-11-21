@@ -129,7 +129,7 @@ func react() -> void:
 
 ## Tournée optimisée (l'ordre qu'un client malin choisirait), en repère local du magasin.
 const M6_TOUR := [
-	["litiere", [Vector2(0, 6.5)]],
+	["litiere", [Vector2(0, 6.5), Vector2(0, 4.0)]],
 	["baguette", [Vector2(10.5, 3.5), Vector2(10.5, -6.6)]],
 	["lait", []],
 	["camembert", []],
@@ -178,7 +178,7 @@ func scenario_m06() -> void:
 				await frames(40)
 			await physics_frame
 		if mission.step == "exit":
-			await m6_walk_local([Vector2(0, 6.5)])
+			await m6_walk_local([Vector2(0, 4.6), Vector2(0, 6.5)])
 			await go(mission.to_world(mission.DOOR_SPOT), 1.2, 60.0)
 			mission.interact(1, ["leave"])
 	await frames(5)
