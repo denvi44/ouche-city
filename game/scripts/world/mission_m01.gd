@@ -152,7 +152,7 @@ func interact(peer: int, allowed: Array = []) -> void:
 			crates[r.id].state = "carried"
 			crates[r.id].carrier = peer
 			player.carrying = true
-			_log("%s prend la caisse de %s." % [player.display_name, CRATE_NAMES.get(r.id, r.id)])
+			_log("%s prend une caisse (%s)." % [player.display_name, CRATE_NAMES.get(r.id, r.id)])
 		"load":
 			crates[r.id].state = "loaded"
 			crates[r.id].carrier = 0
