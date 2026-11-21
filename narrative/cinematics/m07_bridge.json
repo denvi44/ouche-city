@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m07_bridge",
+  "mission": "m07",
+  "when": "bridge",
+  "title": "À suivre…",
+  "subtitle": "Chapitre 8 · Les oies font grève",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "chez_soi",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "chez_soi",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Vous",
+        "text": "Porte refermée, dignité sauve. Il paraît que la radio a une nouvelle."
+      },
+      "cam_to": {
+        "at": "chez_soi",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "gare_pays_frouch",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "gare_pays_frouch",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Flash : le Train des Vacances de 17 h 42 est annoncé, Parisiens à bord… et l'inspectrice Hautefeuille. Les oies de Mémé Odette ont un projet."
+      },
+      "cam_to": {
+        "at": "gare_pays_frouch",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "etang_oies",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "etang_oies",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Elles ont décidé de faire grève. À la gare, mes p'tits, tout de suite."
+      },
+      "cam_to": {
+        "at": "etang_oies",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    }
+  ]
+}

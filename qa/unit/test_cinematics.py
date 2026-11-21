@@ -25,6 +25,17 @@ def test_il_y_a_des_cinematiques_pour_chaque_mission():
         assert f"{m}_done" in names, f"{m} : pas de scène de réussite"
 
 
+def test_histoire_liee_entre_les_missions():
+    """Chaque mission réussie enchaîne sur la suivante (scène « à suivre » qui annonce le chapitre) ; la dernière a son épilogue."""
+    names = {p.stem for p in FILES}
+    for i in range(1, 8):
+        assert f"m0{i}_bridge" in names, f"m0{i} : pas de scène de liaison vers la mission suivante"
+        b = load(ROOT / f"narrative/cinematics/m0{i}_bridge.json")
+        suivante = json.loads(next((ROOT / "missions").glob(f"m0{i + 1}_*.json")).read_text(encoding="utf-8"))["title"]
+        assert b["subtitle"] == f"Chapitre {i + 1} · {suivante}", f"m0{i}_bridge annonce « {b['subtitle']} », la suite est « {suivante} »"
+    assert "m08_epilogue" in names, "la dernière mission a un épilogue"
+
+
 @pytest.mark.parametrize("path", FILES, ids=lambda p: p.stem)
 def test_cinematique_valide(path):
     d = load(path)
@@ -33,8 +44,10 @@ def test_cinematique_valide(path):
     assert d["mission"] in MISSIONS
     if d["when"] == "intro":
         assert d.get("title") and d.get("subtitle"), "l'introduction a un carton de titre"
+    if d["when"] in ("bridge", "epilogue"):
+        assert d.get("title") and d.get("subtitle"), "la scène de liaison a un carton (« À suivre… », chapitre suivant)"
     total = sum(s["dur"] for s in d["shots"])
-    assert total <= (24 if d["when"] == "intro" else 14), f"trop longue : {total:.1f} s"
+    assert total <= {"intro": 24, "epilogue": 24}.get(d["when"], 14), f"trop longue : {total:.1f} s"
     assert any("caption" in s for s in d["shots"]), "au moins une légende (accessibilité : rien ne passe que par l'image)"
 
 
@@ -45,7 +58,8 @@ def test_lieux_existent_et_appartiennent_a_la_mission(path):
         refs = [s["cam"], s["look"]] + [s[k] for k in ("cam_to", "look_to") if k in s]
         for r in refs:
             assert r["at"] in POIS, f"POI inconnu : {r['at']}"
-            assert any(m.startswith(d["mission"]) for m in POIS[r["at"]].get("missions", [])), f"{r['at']} n'est pas un lieu de {d['mission']}"
+            ok_missions = [d["mission"]] + (["m0%d" % (int(d["mission"][1:]) + 1)] if d["when"] == "bridge" else [])   # la liaison peut montrer les lieux de la suite
+            assert any(m.startswith(k) for m in POIS[r["at"]].get("missions", []) for k in ok_missions), f"{r['at']} n'est pas un lieu de {ok_missions}"
         if "cam_to" in s:
             assert s["cam_to"]["at"] == s["cam"]["at"], "le travelling reste autour d'un même lieu"
         # La caméra ne se pose jamais dans le sol et ne regarde pas son propre point.

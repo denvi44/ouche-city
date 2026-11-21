@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m02_bridge",
+  "mission": "m02",
+  "when": "bridge",
+  "title": "À suivre…",
+  "subtitle": "Chapitre 3 · Battle de sono",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "drag_arrivee",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "drag_arrivee",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Dylan",
+        "text": "Bravo, vous avez gagné la course. Ça arrive. Mais demain, le Clos Fleuri vous coupe le son. On verra qui fait danser l'inspectrice."
+      },
+      "cam_to": {
+        "at": "drag_arrivee",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "camp_clos_fleuri",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "camp_clos_fleuri",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Ginette",
+        "text": "Le Clos Fleuri a loué un camion de baffles. Chez nous, on a une rallonge de vingt mètres et mon tablier de combat."
+      },
+      "cam_to": {
+        "at": "camp_clos_fleuri",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "camp_pommiers",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "camp_pommiers",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin",
+        "text": "Et le caisson de la Fusée. Il fait vibrer les verres. Surtout ceux des gendarmes."
+      },
+      "cam_to": {
+        "at": "camp_pommiers",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m01_bridge",
+  "mission": "m01",
+  "when": "bridge",
+  "title": "À suivre…",
+  "subtitle": "Chapitre 2 · Tuning du samedi soir",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "stand_comite",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "stand_comite",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Flash spécial sur Radio Pommiers : l'inspectrice Hautefeuille, du Label Village Enchanté, visitera Frouch City vendredi, par le Train des Vacances."
+      },
+      "cam_to": {
+        "at": "stand_comite",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "stand_comite",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "stand_comite",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Gégé",
+        "text": "Six jours, mes p'tits ! Le calva a fait la foire. Maintenant il faut du sport, de la musique, de la table, de la campagne…"
+      },
+      "cam_to": {
+        "at": "stand_comite",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "garage_kevin",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "garage_kevin",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin",
+        "text": "Et moi, la Fusée est en pièces, et Dylan se frotte les mains. Il me faut des jantes, un pot… et un miracle."
+      },
+      "cam_to": {
+        "at": "garage_kevin",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    }
+  ]
+}

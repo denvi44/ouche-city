@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "id": "m08_epilogue",
+  "mission": "m08",
+  "when": "epilogue",
+  "title": "Frouch City",
+  "subtitle": "Fin de la première saison · merci à tout le village",
+  "shots": [
+    {
+      "dur": 5.5,
+      "cam": {
+        "at": "gare_pays_frouch",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "gare_pays_frouch",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Inspectrice Hautefeuille",
+        "text": "Un train arrêté par des oies, un village qui court sur les quais… C'est le comité d'accueil le plus étonnant de ma carrière."
+      },
+      "cam_to": {
+        "at": "gare_pays_frouch",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    },
+    {
+      "dur": 5.5,
+      "cam": {
+        "at": "gare_pays_frouch",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "gare_pays_frouch",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Inspectrice Hautefeuille",
+        "text": "Calva, drag, sono, méchoui, vaches, caddies, jus de pomme : c'est un peu n'importe quoi. Frouch City, vous obtenez le Label. À l'unanimité des oies."
+      },
+      "cam_to": {
+        "at": "gare_pays_frouch",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "etang_oies",
+        "off": [
+          8,
+          2.5,
+          9
+        ]
+      },
+      "look": {
+        "at": "etang_oies",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Gégé",
+        "text": "Et maintenant, tout le monde à table ! Les Parisiens aussi, il y a du camembert qui marche tout seul."
+      },
+      "cam_to": {
+        "at": "etang_oies",
+        "off": [
+          5,
+          2.0,
+          6
+        ]
+      }
+    },
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "passage_niveau",
+        "off": [
+          22,
+          28,
+          24
+        ]
+      },
+      "look": {
+        "at": "passage_niveau",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Fin de la première saison sur Radio Pommiers. Restez à l'écoute : l'hiver arrive, et le calva n'attend pas."
+      },
+      "cam_to": {
+        "at": "passage_niveau",
+        "off": [
+          14,
+          18,
+          16
+        ]
+      }
+    }
+  ]
+}
