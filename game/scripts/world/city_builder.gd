@@ -603,7 +603,7 @@ func _toon(color: Color) -> ShaderMaterial:
 	return m
 
 
-func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, rot_y: float = 0.0) -> void:
+func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, rot_y: float = 0.0) -> MeshInstance3D:
 	var mesh := BoxMesh.new()
 	mesh.size = size
 	mesh.material = _toon(color)
@@ -612,6 +612,7 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, rot_y: floa
 	mi.position = pos
 	mi.rotation.y = rot_y
 	parent.add_child(mi)
+	return mi
 
 
 func _add_prop(root: Node3D, prop: String) -> void:
@@ -634,7 +635,7 @@ func _add_prop(root: Node3D, prop: String) -> void:
 			for sx in [-3.0, 3.0]:
 				_box(root, Vector3(0.3, 1.1, 0.3), Vector3(sx, 0.55, 0), Color(0.95, 0.95, 0.95))
 				_box(root, Vector3(0.32, 0.3, 0.32), Vector3(sx, 0.9, 0), Color(0.85, 0.2, 0.18))
-			_box(root, Vector3(6.2, 0.25, 0.12), Vector3(0, 1.0, 0), Color(0.85, 0.2, 0.18))
+			_box(root, Vector3(6.2, 0.25, 0.12), Vector3(0, 1.0, 0), Color(0.85, 0.2, 0.18)).name = "Barre"
 			_box(root, Vector3(1.0, 0.25, 0.14), Vector3(-1.5, 1.0, 0), Color(0.97, 0.97, 0.97))
 			_box(root, Vector3(1.0, 0.25, 0.14), Vector3(1.5, 1.0, 0), Color(0.97, 0.97, 0.97))
 			# Collision réelle : la camionnette doit s'arrêter (ou casser des bouteilles).

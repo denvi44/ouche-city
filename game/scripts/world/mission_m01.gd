@@ -65,6 +65,7 @@ var rng := RandomNumberGenerator.new()
 var test_roll := -1.0
 var _spots := {}                # emplacements d'attente des compagnons (calculés à la demande)
 var _barrier_body: StaticBody3D
+var _barrier_bar: Node3D
 var _radio_flags := {}
 var _crate_nodes := {}
 var _dirty := true
@@ -113,6 +114,7 @@ func setup(pois: Array, ground: Callable, vehicle: Vehicle, players_root: Node3D
 	var city = get_parent().get("city")
 	if city:
 		_barrier_body = city.get_node_or_null("LieuxDeMission/Lieu_barrage_bosc_tenney/Collision") as StaticBody3D
+		_barrier_bar = city.get_node_or_null("LieuxDeMission/Lieu_barrage_bosc_tenney/Barre") as Node3D
 	for id in crates:
 		_crate_nodes[id] = _make_crate_node(id)
 		get_parent().add_child.call_deferred(_crate_nodes[id])
@@ -547,8 +549,11 @@ func _make_crate_node(id: String) -> Node3D:
 
 
 func _refresh_nodes() -> void:
+	var open := barrier_open or step in ["fair", "done"]
 	if _barrier_body:
-		_barrier_body.collision_layer = 0 if (barrier_open or step in ["fair", "done"]) else 1
+		_barrier_body.collision_layer = 0 if open else 1
+	if _barrier_bar:
+		_barrier_bar.position.y = 3.2 if open else 1.0       # la barre se relève
 	for id in _crate_nodes:
 		var n: Node3D = _crate_nodes[id]
 		var c: Dictionary = crates[id]
