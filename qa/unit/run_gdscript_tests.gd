@@ -164,7 +164,7 @@ func _run() -> void:
 	pr2.free()
 
 	# --- Audio : synthèse ---
-	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle", "beep", "coin", "sigh"]
+	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle", "beep", "coin", "sigh", "gurgle"]
 	for n in synth_names:
 		var smp: PackedFloat32Array = Callable(Synth, n).call()
 		var peak := 0.0
@@ -216,7 +216,7 @@ func _run() -> void:
 	var specs := {"lamp": [4.0, 5.2, 14], "bench": [0.8, 1.3, 11], "planter": [0.8, 1.1, 18], "bollard": [0.7, 1.0, 3], "well": [2.8, 3.4, 9],
 		"hay_bale": [1.2, 1.6, 4], "barrel": [0.8, 1.1, 6], "chair": [0.9, 1.2, 9], "table": [0.7, 1.2, 27], "table_set": [0.9, 1.3, 45],
 		"spit": [1.2, 1.9, 20], "brazier": [0.5, 0.8, 14], "pyre": [2.0, 3.6, 37], "flames": [2.0, 3.6, 3], "dog": [0.8, 1.2, 12],
-		"lamb": [0.6, 1.0, 12], "caddie": [0.9, 1.1, 12], "checkout": [2.4, 2.8, 9], "bakery": [1.8, 2.2, 12], "fridge": [2.3, 2.5, 30], "shelf": [1.8, 2.1, 100], "cow": [1.4, 1.8, 24], "pen": [1.5, 1.8, 40], "gate_leaf": [1.0, 1.3, 6], "charcoal": [0.5, 0.9, 8]}
+		"lamb": [0.6, 1.0, 12], "caddie": [0.9, 1.1, 12], "apple_crate": [0.35, 0.5, 17], "cider_press": [2.4, 3.1, 60], "wc_cabin": [2.4, 2.7, 8], "flowerpot": [0.5, 0.8, 12], "checkout": [2.4, 2.8, 9], "bakery": [1.8, 2.2, 12], "fridge": [2.3, 2.5, 30], "shelf": [1.8, 2.1, 100], "cow": [1.4, 1.8, 24], "pen": [1.5, 1.8, 40], "gate_leaf": [1.0, 1.3, 6], "charcoal": [0.5, 0.9, 8]}
 	var tri_total := 0
 	for n in specs:
 		var kit = Callable(PK, n).call()

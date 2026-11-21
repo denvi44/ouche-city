@@ -21,5 +21,5 @@
     { "id": "outro", "type": "cutscene", "variants": ["gold", "win", "default"] }
   ],
   "medals": { "gold": { "finishBefore": "08:50", "maxIncidents": 1 }, "silver": { "finishBefore": "09:00" }, "bronze": { "finishBefore": "09:30" } },
-  "rewards": { "reputation": { "troisieme_age": 1 }, "unlocks": [] }
+  "rewards": { "reputation": { "troisieme_age": 1 }, "unlocks": ["m07_jus_de_pomme"] }
 }

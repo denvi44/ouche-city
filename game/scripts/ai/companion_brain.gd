@@ -68,13 +68,13 @@ func idle() -> Dictionary:
 func think(delta: float) -> Dictionary:
 	_act_cooldown = maxf(_act_cooldown - delta, 0.0)
 	_clock += delta
-	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06)):
+	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06 or mission is MissionM07)):
 		status = "attend"
 		return idle()
 	match role:
 		"negociatrice":
 			return _hold("ginette", "se poste au barrage", "négocie avec le gendarme", delta)
-		"diversion":
+		"diversion" when not (mission is MissionM07):
 			return _hold("kevin", "se planque près du barrage", "est prêt à faire diversion", delta)
 		"guetteur":
 			return _hold("radio", "gagne son poste de guet", "guette depuis la place Carnot", delta)
@@ -98,6 +98,12 @@ func think(delta: float) -> Dictionary:
 			return _serve_m04(delta)
 		"rabatteur":
 			return _herd_m05(delta)
+		"portier":
+			return _hold("porte", "file ouvrir la porte", "attend à la porte, la clé à la main", delta)
+		"diversion" when mission is MissionM07:
+			return _hold("hubert", "gagne le chemin de Mme Hubert", "tient la jambe à Mme Hubert", delta)
+		"file":
+			return _hold("wc", "file aux toilettes publiques", "garde la file des toilettes", delta)
 		"caddie":
 			return _shop_m06(delta)
 		"bavarde":

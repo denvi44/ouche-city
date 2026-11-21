@@ -1882,6 +1882,61 @@
    "step": "shop",
    "facing": -0.92,
    "prop": "supermarket"
+  },
+  {
+   "id": "fete_pomme",
+   "kind": "mission_target",
+   "label": "Stand de jus de pomme de Tonton Gégé (fête de la pomme)",
+   "position": [
+    1416.98,
+    1539.24
+   ],
+   "tile": "5_6",
+   "radius": 6.0,
+   "source": "design",
+   "missions": [
+    "m07_jus_de_pomme"
+   ],
+   "step": "start",
+   "facing": -1.24,
+   "prop": "pressoir",
+   "building": "b_17683"
+  },
+  {
+   "id": "chez_soi",
+   "kind": "hideout",
+   "label": "Chez vous : la maison aux toilettes si lointaines",
+   "position": [
+    1439.39,
+    1749.14
+   ],
+   "tile": "5_6",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m07_jus_de_pomme"
+   ],
+   "step": "home",
+   "facing": 0.53,
+   "building": "b_13824"
+  },
+  {
+   "id": "wc_publics",
+   "kind": "mission_target",
+   "label": "Toilettes publiques (souvent occupées)",
+   "position": [
+    1429.05,
+    1648.14
+   ],
+   "tile": "5_6",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m07_jus_de_pomme"
+   ],
+   "step": "wc",
+   "facing": 0.22,
+   "prop": "wc"
   }
  ]
 }

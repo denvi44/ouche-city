@@ -684,3 +684,57 @@ def lieux_mission06(tuiles: dict, taille: float, normaliser, spawn, utilises: se
     p = _poi2("supermarche", "shop", LABELS_M06["supermarche"], x, z, f, taille, "shop", prop="supermarket", radius=SUPER_W / 2)
     p["missions"] = [M06]
     return [p]
+
+
+# --- Mission 07 « Le jus de pomme de Tonton Gégé » : fête de la pomme, WC publics, chez soi ------------------
+M07 = "m07_jus_de_pomme"
+LABELS_M07 = {
+    "fete_pomme": "Stand de jus de pomme de Tonton Gégé (fête de la pomme)",
+    "wc_publics": "Toilettes publiques (souvent occupées)",
+    "chez_soi": "Chez vous : la maison aux toilettes si lointaines",
+}
+
+
+def _poi7(pid, label, x, z, facing, taille, step, prop=None, building=None, radius=5.0, kind="mission_target"):
+    p = _poi2(pid, kind, label, x, z, facing, taille, step, prop=prop, building=building, radius=radius)
+    p["missions"] = [M07]
+    return p
+
+
+def lieux_mission07(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Stand de la fête (emplacement libre sur le trottoir d'une maison à 40-160 m de l'apparition), maison du joueur à 150-230 m
+    à vol d'oiseau du stand, toilettes publiques sur le bord de la route la plus proche du milieu du trajet."""
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    batiments = [b for t in tuiles.values() for b in t["buildings"] if b["id"] not in utilises and b["typology"] in ("pavillon", "brique", "colombages") and 25 < Polygon(b["footprint"]).area < 180]
+    batiments.sort(key=lambda b: (_h("m07", b["id"]), b["id"]))
+
+    def centre(b):
+        c = Polygon(b["footprint"]).centroid
+        return c.x, c.y
+
+    def dist(a, b):
+        return math.hypot(a[0] - b[0], a[1] - b[1])
+
+    fete_b = next((b for b in batiments if 40 < dist(centre(b), spawn) < 160), None)
+    if fete_b is None:
+        return []
+    fc = centre(fete_b)
+    home_b = next((b for b in batiments if b is not fete_b and 150 < dist(centre(b), fc) < 230), None)
+    if home_b is None:
+        return []
+    (fx, fz), ff = emplacement_enseigne(fete_b["footprint"], routes)
+    (hx, hz), hf = emplacement_enseigne(home_b["footprint"], routes)
+    mid = Point((fx + hx) / 2.0, (fz + hz) / 2.0)
+    proche = min(routes, key=lambda r: r.distance(mid))
+    q = proche.interpolate(proche.project(mid))
+    (_, _), rf = _dir_route(routes, q)
+    # À 3,5 m du bord de la chaussée, côté milieu du trajet ; la cabine regarde la route.
+    nx, nz = math.cos(rf), -math.sin(rf)
+    sgn = 1.0 if (mid.x - q.x) * nx + (mid.y - q.y) * nz >= 0 else -1.0
+    wx, wz = q.x + nx * sgn * 3.5, q.y + nz * sgn * 3.5
+    wf = math.atan2(-nx * sgn, -nz * sgn)
+    return [
+        _poi7("fete_pomme", LABELS_M07["fete_pomme"], fx, fz, ff, taille, "start", prop="pressoir", building=fete_b["id"], radius=6.0),
+        _poi7("chez_soi", LABELS_M07["chez_soi"], hx, hz, hf, taille, "home", building=home_b["id"], radius=3.0, kind="hideout"),
+        _poi7("wc_publics", LABELS_M07["wc_publics"], wx, wz, wf, taille, "wc", prop="wc", radius=3.0),
+    ]

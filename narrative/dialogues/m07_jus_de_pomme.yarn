@@ -1,0 +1,70 @@
+// Le jus de pomme de Tonton Gégé — dialogues de la mission 07. Humour tendre : on ne montre rien, on entend des onomatopées.
+title: m07_intro
+---
+Gégé: Un petit verre de mon jus de pomme, mon p'tit ? Cuvée spéciale, un peu… vive. #line:m07_intro_01
+Vous: Merci, c'est très bon. Ça pique un peu. Ça gargouille, aussi. #line:m07_intro_02 #onoma:GRRRBLOUP !
+Gégé: Ah ben ça, c'est qu'il travaille ! Tu devrais rentrer chez toi, tiens. Vite. #line:m07_intro_03
+Ginette: Je file ouvrir ta porte. J'ai la clé de secours, comme toujours. #line:m07_intro_04
+===
+title: m07_run
+---
+Vous: Les toilettes… c'est tout au bout de la rue. Tenir, tenir, tenir. #line:m07_run_01
+Gégé: Serre, mon gars, serre ! Mais pas trop longtemps, les muscles, ça se fatigue ! #line:m07_run_02
+===
+title: m07_done_home
+---
+Vous: AAAAAH. Voilà. La vie est belle. #line:m07_done_home_01 #onoma:AAAAH !
+Ginette: Eh ben dis donc, tu l'as échappé belle. #line:m07_done_home_02
+===
+title: m07_done_wc
+---
+Vous: Les toilettes publiques… Pas très glorieux, mais je suis sauvé. #line:m07_done_wc_01 #onoma:AAAAH !
+Ginette: L'essentiel, c'est la dignité. #line:m07_done_wc_02
+===
+title: m07_failed_accident
+---
+Gégé: Ben… je t'avais dit que mon jus était vif. #line:m07_failed_accident_01 #onoma:PRRRRT !
+Vous: On ne parle plus jamais de cette journée. #line:m07_failed_accident_02
+===
+title: m07_failed_late
+---
+Gégé: Trop tard, mon garçon. La nuit est tombée sur ton ventre. #line:m07_failed_late_01 #onoma:PRRRT…
+===
+title: m07_spasm
+---
+Vous: Aïe ! Une crampe ! Ne pas lâcher, ne pas lâcher… #line:m07_spasm_01 #onoma:GLOUPS !
+===
+title: m07_clench
+---
+Vous: Les fesses serrées, les genoux en dedans. Marche de crabe. #line:m07_clench_01
+===
+title: m07_released
+---
+Vous: Mes muscles ! Ils lâchent ! Pas maintenant ! #line:m07_released_01 #onoma:OUPS !
+===
+title: m07_hubert
+---
+Mme Hubert: Ah, mais c'est vous ! Alors, ma hanche, figurez-vous qu'hier… #line:m07_hubert_01 #onoma:BLABLABLA
+Vous: Mme Hubert, c'est que… je suis un peu pressé. #line:m07_hubert_02
+===
+title: m07_hubert_diverted
+---
+Kévin: Ma tante, vous avez vu mon fanion ? Il est très grand ! #line:m07_hubert_diverted_01
+Mme Hubert: Ah, ça, mon garçon, le fanion… #line:m07_hubert_diverted_02
+===
+title: m07_dog
+---
+Vous: Ouaf ?! Mon cœur ! Et le reste ! #line:m07_dog_01 #onoma:OUAF OUAF !
+===
+title: m07_queue
+---
+Client: Occupé ! Il y en a pour un moment ! #line:m07_queue_01 #onoma:TOC TOC !
+===
+title: m07_door_locked
+---
+Vous: La porte est fermée à clé ! Où est la clé ? Sous le pot de fleurs, peut-être ! #line:m07_door_locked_01
+===
+title: m07_door_open
+---
+Ginette: La porte est ouverte ! Cours, cours, cours ! #line:m07_door_open_01 #onoma:CLAC !
+===

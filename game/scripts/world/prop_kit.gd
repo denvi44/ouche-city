@@ -625,3 +625,89 @@ static func super_sign() -> PropKit:
 	k.add_box(Vector3(9.2, 0.12, 0.35), Vector3(0, 0.74, 0), CREAM)
 	k.add_box(Vector3(9.2, 0.12, 0.35), Vector3(0, -0.74, 0), CREAM)
 	return k
+
+
+# --- Fête de la pomme (mission 07) ---------------------------------------------------------------------------------------------------------
+
+const APPLE_RED := Color(0.85, 0.2, 0.18)
+const APPLE_GREEN := Color(0.62, 0.78, 0.25)
+
+
+## Cageot de pommes : caisse à claire-voie et deux couches de pommes rouges et vertes avec leur queue.
+static func apple_crate() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(0.6, 0.04, 0.4), Vector3(0, 0.02, 0), WOOD)
+	for sx in [-0.3, 0.3]:
+		k.add_box(Vector3(0.04, 0.3, 0.4), Vector3(sx, 0.17, 0), WOOD_DARK)
+	for sz in [-0.2, 0.2]:
+		k.add_box(Vector3(0.6, 0.3, 0.04), Vector3(0, 0.17, sz), WOOD_DARK)
+	for i in 6:
+		var x := -0.2 + (i % 3) * 0.2
+		var z := -0.09 + (i / 3) * 0.18
+		var col := APPLE_RED if i % 2 == 0 else APPLE_GREEN
+		k.add_sphere(0.09, Vector3(x, 0.32, z), col, Vector3(1, 0.9, 1), 7)
+		k.add_cyl(0.008, 0.008, 0.05, Vector3(x, 0.42, z), WOOD_DARK, Vector3.ZERO, 4)
+	return k
+
+
+## Stand de la fête de la pomme : pressoir à vis, tonneaux, cageots, comptoir à gobelets, cruche de jus « maison », toile rayée.
+static func cider_press() -> PropKit:
+	var k := PropKit.new()
+	# Pressoir : cuve de bois cerclée, vis centrale, volant.
+	k.add_cyl(0.7, 0.75, 0.9, Vector3(-2.4, 0.45, 0), WOOD, Vector3.ZERO, 12)
+	for y in [0.15, 0.45, 0.75]:
+		k.add_cyl(0.78, 0.78, 0.05, Vector3(-2.4, y, 0), IRON, Vector3.ZERO, 12)
+	k.add_cyl(0.06, 0.06, 1.4, Vector3(-2.4, 1.6, 0), IRON, Vector3.ZERO, 6)
+	k.add_box(Vector3(1.4, 0.07, 0.07), Vector3(-2.4, 2.25, 0), WOOD_DARK)
+	k.add_sphere(0.09, Vector3(-1.7, 2.25, 0), IRON, Vector3.ONE, 6)
+	k.add_sphere(0.09, Vector3(-3.1, 2.25, 0), IRON, Vector3.ONE, 6)
+	k.add_box(Vector3(0.9, 0.05, 0.5), Vector3(-2.4, 1.0, 0), WOOD_DARK)
+	# Comptoir et gobelets.
+	k.add_box(Vector3(3.2, 1.0, 0.9), Vector3(0.6, 0.5, 0.0), WOOD)
+	k.add_box(Vector3(3.4, 0.07, 1.05), Vector3(0.6, 1.03, 0.0), Color(0.92, 0.9, 0.82))
+	for i in 5:
+		k.add_cyl(0.045, 0.035, 0.11, Vector3(-0.6 + i * 0.2, 1.12, 0.3), Color(0.95, 0.95, 0.92), Vector3.ZERO, 8)
+	# Cruche de jus de pomme (un peu trop vif : bouchon qui a sauté).
+	k.add_cyl(0.13, 0.16, 0.38, Vector3(1.6, 1.25, 0.1), Color(0.8, 0.58, 0.25), Vector3.ZERO, 10)
+	k.add_cyl(0.06, 0.1, 0.12, Vector3(1.6, 1.5, 0.1), Color(0.8, 0.58, 0.25), Vector3.ZERO, 8)
+	k.add_sphere(0.05, Vector3(1.74, 1.62, 0.1), Color(0.9, 0.85, 0.6), Vector3.ONE, 5)
+	# Toile rayée et mâts.
+	for sx in [-0.9, 2.1]:
+		k.add_box(Vector3(0.1, 2.6, 0.1), Vector3(sx, 1.3, -0.5), WOOD_DARK)
+	for i in 8:
+		k.add_box(Vector3(0.45, 0.06, 1.7), Vector3(-0.7 + i * 0.45 - 0.0, 2.68 - 0.0, -0.1), RED if i % 2 == 0 else CREAM, Vector3(0.25, 0, 0))
+	# Tonneaux et cageots autour.
+	for spec in [[Vector3(3.0, 0, 0.6), 0.0], [Vector3(3.2, 0, -0.2), 0.7]]:
+		k.append(barrel(), Transform3D(Basis(Vector3.UP, spec[1]), spec[0]))
+	for i in 3:
+		k.append(apple_crate(), Transform3D(Basis(Vector3.UP, 0.15 * i), Vector3(-0.8 + (i % 2) * 0.7, 0.0 + (i / 2) * 0.32, 1.4)))
+	k.append(apple_crate(), Transform3D(Basis(Vector3.UP, 0.4), Vector3(1.6, 0, 1.5)))
+	return k
+
+
+## Cabine de toilettes publiques : caisson vert, toit plat, porte à verrou, voyant « OCCUPÉ » rouge, pictogramme.
+static func wc_cabin() -> PropKit:
+	var k := PropKit.new()
+	var green := Color(0.28, 0.5, 0.36)
+	k.add_box(Vector3(1.4, 2.4, 1.4), Vector3(0, 1.2, 0), green)
+	k.add_box(Vector3(1.6, 0.12, 1.6), Vector3(0, 2.46, 0), green.darkened(0.2))
+	k.add_box(Vector3(0.85, 2.0, 0.06), Vector3(0, 1.05, 0.72), green.lightened(0.25))
+	k.add_box(Vector3(0.08, 0.14, 0.04), Vector3(0.3, 1.05, 0.77), Color(0.9, 0.9, 0.85))
+	k.add_box(Vector3(0.3, 0.14, 0.04), Vector3(0, 1.95, 0.77), Color(0.9, 0.2, 0.2), Vector3.ZERO, true)
+	k.add_box(Vector3(0.5, 0.5, 0.03), Vector3(0, 1.55, 0.75), Color(0.95, 0.95, 0.9))
+	k.add_cyl(0.07, 0.07, 0.14, Vector3(0, 1.72, 0.78), Color(0.2, 0.3, 0.6), Vector3(PI / 2, 0, 0), 8)
+	k.add_box(Vector3(0.18, 0.28, 0.03), Vector3(0, 1.45, 0.78), Color(0.2, 0.3, 0.6))
+	return k
+
+
+## Pot de fleurs (la clé de secours est dessous) : terre cuite, terre, géraniums rouges.
+static func flowerpot() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(0.22, 0.15, 0.3, Vector3(0, 0.15, 0), Color(0.78, 0.4, 0.25), Vector3.ZERO, 10)
+	k.add_cyl(0.24, 0.24, 0.05, Vector3(0, 0.31, 0), Color(0.72, 0.36, 0.22), Vector3.ZERO, 10)
+	k.add_cyl(0.19, 0.19, 0.03, Vector3(0, 0.33, 0), Color(0.25, 0.17, 0.11), Vector3.ZERO, 10)
+	for i in 5:
+		var a := TAU * i / 5.0
+		k.add_cyl(0.012, 0.012, 0.22, Vector3(cos(a) * 0.07, 0.45, sin(a) * 0.07), GREEN, Vector3.ZERO, 4)
+		k.add_sphere(0.07, Vector3(cos(a) * 0.09, 0.6 + (i % 2) * 0.03, sin(a) * 0.09), Color(0.9, 0.2, 0.25), Vector3(1, 0.8, 1), 6)
+	return k

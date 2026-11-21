@@ -602,3 +602,21 @@ static func babble() -> PackedFloat32Array:
 		ph += (210.0 + 40.0 * sin(TAU * 9.0 * s)) / RATE
 		out[i] = (_lookup(_reed(), ph) * 0.8 + _noise() * 0.05) * _env(s, 0.16, 0.015, 0.07)
 	return normalized(out, 0.6)
+
+
+# --- Jus de pomme un peu trop fermenté (mission 07) ------------------------------------------------------------------------------------------
+
+## Gargouillis : bulles graves qui montent et éclatent, souffle sourd.
+static func gurgle() -> PackedFloat32Array:
+	_rng.seed = 808
+	var out := _buf(1.0)
+	for i in out.size():
+		var s := float(i) / RATE
+		var v := _noise() * 0.12 * (0.5 + 0.5 * sin(TAU * 2.0 * s))
+		for b in [0.05, 0.27, 0.46, 0.7]:
+			var ls: float = s - float(b)
+			if ls > 0.0 and ls < 0.22:
+				var f := 80.0 + 260.0 * ls
+				v += sin(TAU * f * ls) * exp(-ls * 12.0) * 0.8
+		out[i] = v * _env(s, 1.0, 0.03, 0.2)
+	return normalized(out, 0.8)

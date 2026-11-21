@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | set(fiction.LABELS_M06.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | set(fiction.LABELS_M06.values()) | set(fiction.LABELS_M07.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
@@ -221,7 +221,7 @@ def test_dialogues_valides():
     """Chaque réplique : « Locuteur: texte #line:identifiant », identifiants uniques et stables, nœuds préfixés par la mission."""
     import re
     locuteurs = {"Gégé", "Ginette", "Kévin", "Kévin Radio", "Dylan", "Gendarme", "Père Bernard", "Marguerite", "Josette", "Mme Hubert",
-                 "Lemoine", "Lebrun", "Client pressé", "Vous"}
+                 "Lemoine", "Lebrun", "Client pressé", "Client", "Vous"}
     ids, titres = set(), set()
     n_lignes = 0
     for f in _yarn_files():
@@ -274,3 +274,16 @@ def test_noeuds_appeles_par_les_missions_existent():
             assert nom in titres, f"{f.name} appelle le nœud inexistant {nom}"
     for m in sorted((ROOT / "missions").glob("m0*.json")):
         assert m.name[:3] + "_intro" in titres, f"{m.name} : pas d'intro"
+
+
+def test_lieux_de_mission07():
+    """Stand, toilettes publiques et maison existent ; le trajet fait 150-230 m à vol d'oiseau et les toilettes sont entre les deux."""
+    import math
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    for pid in ("fete_pomme", "wc_publics", "chez_soi"):
+        assert pid in pois and pois[pid]["missions"] == ["m07_jus_de_pomme"], pid
+    assert pois["fete_pomme"]["prop"] == "pressoir" and pois["wc_publics"]["prop"] == "wc"
+    a, b, w = pois["fete_pomme"]["position"], pois["chez_soi"]["position"], pois["wc_publics"]["position"]
+    assert 140 < math.dist(a, b) < 240
+    assert math.dist(a, w) + math.dist(w, b) < math.dist(a, b) * 1.5, "les toilettes sont loin du trajet"
+    assert pois["fete_pomme"]["building"] != pois["chez_soi"]["building"]

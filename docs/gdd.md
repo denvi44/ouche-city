@@ -27,7 +27,8 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | Réseau autoritaire, solo local | 12 | poignée de main versionnée, prédiction et réconciliation |
 | Cargaison fragile, niveau de recherche | 05 | cargaison (bouteilles cassées selon la violence du choc) faite ; recherche M1 |
 | Mission 02 | 05, 06, 07 | jouable : pièces (casse furtive, marchandage, boutique, vol) → montage → essai routier + radar → jury → drag de 400 m contre Dylan ; manquent intro, rôles humains, variété des mini-jeux |
-| Dialogues et onomatopées | 07, 03, 08 | 72 nœuds Yarn (109 répliques) dits par-dessus l'action, bulles de paroles, sous-titre ; onomatopées en bulles (POUET POUET !, BOUM !, CRAAAC !…) pour chaque son important, désactivables ; passage des scènes au vote |
+| Mission 07 | 05, 04, 06, 07, 08 | jouable : après un jus de pomme « un peu vif » à la fête de la pomme, rentrer aux toilettes de chez soi sans accident : pression qui monte (course, pavés, crampes, frayeurs), serrer (marche de crabe, endurance), Mme Hubert, chien, toilettes publiques (bronze), porte fermée à clé (clé sous le pot ou Ginette) ; or ≤ 70 % de pression à l'arrivée, argent, bronze ; humour tendre, tout hors champ (onomatopées) |
+| Dialogues et onomatopées | 07, 03, 08 | 87 nœuds Yarn (125 répliques) dits par-dessus l'action, bulles de paroles, sous-titre ; onomatopées en bulles (POUET POUET !, BOUM !, CRAAAC !…) pour chaque son important, désactivables ; passage des scènes au vote |
 | Mission 06 | 05, 04, 06, 08 | jouable : faire six courses au Panier d'Ouche à 2 km/h (plafond de vitesse imposé), lecture d'étiquettes immobile, causette de Mme Hubert, file de clients pressés dont l'impatience monte, « Après vous ! », caisse (compter la monnaie), gérant qui raccompagne au 4ᵉ incident, médailles selon l'heure de sortie (8 h 50 / 9 h / 9 h 30) ; manquent intro, rôles humains, intérieur d'autres commerces |
 | Bâtiments détaillés | 04 | cheminées sur le faîtage, lucarnes à fenêtre et petit toit, corniche sous l'égout, soubassement de pierre, auvent de porte sur consoles (stores rayés pour les commerces), contreforts d'église ; la porte 3D suit la porte peinte par le shader ; sans collision |
 | Personnages détaillés | 04, 05 | visage (yeux, sourcils, bouche, oreilles), cheveux (court, chignon, long), moustache, barbe, lunettes ; col, boutons, poches, ceinture à boucle, gilet, tablier, foulard ; manchettes, pouces, semelles ; couvre-chefs (béret, casquette, casque audio, foulard, paille, képi) ; un style par personnage |
@@ -37,7 +38,7 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | Mission 03 | 05, 06, 08 | jouable : matériel (5 min) → trois manches de rythme (playlist au choix, sabotages du rival, lâcher de basses) → nuisance et gendarmes → médaille ; manquent intro, rôles humains (DJ, saboteur, électricien, videur), DJ IA, vraie foule |
 | Mission 01 | 05, 07 | jouable : 4 caisses → camionnette → barrage → stand → médaille ; manquent cinématique, choix d'équipe, événements de route, compagnons IA |
 | PNJ, trafic, compagnons IA | 06 | M1 (graphe routier déjà produit) |
-| Missions (JSON) | 07 | m01 à m06 écrites, validées par schéma |
+| Missions (JSON) | 07 | m01 à m07 écrites, validées par schéma |
 | Audio : effets, moteurs, ambiance, radio | 08 | synthétisés (décision 0006) : klaxon, moteurs, chocs, verre, meuglement, cloches, valse musette ; sous-titres sonores ; playlists de la battle de sono ; autres radios M2 |
 | Accessibilité, licences | 11 | sous-titres et échelle du texte prévus dans les réglages |
 

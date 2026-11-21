@@ -6,7 +6,7 @@ extends Node3D
 
 const SPEAKER_NODES := {
 	"Gégé": "-1", "Tonton Gégé": "-1", "Ginette": "-2", "Kévin Radio": "-3", "Kévin": "-4",
-	"Mme Hubert": "MmeHubert", "Josette": "Josette", "Dylan": "Dylan", "Gendarme": "Gardien", "Marguerite": "Vache_0",
+	"Mme Hubert": "MmeHubert", "Gégé du stand": "GegeStand", "Josette": "Josette", "Dylan": "Dylan", "Gendarme": "Gardien", "Marguerite": "Vache_0",
 }
 const PIXEL := 0.0055
 const MAX_WIDTH_PX := 460
@@ -39,6 +39,10 @@ func speaker_node(speaker: String) -> Node3D:
 		var n := world.find_child(key, true, false) as Node3D
 		if n:
 			return n
+	if speaker == "Gégé":
+		var gs := world.find_child("GegeStand", true, false) as Node3D
+		if gs:
+			return gs
 	if players and multiplayer.has_multiplayer_peer():
 		return players.get_node_or_null(str(multiplayer.get_unique_id())) as Node3D
 	return null
