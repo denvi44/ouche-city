@@ -77,7 +77,7 @@ vec3 asphalte(vec3 base, vec2 uv) {
 	}
 	// Fissures fines et rares.
 	float f = fissure(q * 0.55);
-	if (f < 0.02 && h21(floor(q * 0.55)) > 0.8) c *= 0.7;
+	if (f < 0.014 && h21(floor(q * 0.55)) > 0.9) c *= 0.74;
 	// Marquages : ligne centrale pointillée et lignes de rive, sur les routes assez larges.
 	if (largeur > 4.4) {
 		float lat = uv.x / largeur;
