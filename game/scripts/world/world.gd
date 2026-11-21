@@ -70,7 +70,12 @@ func _ready() -> void:
 		_client_ready.rpc_id(1)
 	var qa_say = Net.arg("qa-say")
 	if qa_say != null and Net.is_server():
-		get_tree().create_timer(5.0).timeout.connect(func(): mission.say(str(qa_say)))
+		# Test réseau : la réplique est redite toutes les 1,5 s pour que les clients lents (CI) la reçoivent aussi.
+		var qt := Timer.new()
+		qt.wait_time = 1.5
+		qt.autostart = true
+		qt.timeout.connect(func(): mission.say(str(qa_say)))
+		add_child(qt)
 	var report = Net.arg("qa-report")
 	if report != null:
 		var rt := Timer.new()

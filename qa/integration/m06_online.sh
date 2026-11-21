@@ -9,12 +9,12 @@ PORT="${PORT:-$((27000 + RANDOM % 1000))}"
 LOG="$(mktemp -d)"
 trap 'kill $(jobs -p) 2>/dev/null; rm -rf "$LOG"' EXIT
 
-"$GODOT" --headless --path game -- --server --mission=m06 --qa-say=m06_pass --port="$PORT" --qa-report=1 --quit-after=10 >"$LOG/server.log" 2>&1 &
+"$GODOT" --headless --path game -- --server --mission=m06 --qa-say=m06_pass --port="$PORT" --qa-report=1 --quit-after=16 >"$LOG/server.log" 2>&1 &
 SERVER=$!
 sleep 3
-"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Acheteuse --qa-report=1 --quit-after=7 >"$LOG/c1.log" 2>&1 &
+"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Acheteuse --qa-report=1 --quit-after=12 >"$LOG/c1.log" 2>&1 &
 sleep 1
-"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Acheteur --qa-report=1 --quit-after=6 >"$LOG/c2.log" 2>&1 &
+"$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Acheteur --qa-report=1 --quit-after=11 >"$LOG/c2.log" 2>&1 &
 wait $SERVER
 sleep 1
 

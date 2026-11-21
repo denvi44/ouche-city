@@ -287,3 +287,14 @@ def test_lieux_de_mission07():
     assert 140 < math.dist(a, b) < 240
     assert math.dist(a, w) + math.dist(w, b) < math.dist(a, b) * 1.5, "les toilettes sont loin du trajet"
     assert pois["fete_pomme"]["building"] != pois["chez_soi"]["building"]
+
+
+def test_donnees_exportees_avec_le_jeu():
+    """Les fichiers de données lus par le jeu (ville, missions, dialogues) sont dans le filtre d'inclusion de chaque export :
+    sans cela, les builds Windows et macOS démarreraient sans dialogues ni missions."""
+    presets = (ROOT / "game/export_presets.cfg").read_text(encoding="utf-8")
+    filtres = [l for l in presets.splitlines() if l.startswith("include_filter=")]
+    assert len(filtres) >= 2
+    for f in filtres:
+        for motif in ("assets/city/*.json", "assets/city/tiles/*.json", "assets/missions/*.json", "assets/dialogues/*.yarn"):
+            assert motif in f, f"{motif} absent de {f}"
