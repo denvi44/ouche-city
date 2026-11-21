@@ -45,6 +45,7 @@ func _run() -> void:
 	world.day_night.running = false
 	world.day_night.hour = 11.0
 	mission = world.mission
+	mission.deadline_hour = 99.0      # on joue avec l'heure pour le plan de nuit : pas d'échec « 21 h » pendant les captures
 	car = world.van
 	cam = Camera3D.new()
 	cam.fov = 62.0
@@ -66,7 +67,7 @@ func _run() -> void:
 	await shot(out_dir, "m02_2_fusee_tunee_de_nuit")
 	world.day_night.hour = 11.0
 	world.day_night.apply()
-	look(car.global_position + Vector3(-4.5, 2.0, 6.0), car.global_position + Vector3(0, 0.8, 0.8))
+	look(car.global_position + Vector3(5.5, 2.0, -4.5), car.global_position + Vector3(0, 0.8, 0.8))
 	await shot(out_dir, "m02_3_fusee_tunee_de_jour")
 	# 3. La casse et son gardien.
 	var c: Vector3 = mission.zones.casse
@@ -81,7 +82,13 @@ func _run() -> void:
 	await frames(20)
 	mission.interact(1)
 	await frames(10)
-	look(mission.zones.annonce + Vector3(7, 3.0, 8), mission.zones.annonce + Vector3(0, 1.8, 0))
+	var poi = CityBuilder.read_json("res://assets/city/poi.json")
+	var af := 0.0
+	for p in poi.pois:
+		if p.id == "annonce_vendeur":
+			af = float(p.facing)
+	var front := Vector3(sin(af), 0, cos(af))        # côté rue : là où s'ouvre la façade
+	look(mission.zones.annonce + front * 9.0 + Vector3(0, 3.0, 0), mission.zones.annonce + Vector3(0, 1.6, 0))
 	await shot(out_dir, "m02_5_marchandage")
 	mission.menu = ""
 	# 5. La piste de drag : vue d'ensemble, puis la grille de départ.

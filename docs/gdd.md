@@ -26,6 +26,7 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | Conduite arcade | 05 | camionnette de Gégé : accélération, freinage, frein à main, chocs, caméra qui se range |
 | Réseau autoritaire, solo local | 12 | poignée de main versionnée, prédiction et réconciliation |
 | Cargaison fragile, niveau de recherche | 05 | cargaison (bouteilles cassées selon la violence du choc) faite ; recherche M1 |
+| Mission 02 | 05, 06, 07 | jouable : pièces (casse furtive, marchandage, boutique, vol) → montage → essai routier + radar → jury → drag de 400 m contre Dylan ; manquent intro, rôles humains, variété des mini-jeux |
 | Mission 01 | 05, 07 | jouable : 4 caisses → camionnette → barrage → stand → médaille ; manquent cinématique, choix d'équipe, événements de route, compagnons IA |
 | PNJ, trafic, compagnons IA | 06 | M1 (graphe routier déjà produit) |
 | Missions (JSON) | 07 | m01 à m03 écrites, validées par schéma |

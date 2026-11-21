@@ -8,18 +8,19 @@ GTA-like en cel-shading, made in Normandie : une reproduction de Conches-en-Ouch
 
 ## Jouer (M0)
 
-Ouvrir `game/` dans Godot 4.4.1, puis lancer (F5). Menu : *Jouer en solo* (serveur local fermé), *Héberger*, *Rejoindre*.
+Ouvrir `game/` dans Godot 4.4.1, puis lancer (F5). Menu : *Jouer en solo* (mission 1), *Tuning du samedi soir* (mission 2, une fois la mission 1 terminée), *Héberger*, *Rejoindre*.
 
 En ligne de commande :
 
 ```sh
-godot --path game -- --solo                 # partie solo directe
+godot --path game -- --solo                 # partie solo directe (mission 1)
+godot --path game -- --solo --mission=m02   # mission 2 directement
 godot --path game -- --host                 # héberger (port 24680/UDP)
 godot --path game -- --join=192.168.1.20    # rejoindre
 godot --headless --path game -- --server    # serveur dédié (ou : make server)
 ```
 
-Contrôles : ZQSD/WASD (position physique), souris, Espace (sauter), Maj (sprinter), Échap (pause, ouvrir la partie aux amis).
+Contrôles : ZQSD/WASD (position physique), souris, Espace (sauter ; frein à main en voiture), Maj (sprinter ; turbo en voiture), E (interagir), H (klaxon), R (radio), 1 à 5 (choix), Échap (pause : volumes, sous-titres, ouvrir aux amis).
 
 ## Produire la ville
 
@@ -41,8 +42,8 @@ make screenshots   # captures 1920×1080 de la scène témoin (qa/screenshots/ou
 
 | Fichier | Mission |
 | --- | --- |
-| `missions/m01_calva_gege.json` | Le Calva de Tonton Gégé |
-| `missions/m02_tuning_samedi.json` | Tuning du samedi soir |
+| `missions/m01_calva_gege.json` | Le Calva de Tonton Gégé (jouable) |
+| `missions/m02_tuning_samedi.json` | Tuning du samedi soir (jouable) |
 | `missions/m03_battle_sono.json` | Battle de sono |
 
 Scénarios, dialogues et règles détaillées : document « Ouche City — Plan de production ».
