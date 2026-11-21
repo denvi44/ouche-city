@@ -5,10 +5,10 @@ les runs 56 à 59 sont rouges pour des raisons connues et corrigées (voir « Hi
 
 ## Où j'en suis exactement
 1. **Fait et poussé** : tout ce qui suit dans « Ce qui est fait ce soir-là ».
-2. **En cours (non terminé)** : le correctif « props de décor enterrés à moitié sur les pentes » (cuisine du méchoui du Comité des fêtes, scène de sono, bûcher…).
-   Cause : `CityBuilder.build_mission_markers` pose le décor au sol **du seul centre** du POI ; sur une pente, l'amont est enterré. Piste : soulever le prop à
-   la plus haute altitude de son emprise et lui donner un petit socle de terre (précédent : `Supermarket.lift_for`). Ne pas le faire pour l'enclos de la mission 5 ni
-   la camionnette (les missions lisent leurs positions). Vérifier ensuite `m04_flow`, `m03_flow`, `m01_flow`.
+2. **Fait, à valider par `make test` complet** : bâtiments enterrés sur les pentes. Le seuil d'un bâtiment est maintenant à la hauteur du terrain devant sa **porte** (côté rue),
+   avec un soubassement en pierre jusqu'au terrain en aval (`CityBuilder.build_building`) ; les décors de mission (`LIFT_PROPS` : cuisine du méchoui, scène, bûcher, pressoir, WC, stand)
+   sont soulevés à la plus haute altitude de leur emprise avec un socle de terre (`_seat_on_slope`). Le supermarché a une rampe d'accès (`Supermarket._add_ramp`).
+   Piège : `_tool(nom)` crée la surface au premier appel ; une surface vide décale les noms de matériaux (créer l'outil paresseusement, au moment d'émettre).
 3. **À vérifier dès que tu peux** : résultat de la dernière CI ; l'artefact macOS (`frouch-city-macos`, `FrouchCity-mac.zip`/`.tar.gz`, **non signé** : `ditto -x -k`, puis
    `xattr -cr`, puis `codesign --force --deep --sign -`).
 

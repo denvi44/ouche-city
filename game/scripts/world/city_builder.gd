@@ -275,6 +275,11 @@ func add_building(b: Dictionary) -> void:
 	var seed := _hash01(str(b.id))
 	var door_edge := _door_edge(full, typo)
 	var has_details := typo != "annexe"
+	# Seuil à la hauteur de la porte (côté rue) : l'entrée reste de plain-pied avec la chaussée ; si le terrain est plus bas ailleurs, un soubassement
+	# comble le vide ; s'il est plus haut (côté amont), le bâtiment est « adossé » à la pente au lieu d'être enterré par son point le plus bas.
+	if door_edge >= 0:
+		var dm := (full[door_edge] + full[(door_edge + 1) % full.size()]) * 0.5
+		ground = maxf(ground, height_at(dm.x, dm.y))
 	for i in full.size():
 		var a := full[i]
 		var c := full[(i + 1) % full.size()]
@@ -296,6 +301,14 @@ func add_building(b: Dictionary) -> void:
 			Vector3(c.x, ground + hc, c.y), Vector3(a.x, ground + ha, a.y), n,
 			Vector2(0, 0), Vector2(seg_l, 0), Vector2(seg_l, hc), Vector2(0, ha))
 		_cur_color = Color.WHITE
+		# Soubassement en pierre jusqu'au terrain (sans détails de façade).
+		var yb_a := minf(ground, height_at(a.x, a.y)) - 0.05
+		var yb_c := minf(ground, height_at(c.x, c.y)) - 0.05
+		if ground - minf(yb_a, yb_c) > 0.12:
+			_cur_color = Color(seed, 0.0, 0.0, 0.0)
+			_quad(_tool("facade_pierre_public"), Vector3(a.x, yb_a, a.y), Vector3(c.x, yb_c, c.y), Vector3(c.x, ground + 0.02, c.y), Vector3(a.x, ground + 0.02, a.y), n,
+				Vector2(0, 0), Vector2(seg_l, 0), Vector2(seg_l, ground - yb_c), Vector2(0, ground - yb_a))
+			_cur_color = Color.WHITE
 		if has_details and details:
 			BuildingDetails.emit_bands(self, a, c, n2, ground, ha, hc, typo, i == door_edge)
 			if i == door_edge:
@@ -1096,6 +1109,41 @@ func _add_strip(root: Node3D) -> void:
 				_box(root, Vector3(width / 7.0, 0.05, 0.8), Vector3(-width * 0.5 + (i + 0.5) * width / 7.0, y + 0.01, z + (j - 0.5) * 0.8), c)
 
 
+## Décors posés au sol d'un seul point : rayon de leur emprise (m). Sur une pente l'amont serait enterré : on les soulève (voir `_seat_on_slope`).
+const LIFT_PROPS := {"fete": 5.5, "stage": 4.5, "pyre": 3.0, "pressoir": 2.5, "wc": 1.8, "stand": 3.0}
+
+
+## Soulève `n` à la plus haute altitude du terrain sous son emprise (rayon `radius`) et lui donne un socle de terre pour combler le vide en aval.
+func _seat_on_slope(n: Node3D, radius: float) -> void:
+	var hc := height_at(n.position.x, n.position.z)
+	var hmax := hc
+	var hmin := hc
+	for i in 12:
+		var a := TAU * float(i) / 12.0
+		for r in [0.5, 1.0]:
+			var h := height_at(n.position.x + cos(a) * radius * r, n.position.z + sin(a) * radius * r)
+			hmax = maxf(hmax, h)
+			hmin = minf(hmin, h)
+	var lift := hmax - hc
+	if lift < 0.03:
+		return
+	n.position.y += lift
+	n.set_meta("lift", lift)
+	# Socle : cylindre de terre sous le décor, qui plonge jusqu'au point le plus bas de l'emprise.
+	var depth := (hmax - hmin) + 0.5
+	var cyl := CylinderMesh.new()
+	cyl.top_radius = radius
+	cyl.bottom_radius = radius * 1.08
+	cyl.height = depth
+	cyl.radial_segments = 20
+	cyl.material = _toon(Color(0.55, 0.47, 0.34))
+	var mi := MeshInstance3D.new()
+	mi.name = "Socle"
+	mi.mesh = cyl
+	mi.position.y = -depth * 0.5 + 0.02
+	n.add_child(mi)
+
+
 func build_mission_markers(pois: Array, mission_id := "") -> Node3D:
 	var root := Node3D.new()
 	root.name = "LieuxDeMission"
@@ -1114,6 +1162,8 @@ func build_mission_markers(pois: Array, mission_id := "") -> Node3D:
 		if p.has("prop") and p.prop != "van" and p.prop != "car":
 			n.set_meta("poi", p)
 			_add_prop(n, p.prop)   # camionnette et voiture sont de vrais véhicules, pas des accessoires
+			if LIFT_PROPS.has(str(p.prop)):
+				_seat_on_slope(n, float(LIFT_PROPS[str(p.prop)]))
 		var color: Color = STEP_COLOR.get(p.step, Color.WHITE)
 		# Balise : cylindre translucide visible de loin.
 		var beam := CylinderMesh.new()
