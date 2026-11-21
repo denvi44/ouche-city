@@ -127,6 +127,9 @@ func _build() -> void:
 		Net.mission_id = "m07"
 		_solo())
 	box.add_child(m7)
+	_button(box, "Touches et souris", func():
+		var cm = preload("res://ui/controls_menu.gd").new()
+		add_child(cm))
 	_button(box, "Héberger une partie", _host)
 	_address = LineEdit.new()
 	_address.placeholder_text = "Adresse de l'hôte (ex. 192.168.1.20)"

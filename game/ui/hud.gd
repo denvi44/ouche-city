@@ -294,6 +294,10 @@ func _build_pause(root: Control) -> void:
 		Settings.subtitles = on
 		Settings.save_settings())
 	box.add_child(sub)
+	var keys := Button.new()
+	keys.text = "Touches et souris"
+	keys.pressed.connect(func(): root.add_child(preload("res://ui/controls_menu.gd").new()))
+	box.add_child(keys)
 	_open_btn = Button.new()
 	_open_btn.text = "Ouvrir la partie aux amis"
 	_open_btn.pressed.connect(func():

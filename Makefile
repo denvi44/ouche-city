@@ -53,6 +53,7 @@ test-godot:
 	bash qa/integration/m07_online.sh
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd
+	$(GODOT) --headless --path game -s ../qa/integration/controls_audit.gd
 	$(GODOT) --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/feasibility/audit.gd
 

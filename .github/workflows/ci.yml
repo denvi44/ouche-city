@@ -83,6 +83,8 @@ jobs:
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd
       - name: Écran titre et sauvegarde (Continuer, aller-retour disque, sauvegarde corrompue)
         run: godot --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json
+      - name: Choix des touches (remappage, échange, sauvegarde, écran)
+        run: godot --headless --path game -s ../qa/integration/controls_audit.gd
       - name: Faisabilité des missions (bots et calculs, avec compagnons)
         run: godot --headless --fixed-fps 60 --path game -s ../qa/feasibility/audit.gd -- --companions
       - name: Captures (Compatibility, sans GPU)

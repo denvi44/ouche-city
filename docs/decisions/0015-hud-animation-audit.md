@@ -34,3 +34,9 @@ Saut 0,80 m / 0,58 s (4,5 m en courant). Ajout d'une montée de marche automatiq
 ## Fumée (mission 7)
 `smoke_puff.gd` : nuage « dessin animé » (CPUParticles3D, purement visuel, déclenché côté client par les
 événements répliqués). Crampe : fuite (petite si l'on serre) + bruitage `toot` ; accident : grand nuage + `toot_big`.
+
+## Choix des touches
+`input_bindings.gd` (clavier par touche physique, manette par bouton ; sticks fixes), sauvegardé dans `user://touches.cfg`,
+réappliqué au démarrage. Conflit = échange des deux actions ; Cmd/Ctrl/Alt refusés (pas de raccourci système).
+Écran `controls_menu.gd` accessible depuis le menu principal et la pause, aussi sensibilité souris et axe Y
+(`qa/integration/controls_audit.gd`).

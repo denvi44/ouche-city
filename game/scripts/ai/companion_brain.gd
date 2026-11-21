@@ -373,8 +373,13 @@ func _try_interact(allowed: Array) -> void:
 ## Ligne droite sans mur entre deux points (lancer de rayon à hauteur de poitrine ; les corps
 ## mobiles — joueurs, camionnette — ne bloquent pas).
 func _clear(a: Vector2, b: Vector2) -> bool:
+	# Deux hauteurs : bas (jardinières, bancs, bornes) et poitrine (murs, mâts).
+	return _clear_at(a, b, 0.45) and _clear_at(a, b, 1.2)
+
+
+func _clear_at(a: Vector2, b: Vector2, h: float) -> bool:
 	var space := body.get_world_3d().direct_space_state
-	var y := body.global_position.y + 0.9
+	var y := body.global_position.y + h
 	var q := PhysicsRayQueryParameters3D.create(Vector3(a.x, y, a.y), Vector3(b.x, y, b.y))
 	q.exclude = [body.get_rid()]
 	for _i in 4:

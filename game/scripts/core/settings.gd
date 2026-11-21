@@ -24,6 +24,7 @@ var colorblind_mode: String = "aucun"
 
 func _ready() -> void:
 	load_settings()
+	preload("res://scripts/core/input_bindings.gd").apply_saved()
 
 
 func load_settings() -> void:
