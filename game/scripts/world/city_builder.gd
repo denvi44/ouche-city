@@ -1140,15 +1140,13 @@ func _seat_on_slope(n: Node3D, radius: float) -> void:
 	n.set_meta("lift", lift)
 	# Socle : cylindre de terre sous le décor, qui plonge jusqu'au point le plus bas de l'emprise.
 	var depth := (hmax - hmin) + 0.5
-	var cyl := CylinderMesh.new()
-	cyl.top_radius = radius
-	cyl.bottom_radius = radius * 1.08
-	cyl.height = depth
-	cyl.radial_segments = 20
-	cyl.material = _toon(Color(0.55, 0.47, 0.34))
+	# (un parallélépipède, pas un cylindre : les faisceaux de lieux sont des cylindres et le système de focus les masque)
+	var box := BoxMesh.new()
+	box.size = Vector3(radius * 1.8, depth, radius * 1.8)
+	box.material = _toon(Color(0.55, 0.47, 0.34))
 	var mi := MeshInstance3D.new()
 	mi.name = "Socle"
-	mi.mesh = cyl
+	mi.mesh = box
 	mi.position.y = -depth * 0.5 + 0.02
 	n.add_child(mi)
 
