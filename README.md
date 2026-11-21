@@ -1,6 +1,6 @@
-# Ouche City
+# Frouch City
 
-GTA-like en cel-shading, made in Normandie : une reproduction de Conches-en-Ouche (Eure), jouable seul ou à plusieurs en ligne, avec des missions « Normandie profonde ».
+GTA-like en cel-shading, made in Normandie : une reproduction de Conches-en-Frouch (Eure), jouable seul ou à plusieurs en ligne, avec des missions « Normandie profonde ».
 
 - **Plateformes (phase 1)** : Windows 10/11 et macOS 12+ (Apple Silicon + Intel), cross-play.
 - **Moteur** : Godot 4.4.1, GDScript.
@@ -57,7 +57,7 @@ make screenshots   # captures 1920×1080 de la scène témoin (qa/screenshots/ou
 | `missions/m07_jus_de_pomme.json` | Le jus de pomme de Tonton Gégé (jouable) |
 | `narrative/dialogues/*.yarn` | Dialogues des six missions (voir `narrative/README.md`) |
 
-Scénarios, dialogues et règles détaillées : document « Ouche City — Plan de production ».
+Scénarios, dialogues et règles détaillées : document « Frouch City — Plan de production ».
 
 ## Documentation
 

@@ -58,10 +58,10 @@ def main() -> int:
     emp = charger()
     q = requete(bbox_wgs84(emp))
     body = urllib.parse.urlencode({"data": q}).encode()
-    req = urllib.request.Request(OVERPASS_URL, data=body, headers={"User-Agent": "ouche-city-gis/1.0"})
+    req = urllib.request.Request(OVERPASS_URL, data=body, headers={"User-Agent": "frouch-city-gis/1.0"})
     with urllib.request.urlopen(req, timeout=180) as resp:
         data = json.load(resp)
-    data["_ouche"] = {
+    data["_frouch"] = {
         "source": "OpenStreetMap via Overpass API",
         "licence": "ODbL 1.0 — © contributeurs OpenStreetMap",
         "extrait_le": dt.date.today().isoformat(),

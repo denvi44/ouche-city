@@ -147,7 +147,7 @@
   {
    "id": "commerce_17286",
    "kind": "shop",
-   "label": "Tif'Ouche",
+   "label": "Tif'Frouch",
    "position": [
     1439.65,
     1642.33
@@ -175,7 +175,7 @@
   {
    "id": "commerce_18240",
    "kind": "shop",
-   "label": "Caisse Mutuelle du Pays d'Ouche",
+   "label": "Caisse Mutuelle du Pays de Frouch",
    "position": [
     1337.96,
     1427.96
@@ -273,7 +273,7 @@
   {
    "id": "commerce_5531",
    "kind": "shop",
-   "label": "Bricol'Ouche",
+   "label": "Bricol'Frouch",
    "position": [
     1028.07,
     1835.84
@@ -847,7 +847,7 @@
   {
    "id": "commerce_18411",
    "kind": "shop",
-   "label": "Caisse Mutuelle du Pays d'Ouche de la Place",
+   "label": "Caisse Mutuelle du Pays de Frouch de la Place",
    "position": [
     1266.84,
     1243.52
@@ -1015,7 +1015,7 @@
   {
    "id": "commerce_5693",
    "kind": "shop",
-   "label": "Tif'Ouche du Haut",
+   "label": "Tif'Frouch du Haut",
    "position": [
     1076.86,
     1653.68
@@ -1141,7 +1141,7 @@
   {
    "id": "commerce_5711",
    "kind": "shop",
-   "label": "Caisse Mutuelle du Pays d'Ouche du Pont",
+   "label": "Caisse Mutuelle du Pays de Frouch du Pont",
    "position": [
     1074.37,
     1678.74
@@ -1869,7 +1869,7 @@
   {
    "id": "supermarche",
    "kind": "shop",
-   "label": "Supermarché Le Panier d'Ouche",
+   "label": "Supermarché Le Panier de Frouch",
    "position": [
     1549.0,
     1352.0
@@ -1942,7 +1942,7 @@
   {
    "id": "passage_niveau",
    "kind": "mission_target",
-   "label": "Passage à niveau du Pays d'Ouche",
+   "label": "Passage à niveau du Pays de Frouch",
    "position": [
     1250.0,
     2090.0
@@ -1977,9 +1977,9 @@
    "prop": "pond"
   },
   {
-   "id": "gare_pays_ouche",
+   "id": "gare_pays_frouch",
    "kind": "landmark",
-   "label": "Gare du Pays d'Ouche",
+   "label": "Gare du Pays de Frouch",
    "position": [
     1318.94,
     2102.16

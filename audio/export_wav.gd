@@ -1,5 +1,5 @@
 extends SceneTree
-## Exporte les sons synthétisés d'Ouche City en fichiers WAV pour les écouter ou les retravailler.
+## Exporte les sons synthétisés de Frouch City en fichiers WAV pour les écouter ou les retravailler.
 ## Usage : godot --headless --path game -s ../audio/export_wav.gd -- --out=/chemin/vers/dossier
 ## Les paramètres de génération sont dans game/scripts/audio/synth.gd (une fonction par son).
 

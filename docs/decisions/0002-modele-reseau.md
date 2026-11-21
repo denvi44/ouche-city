@@ -9,7 +9,7 @@ Règles « Réseau d'abord » et « Solo = même code » : tout état de jeu vit
 
 ## Décision
 
-- **Transport** : API multijoueur de Godot sur ENet. Port par défaut 24680, surchargé par `OUCHE_PORT` / `--port=`. Hôte d'écoute : `OUCHE_HOST`. Capacité : `OUCHE_MAX_PLAYERS` (≤ 16).
+- **Transport** : API multijoueur de Godot sur ENet. Port par défaut 24680, surchargé par `FROUCH_PORT` / `--port=`. Hôte d'écoute : `FROUCH_HOST`. Capacité : `FROUCH_MAX_PLAYERS` (≤ 16).
 - **Modes**, un seul code (`game/scripts/net/network_manager.gd`, autoload `Net`) :
   - *solo* : serveur ENet local, **fermé** (toute connexion est refusée poliment) tant que le joueur ne choisit pas « Ouvrir la partie aux amis » ; la pause ne fige le monde qu'en solo sans invité ;
   - *hôte* : serveur local ouvert ;

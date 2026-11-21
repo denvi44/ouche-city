@@ -37,7 +37,7 @@ def _get_json(url: str, params: dict, essais: int = 4):
     full = url + "?" + urllib.parse.urlencode(params, safe=":,|")
     for i in range(essais):
         try:
-            req = urllib.request.Request(full, headers={"User-Agent": "ouche-city-gis/1.0"})
+            req = urllib.request.Request(full, headers={"User-Agent": "frouch-city-gis/1.0"})
             with urllib.request.urlopen(req, timeout=120) as resp:
                 return json.load(resp)
         except Exception as exc:  # réseau capricieux : on réessaie avec attente croissante
@@ -208,7 +208,7 @@ def main() -> int:
                 conv.feature(f, {"natural": "water"})
     data = {
         "elements": conv.elements,
-        "_ouche": {
+        "_frouch": {
             "source": "IGN BD TOPO V3 via Géoplateforme (WFS)",
             "licence": "Licence Ouverte Etalab 2.0 — Source : IGN",
             "extrait_le": dt.date.today().isoformat(),

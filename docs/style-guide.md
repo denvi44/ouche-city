@@ -1,4 +1,4 @@
-# Style guide — Ouche City
+# Style guide — Frouch City
 
 Une page, tenue par l'agent 03. Référence : la rue Sainte-Foy (`game/scenes/temoin_rue_sainte_foy.tscn`).
 

@@ -1,8 +1,8 @@
-# Emprise d'Ouche City — Conches-en-Ouche (Eure)
+# Emprise de Frouch City — Conches-en-Frouch (Eure)
 # Toutes les coordonnées sont en WGS84 (degrés). Projection de travail : Lambert-93 (EPSG:2154).
 
 [ville]
-nom = "Conches-en-Ouche"
+nom = "Conches-en-Frouch"
 centre = [48.9614, 0.9433]          # lat, lon
 demi_cote_m = 1500                   # emprise 3 × 3 km
 taille_tuile_m = 250

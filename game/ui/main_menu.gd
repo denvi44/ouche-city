@@ -60,13 +60,13 @@ func _build() -> void:
 	box.custom_minimum_size = Vector2(560, 0)
 	panel.add_child(box)
 	var title := Label.new()
-	title.text = "Ouche City"
+	title.text = "Frouch City"
 	title.add_theme_font_size_override("font_size", int(64 * Settings.text_scale))
 	title.add_theme_color_override("font_color", ThemeUtil.APPLE)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	var sub := Label.new()
-	sub.text = "Conches-en-Ouche, ses colombages, ses embrouilles."
+	sub.text = "Conches-en-Frouch, ses colombages, ses embrouilles."
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(sub)
 	_name = LineEdit.new()

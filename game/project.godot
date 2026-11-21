@@ -1,4 +1,4 @@
-; Ouche City — projet Godot.
+; Frouch City — projet Godot.
 ; Version du moteur figée : 4.4.1-stable (décision docs/decisions/0001-version-godot.md).
 ; Ne pas modifier sans décision de l'orchestrateur.
 
@@ -6,8 +6,8 @@ config_version=5
 
 [application]
 
-config/name="Ouche City"
-config/description="Open-world d'action-aventure en cel-shading à Conches-en-Ouche."
+config/name="Frouch City"
+config/description="Open-world d'action-aventure en cel-shading à Conches-en-Frouch."
 config/version="0.1.0-m0"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.4", "Forward Plus")

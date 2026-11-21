@@ -1,6 +1,6 @@
 class_name MissionM06
 extends MissionBase
-## Mission 06 « Les courses de 8 h » (agent 05) : faire ses six courses au Panier d'Ouche… à 2 km/h.
+## Mission 06 « Les courses de 8 h » (agent 05) : faire ses six courses au Panier de Frouch… à 2 km/h.
 ##
 ## Tous les acheteurs marchent à 2 à l'heure (plafond de vitesse sur le joueur) et lisent les étiquettes (3 s immobile).
 ## Les clients pressés, eux, arrivent toutes les 14 s sur des parcours fixes dans les allées ; bloqués derrière vous, ils
@@ -519,7 +519,7 @@ func _physics_process(delta: float) -> void:
 				day_night.hour = 8.0
 				day_night.running = false
 			_teleport_to_entrance()
-			_log("Huit heures. Le Panier d'Ouche ouvre ses portes. Six articles sur la liste, deux kilomètres à l'heure : prenez votre temps.")
+			_log("Huit heures. Le Panier de Frouch ouvre ses portes. Six articles sur la liste, deux kilomètres à l'heure : prenez votre temps.")
 			_mark()
 		return
 	if step in ["done", "failed"]:

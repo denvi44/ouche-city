@@ -1,6 +1,6 @@
 class_name Supermarket
 extends RefCounted
-## Supermarché « Le Panier d'Ouche » (agent 04 / 05) : bâtiment-décor sans toit (la caméra voit l'intérieur d'en haut),
+## Supermarché « Le Panier de Frouch » (agent 04 / 05) : bâtiment-décor sans toit (la caméra voit l'intérieur d'en haut),
 ## avec collisions (murs, gondoles, comptoirs). Repère local : origine au centre, +Z = devant (côté route, porte),
 ## X le long de la façade. Dimensions : murs à x = ±12,5 et z = -8,5 / +8,5 ; porte automatique |x| < 2,2.
 ## Les positions des rayons, de la caisse et des chariots sont partagées avec la mission 06 (constantes ci-dessous).
@@ -145,7 +145,7 @@ static func _build_inner(with_collision: bool) -> Node3D:
 	sign_k.position = Vector3(0, WALL_H + 1.2, HALF_Z + 0.3)
 	root.add_child(sign_k)
 	var label := Label3D.new()
-	label.text = "LE PANIER D'OUCHE"
+	label.text = "LE PANIER DE FROUCH"
 	label.font_size = 96
 	label.pixel_size = 0.012
 	label.modulate = Color(0.98, 0.95, 0.85)

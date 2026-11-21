@@ -335,14 +335,14 @@ def test_lieux_de_mission08():
     assert "m08_oies_en_greve" in m7["rewards"]["unlocks"], "la mission 7 débloque la mission 8"
 
 
-def test_gare_du_pays_d_ouche():
+def test_gare_du_pays_d_frouch():
     """Gare sur la voie : quai de 80 m et bâtiment libres de tout obstacle, quai avant le passage à niveau (le train s'y arrête quand
     les oies le bloquent), chemin d'accès libre jusqu'à la route."""
     import math
     from shapely.geometry import LineString, Point, Polygon
     pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
-    g, rail = pois["gare_pays_ouche"], pois["passage_niveau"]
-    assert g["prop"] == "gare" and g["missions"] == ["m08_oies_en_greve"] and g["label"] == "Gare du Pays d'Ouche"
+    g, rail = pois["gare_pays_frouch"], pois["passage_niveau"]
+    assert g["prop"] == "gare" and g["missions"] == ["m08_oies_en_greve"] and g["label"] == "Gare du Pays de Frouch"
     assert abs(g["facing"] - rail["facing"]) < 1e-6 and g["side"] in (-1, 1)
     d = (math.sin(rail["facing"]), math.cos(rail["facing"]))
     rx = (d[1], -d[0])

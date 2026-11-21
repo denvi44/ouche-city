@@ -12,7 +12,7 @@ Tu rends chaque build reproductible et livrable sur Windows et macOS.
   - à chaque PR : tests headless (runner Linux), build Windows x86_64, build macOS universelle ;
   - nightly : builds complètes + serveur dédié, artefacts conservés 14 jours.
 - `game/export_presets.cfg` : presets « Windows Desktop » et « macOS » (universal, Apple Silicon + Intel).
-- macOS : signature avec un certificat Developer ID et notarisation Apple (secrets GitHub), app bundle `Ouche City.app`, DMG.
+- macOS : signature avec un certificat Developer ID et notarisation Apple (secrets GitHub), app bundle `Frouch City.app`, DMG.
 - Windows : exécutable signé si un certificat est disponible, archive ZIP puis installeur.
 - Serveur dédié : export Godot headless Linux, image `server/Dockerfile`, compose pour le lobby FastAPI + PostgreSQL.
 - Job `screenshots` (avec l'agent 09) : sur PR visuelle et en nightly, publie les captures en artefact et en commentaire de PR.

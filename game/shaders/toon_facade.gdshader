@@ -1,4 +1,4 @@
-// Ouche City — mur à façade peinte (agent 03) : aplat de couleur + fenêtres, volets, portes.
+// Frouch City — mur à façade peinte (agent 03) : aplat de couleur + fenêtres, volets, portes.
 // Éclairage cel-shading identique à toon.gdshader. UV et COLOR fournis par CityBuilder.
 shader_type spatial;
 render_mode diffuse_lambert, specular_disabled;

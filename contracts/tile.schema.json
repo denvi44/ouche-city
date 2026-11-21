@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ouche-city/contracts/tile.schema.json",
-  "title": "Tuile de ville Ouche City",
+  "$id": "https://frouch-city/contracts/tile.schema.json",
+  "title": "Tuile de ville Frouch City",
   "description": "Une tuile carrée de 250 m produite par gis/ (agent 01), consommée par blender/ et game/. Coordonnées locales en mètres : x vers l'est, z vers le sud (convention Godot), origine = coin nord-ouest de l'emprise globale.",
   "version": 1,
   "type": "object",

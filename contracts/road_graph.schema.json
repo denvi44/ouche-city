@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ouche-city/contracts/road_graph.schema.json",
-  "title": "Graphe routier Ouche City",
+  "$id": "https://frouch-city/contracts/road_graph.schema.json",
+  "title": "Graphe routier Frouch City",
   "description": "Graphe de navigation et de trafic produit par gis/ (agent 01) pour l'agent 06. Repère local identique aux tuiles (x est, z sud, mètres).",
   "version": 1,
   "type": "object",

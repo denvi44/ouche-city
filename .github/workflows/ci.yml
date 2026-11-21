@@ -92,7 +92,7 @@ jobs:
           godot --headless --fixed-fps 60 --path game -s ../qa/integration/vehicle_slope_audit.gd
           godot --headless --fixed-fps 60 --path game -s ../qa/integration/focus_audit.gd
       - name: Écran titre et sauvegarde (Continuer, aller-retour disque, sauvegarde corrompue)
-        run: godot --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json
+        run: godot --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/frouch_menu_test.json
       - name: Choix des touches (remappage, échange, sauvegarde, écran)
         run: godot --headless --path game -s ../qa/integration/controls_audit.gd
       - name: Cinématiques (plans valides, caméra hors des murs, lecture complète)
@@ -127,12 +127,12 @@ jobs:
           mkdir -p build/windows
           ./Godot_v${GODOT_VERSION}_win64_console.exe --headless --path game --import || true
           ./Godot_v${GODOT_VERSION}_win64_console.exe --headless --path game --export-release "Windows Desktop"
-          test -f build/windows/OucheCity.exe
+          test -f build/windows/FrouchCity.exe
       - name: Démarrage à vide (solo, 5 s)
         shell: bash
         run: ./Godot_v${GODOT_VERSION}_win64_console.exe --headless --path game -- --solo --quit-after=5 | tee run.log && grep -q "mode=SOLO" run.log
       - uses: actions/upload-artifact@v4
-        with: { name: ouche-city-windows, path: build/windows }
+        with: { name: frouch-city-windows, path: build/windows }
 
   build-macos:
     name: Build macOS (universel, signé si secrets présents)
@@ -160,7 +160,7 @@ jobs:
           mkdir -p build/macos
           "$GODOT" --headless --path game --import || true
           "$GODOT" --headless --path game --export-release "macOS"
-          cd build/macos && unzip -q OucheCity.zip && ls
+          cd build/macos && unzip -q FrouchCity.zip && ls
       - name: Démarrage à vide (solo, 5 s)
         run: Godot.app/Contents/MacOS/Godot --headless --path game -- --solo --quit-after=5 | tee run.log && grep -q "mode=SOLO" run.log
       - name: Signer et notariser
@@ -171,29 +171,29 @@ jobs:
           security unlock-keychain -p ci ci.keychain
           security import cert.p12 -k ci.keychain -P "$APPLE_CERT_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k ci ci.keychain
-          APP="build/macos/Ouche City.app"
+          APP="build/macos/Frouch City.app"
           codesign --force --deep --options runtime --timestamp --sign "$APPLE_TEAM_ID" "$APP"
-          ditto -c -k --keepParent "$APP" build/macos/OucheCity-signed.zip
-          xcrun notarytool submit build/macos/OucheCity-signed.zip --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" --wait
+          ditto -c -k --keepParent "$APP" build/macos/FrouchCity-signed.zip
+          xcrun notarytool submit build/macos/FrouchCity-signed.zip --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" --wait
           xcrun stapler staple "$APP"
       - name: Signature ad hoc (secrets Apple absents)
         if: env.APPLE_CERT_P12_BASE64 == ''
         run: |
           echo "::warning::Secrets Apple absents : signature ad hoc seulement (clic droit, Ouvrir, au premier lancement)."
-          codesign --force --deep --sign - "build/macos/Ouche City.app"
+          codesign --force --deep --sign - "build/macos/Frouch City.app"
       - name: Empaqueter (ditto et tar conservent permissions et liens)
         run: |
           cd build/macos
-          rm -f OucheCity.zip OucheCity-signed.zip
-          ditto -c -k --keepParent "Ouche City.app" OucheCity-mac.zip
-          tar -czf OucheCity-mac.tar.gz "Ouche City.app"
+          rm -f FrouchCity.zip FrouchCity-signed.zip
+          ditto -c -k --keepParent "Frouch City.app" FrouchCity-mac.zip
+          tar -czf FrouchCity-mac.tar.gz "Frouch City.app"
           ls -la
       - uses: actions/upload-artifact@v4
         with:
-          name: ouche-city-macos
+          name: frouch-city-macos
           path: |
-            build/macos/OucheCity-mac.tar.gz
-            build/macos/OucheCity-mac.zip
+            build/macos/FrouchCity-mac.tar.gz
+            build/macos/FrouchCity-mac.zip
 
   server-image:
     name: Image Docker du serveur dédié
@@ -202,4 +202,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { lfs: true }
-      - run: docker build -f server/Dockerfile -t ouche-city-server .
+      - run: docker build -f server/Dockerfile -t frouch-city-server .

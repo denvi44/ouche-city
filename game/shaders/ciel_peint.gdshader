@@ -1,4 +1,4 @@
-// Ouche City — ciel peint (agent 03) : dégradé en aplats, couleurs pilotées par le cycle jour/nuit.
+// Frouch City — ciel peint (agent 03) : dégradé en aplats, couleurs pilotées par le cycle jour/nuit.
 shader_type sky;
 
 uniform vec4 zenith : source_color = vec4(0.36, 0.6, 0.85, 1.0);

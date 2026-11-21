@@ -1,5 +1,5 @@
 extends Node
-## Couche réseau d'Ouche City (agent 12) — autoload « Net ».
+## Couche réseau de Frouch City (agent 12) — autoload « Net ».
 ##
 ## Un seul code pour tous les modes :
 ## - solo : le client héberge un serveur ENet local (même build), fermé aux autres
@@ -38,7 +38,7 @@ var _args: Dictionary = {}
 
 func _ready() -> void:
 	_args = parse_args(OS.get_cmdline_user_args())
-	port = int(OS.get_environment("OUCHE_PORT")) if OS.get_environment("OUCHE_PORT") != "" else DEFAULT_PORT
+	port = int(OS.get_environment("FROUCH_PORT")) if OS.get_environment("FROUCH_PORT") != "" else DEFAULT_PORT
 	if _args.has("port"):
 		port = int(_args["port"])
 	bot = _args.has("bot")
@@ -93,7 +93,7 @@ func host_game() -> Error:
 
 func start_dedicated() -> Error:
 	open_to_others = true
-	var max_players := int(OS.get_environment("OUCHE_MAX_PLAYERS")) if OS.get_environment("OUCHE_MAX_PLAYERS") != "" else MAX_PLAYERS
+	var max_players := int(OS.get_environment("FROUCH_MAX_PLAYERS")) if OS.get_environment("FROUCH_MAX_PLAYERS") != "" else MAX_PLAYERS
 	return _start_server(Mode.DEDICATED, clampi(max_players, 1, MAX_PLAYERS), false)
 
 
@@ -125,7 +125,7 @@ func leave() -> void:
 
 
 func _start_server(new_mode: Mode, max_clients: int, local_player: bool) -> Error:
-	var host := OS.get_environment("OUCHE_HOST")
+	var host := OS.get_environment("FROUCH_HOST")
 	var err := ERR_CANT_CREATE
 	var peer: ENetMultiplayerPeer
 	# En solo, si le port est pris (deux instances), on essaie les suivants.

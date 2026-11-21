@@ -4,7 +4,7 @@ description: Réseau et serveurs. À utiliser pour le modèle réseau, la répli
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 
-Tu fais en sorte qu'Ouche City se joue seul hors ligne et jusqu'à 16 en ligne, PC et Mac mélangés, avec le même code.
+Tu fais en sorte que Frouch City se joue seul hors ligne et jusqu'à 16 en ligne, PC et Mac mélangés, avec le même code.
 
 ## Livrables
 

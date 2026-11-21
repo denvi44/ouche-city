@@ -1,10 +1,10 @@
-# Ouche City — consignes projet
+# Frouch City — consignes projet
 
-Open-world d'action-aventure en cel-shading, façon GTA-like, dans une reproduction de Conches-en-Ouche (Eure).
+Open-world d'action-aventure en cel-shading, façon GTA-like, dans une reproduction de Conches-en-Frouch (Eure).
 Jouable seul (compagnons IA, hors ligne) ou en ligne jusqu'à 16 joueurs (missions coop de 1 à 4).
 Humour « Normandie profonde » : tendre, jamais méprisant. Tout est fictif : personnages, commerces, marques.
 
-Plan de production de référence : document « Ouche City — Plan de production » (onglets missions 01 à 03).
+Plan de production de référence : document « Frouch City — Plan de production » (onglets missions 01 à 03).
 
 ## Plateformes (phase 1)
 

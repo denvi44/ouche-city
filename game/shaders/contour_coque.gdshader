@@ -1,4 +1,4 @@
-// Ouche City — contour « inverted hull » pour personnages et véhicules (agent 03).
+// Frouch City — contour « inverted hull » pour personnages et véhicules (agent 03).
 // À utiliser en next_pass d'un matériau toon : on gonfle le maillage le long des normales
 // et on n'affiche que les faces arrière, en aplat sombre.
 shader_type spatial;

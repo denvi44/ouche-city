@@ -268,7 +268,7 @@ func _build_visual() -> void:
 	# Enseigne peinte sur les flancs de la caisse arrière.
 	for side in [-1.0, 1.0]:
 		var l := Label3D.new()
-		l.text = "Gégé & Fils\nCalva du Pays d'Ouche"
+		l.text = "Gégé & Fils\nCalva du Pays de Frouch"
 		l.font_size = 40
 		l.pixel_size = 0.0038
 		l.modulate = Color(0.45, 0.17, 0.12)

@@ -1,4 +1,4 @@
-// Ouche City — façade normande à colombages (agent 03).
+// Frouch City — façade normande à colombages (agent 03).
 // Motif peint procédural : poutres brun foncé sur torchis crème. UV des murs en mètres
 // (u = longueur le long du mur, v = hauteur depuis le sol), fournis par tile_loader.gd.
 shader_type spatial;

@@ -1,4 +1,4 @@
-// Ouche City — toon shader de base (agent 03).
+// Frouch City — toon shader de base (agent 03).
 // Vrai cel-shading : 3 paliers nets, ombres portées dures, liseré de contre-jour (rim),
 // reflet « peint » optionnel pour les surfaces vernies (véhicules). Aucune texture PBR.
 // Identique sous Vulkan (Windows) et Metal (macOS).

@@ -1,6 +1,6 @@
 class_name Synth
 extends RefCounted
-## Synthèse sonore d'Ouche City (agent 08) : tous les sons sont générés par le code.
+## Synthèse sonore de Frouch City (agent 08) : tous les sons sont générés par le code.
 ## Pourquoi : aucun fichier binaire à versionner (LFS), aucune question de licence, et chaque
 ## son est reproductible à partir de ses paramètres, écrits ici. Remplaçable plus tard par des
 ## enregistrements (`Sfx` cherche d'abord `res://assets/audio/<nom>.ogg|wav`).

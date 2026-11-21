@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ouche-city/contracts/mission.schema.json",
-  "title": "Mission Ouche City",
+  "$id": "https://frouch-city/contracts/mission.schema.json",
+  "title": "Mission Frouch City",
   "description": "Données de mission (missions/*.json), écrites par narration (07), exécutées par le serveur (gameplay 05 + réseau 12). Les champs spécifiques à une mission restent permis (additionalProperties) tant que le socle commun est respecté.",
   "version": 1,
   "type": "object",

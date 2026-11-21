@@ -1,10 +1,10 @@
-# Ouche City — Document de game design (GDD)
+# Frouch City — Document de game design (GDD)
 
-Version M0. Plan de production de référence : « Ouche City — Plan de production » (onglets missions 01 à 03).
+Version M0. Plan de production de référence : « Frouch City — Plan de production » (onglets missions 01 à 03).
 
 ## Pitch
 
-Un open-world d'action-aventure en cel-shading à Conches-en-Ouche, dans l'Eure. On y fait des embrouilles de village plutôt que des braquages : livrer en douce le calva de Tonton Gégé à la foire, tuner la voiture de Kévin pour le samedi soir, gagner la battle de sono contre le Clos Fleuri. L'humour est « Normandie profonde » : tendre, jamais méprisant.
+Un open-world d'action-aventure en cel-shading à Conches-en-Frouch, dans l'Eure. On y fait des embrouilles de village plutôt que des braquages : livrer en douce le calva de Tonton Gégé à la foire, tuner la voiture de Kévin pour le samedi soir, gagner la battle de sono contre le Clos Fleuri. L'humour est « Normandie profonde » : tendre, jamais méprisant.
 
 ## Piliers
 
@@ -29,7 +29,7 @@ Balade libre → rencontre d'un personnage → mission à rôles (conducteur, gu
 | Mission 02 | 05, 06, 07 | jouable : pièces (casse furtive, marchandage, boutique, vol) → montage → essai routier + radar → jury → drag de 400 m contre Dylan ; manquent intro, rôles humains, variété des mini-jeux |
 | Mission 07 | 05, 04, 06, 07, 08 | jouable : après un jus de pomme « un peu vif » à la fête de la pomme, rentrer aux toilettes de chez soi sans accident : pression qui monte (course, pavés, crampes, frayeurs), serrer (marche de crabe, endurance), Mme Hubert, chien, toilettes publiques (bronze), porte fermée à clé (clé sous le pot ou Ginette) ; or ≤ 70 % de pression à l'arrivée, argent, bronze ; humour tendre, tout hors champ (onomatopées) |
 | Dialogues et onomatopées | 07, 03, 08 | 87 nœuds Yarn (125 répliques) dits par-dessus l'action, bulles de paroles, sous-titre ; onomatopées en bulles (POUET POUET !, BOUM !, CRAAAC !…) pour chaque son important, désactivables ; passage des scènes au vote |
-| Mission 06 | 05, 04, 06, 08 | jouable : faire six courses au Panier d'Ouche à 2 km/h (plafond de vitesse imposé), lecture d'étiquettes immobile, causette de Mme Hubert, file de clients pressés dont l'impatience monte, « Après vous ! », caisse (compter la monnaie), gérant qui raccompagne au 4ᵉ incident, médailles selon l'heure de sortie (8 h 50 / 9 h / 9 h 30) ; manquent intro, rôles humains, intérieur d'autres commerces |
+| Mission 06 | 05, 04, 06, 08 | jouable : faire six courses au Panier de Frouch à 2 km/h (plafond de vitesse imposé), lecture d'étiquettes immobile, causette de Mme Hubert, file de clients pressés dont l'impatience monte, « Après vous ! », caisse (compter la monnaie), gérant qui raccompagne au 4ᵉ incident, médailles selon l'heure de sortie (8 h 50 / 9 h / 9 h 30) ; manquent intro, rôles humains, intérieur d'autres commerces |
 | Bâtiments détaillés | 04 | cheminées sur le faîtage, lucarnes à fenêtre et petit toit, corniche sous l'égout, soubassement de pierre, auvent de porte sur consoles (stores rayés pour les commerces), contreforts d'église ; la porte 3D suit la porte peinte par le shader ; sans collision |
 | Personnages détaillés | 04, 05 | visage (yeux, sourcils, bouche, oreilles), cheveux (court, chignon, long), moustache, barbe, lunettes ; col, boutons, poches, ceinture à boucle, gilet, tablier, foulard ; manchettes, pouces, semelles ; couvre-chefs (béret, casquette, casque audio, foulard, paille, képi) ; un style par personnage |
 | Mission 05 | 05, 04, 06, 08 | jouable : huit vaches (dont Marguerite, la plus farouche) fuient les gens dans le pré ; on les rabat vers un enclos en se plaçant derrière elles et en sifflant ; clôture et bâtiments les bloquent ; barrière à fermer ; médailles 8 / 6 / 4 vaches ; manquent intro, rôles humains, obstacles (tracteur, chiens) |

@@ -30,11 +30,11 @@ bronze ≥ 5). Données : POI `passage_niveau` (prop `rail`, champ `length`) et 
 compagnons (Kévin rassemble, Ginette guette, Gégé rassure) apparaissent près de la mare (`spawn_hint`). Audit de faisabilité : seul, médaille d'argent
 en 145 s ; avec les compagnons, bronze.
 
-## Gare du Pays d'Ouche
+## Gare du Pays de Frouch
 Les données ouvertes de la zone (IGN BD TOPO : bâtiments, routes, végétation, eau) n'ont ni voie ferrée ni gare : la voie et la gare sont
 fictives. `gis/fiction.py` oriente la voie de la gare vers le passage à niveau (le train vient du côté de la gare), puis cherche le quai de 80 m
 et le bâtiment (emprise de 2 à 26 m de l'axe) libres de tout obstacle entre 160 et 60 m avant le passage à niveau, au plus près de 70 m, avec un
 chemin d'accès libre (≤ 110 m) jusqu'à la route la plus proche. Résultat : gare à 70 m avant le passage à niveau, côté opposé à la mare, chemin de
-66 m. POI `gare_pays_ouche` (prop `gare`, champs `side` et `path`, contrat POI v12). Le train s'arrête le long du quai quand les oies le bloquent ;
+66 m. POI `gare_pays_frouch` (prop `gare`, champs `side` et `path`, contrat POI v12). Le train s'arrête le long du quai quand les oies le bloquent ;
 six voyageurs parisiens (valises) descendent sur le quai pendant la tenue. Quai surélevé (0,8 m) avec rampes, auvent, bâtiment avec horloge et
-enseigne, bancs et lampadaires de quai, chemin de gravier. Tests : `test_gare_du_pays_d_ouche`, cinématiques, accessoires.
+enseigne, bancs et lampadaires de quai, chemin de gravier. Tests : `test_gare_du_pays_d_frouch`, cinématiques, accessoires.

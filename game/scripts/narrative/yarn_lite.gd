@@ -1,6 +1,6 @@
 class_name YarnLite
 extends RefCounted
-## Lecteur d'un sous-ensemble de Yarn (agent 07) pour les dialogues d'Ouche City (narrative/dialogues/*.yarn).
+## Lecteur d'un sous-ensemble de Yarn (agent 07) pour les dialogues de Frouch City (narrative/dialogues/*.yarn).
 ##
 ## Un fichier contient des nœuds :
 ##     title: m01_intro

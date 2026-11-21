@@ -1,7 +1,7 @@
 extends SceneTree
 ## Écran titre et sauvegarde : le menu se construit, « Continuer » vise la bonne mission, la sauvegarde fait l'aller-retour
 ## disque (écriture, relecture), une sauvegarde corrompue est refusée sans planter, « Nouvelle partie » efface tout.
-## Usage : godot --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json
+## Usage : godot --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/frouch_menu_test.json
 var fails := 0
 
 

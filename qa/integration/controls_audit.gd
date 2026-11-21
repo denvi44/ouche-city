@@ -28,7 +28,7 @@ func key_event(code: int, meta := false) -> InputEventKey:
 
 
 func _run() -> void:
-	B.path = "/tmp/ouche_touches_test.cfg"
+	B.path = "/tmp/frouch_touches_test.cfg"
 	B.reset_all()
 	var jump0 := B.key_of("jump")
 	var inter0 := B.key_of("interact")

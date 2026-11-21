@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ouche-city/contracts/save.schema.json",
-  "title": "Sauvegarde Ouche City",
+  "$id": "https://frouch-city/contracts/save.schema.json",
+  "title": "Sauvegarde Frouch City",
   "description": "Sauvegarde d'un joueur, écrite uniquement par le serveur (local en solo : user://saves/, lobby en ligne). Jamais décidée par le client.",
   "version": 1,
   "type": "object",

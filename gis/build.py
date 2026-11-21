@@ -1,4 +1,4 @@
-"""Construction des tuiles d'Ouche City depuis le cache OSM.
+"""Construction des tuiles de Frouch City depuis le cache OSM.
 
 Usage :
     python -m gis.build            # tuiles du POC (rue Sainte-Foy) + graphe routier + POI
@@ -143,7 +143,7 @@ def _lire(path: Path, rep: Repere):
                 ways.append({"id": el["id"], "tags": el["tags"], "nodes": el["nodes"], "coords": coords})
     ways.sort(key=lambda w: abs(w["id"]))
     points.sort(key=lambda p: p["id"])
-    return nodes, ways, points, data.get("_ouche", {})
+    return nodes, ways, points, data.get("_frouch", {})
 
 
 @dataclass

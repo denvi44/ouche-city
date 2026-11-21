@@ -1,4 +1,4 @@
-"""Lieux fictifs d'Ouche City (agent 01, validé narration 07).
+"""Lieux fictifs de Frouch City (agent 01, validé narration 07).
 
 Tous les noms de bâtiments, commerces et monuments sont inventés : aucun nom réel n'est repris,
 qu'il vienne de l'IGN, d'OSM ou d'ailleurs. Seuls les noms de rues réels sont conservés.
@@ -21,17 +21,17 @@ ENSEIGNES = {
     "cafe": ["Le Bistrot du Bocage", "Café de la Mare aux Canards", "Bar-Tabac Le Pommier Penché",
              "Le Petit Trou Normand", "Café des Sports et du Tiercé"],
     "epicerie": ["Épicerie Chez Raymonde", "Supérette du Rond-Point", "L'Épicerie des Quatre Vaches"],
-    "coiffure": ["Tif'Ouche", "Le Bigoudi d'Or", "Hair du Bocage"],
+    "coiffure": ["Tif'Frouch", "Le Bigoudi d'Or", "Hair du Bocage"],
     "fleuriste": ["Les Pétales Pressés", "Au Bouquet de Pommiers"],
     "pharmacie": ["Pharmacie de la Pomme Verte", "Pharmacie du Donjon"],
     "garage": ["Garage Bielle et Pistons", "Mécanique Gaston Frères"],
     "presse": ["Presse L'Écho du Bocage", "Le Kiosque à Ragots"],
     "creperie": ["Crêperie Bolée & Galette", "La Galette Qui Roule"],
     "brocante": ["Brocante Tout Doit Disparaître (depuis 1987)", "Le Grenier de Tata Odette"],
-    "banque": ["Caisse Mutuelle du Pays d'Ouche", "Crédit Pommier"],
+    "banque": ["Caisse Mutuelle du Pays de Frouch", "Crédit Pommier"],
     "immobilier": ["Immo Colombages", "Agence Clé des Champs"],
     "fromagerie": ["Fromagerie La Croûte Fleurie", "Au Plateau du Dimanche"],
-    "quincaillerie": ["Quincaillerie Clou & Cie", "Bricol'Ouche"],
+    "quincaillerie": ["Quincaillerie Clou & Cie", "Bricol'Frouch"],
     "restaurant": ["Restaurant L'Auberge du Cidre Doux", "La Table de Fernand", "Pizzeria Mamma Normandia"],
     "vetements": ["Boutique Laine et Bottes", "Mode Bocage Chic"],
     "opticien": ["Optique Yeux de Lynx"],
@@ -620,7 +620,7 @@ TAU_FICTION = 2 * math.pi
 
 # --- Mission 06 « Les courses de 8 h » : le supermarché -------------------------------------------------
 M06 = "m06_courses_de_8h"
-LABELS_M06 = {"supermarche": "Supermarché Le Panier d'Ouche"}
+LABELS_M06 = {"supermarche": "Supermarché Le Panier de Frouch"}
 SUPER_W = 26.0            # m le long de la façade
 SUPER_D = 18.0            # m de profondeur
 
@@ -743,9 +743,9 @@ def lieux_mission07(tuiles: dict, taille: float, normaliser, spawn, utilises: se
 # --- Mission 08 « Les oies font grève » : la voie ferrée et la mare des oies ---------------------------------
 M08 = "m08_oies_en_greve"
 LABELS_M08 = {
-    "passage_niveau": "Passage à niveau du Pays d'Ouche",
+    "passage_niveau": "Passage à niveau du Pays de Frouch",
     "etang_oies": "La mare des oies de Mémé Odette",
-    "gare_pays_ouche": "Gare du Pays d'Ouche",
+    "gare_pays_frouch": "Gare du Pays de Frouch",
 }
 GARE_QUAI = 80.0            # longueur du quai (m)
 GARE_LOT = (2.0, 26.0)      # emprise latérale (m depuis l'axe de la voie) : quai, bâtiment et parvis
@@ -854,7 +854,7 @@ def lieux_mission08(tuiles: dict, taille: float, normaliser, spawn, utilises: se
     gare = _gare(tuiles, taille, cx, cz, dr, longueur, obstacles)
     if gare:
         u, cote, chemin = gare
-        g = _poi8("gare_pays_ouche", LABELS_M08["gare_pays_ouche"], cx + dr[0] * u, cz + dr[1] * u, f, taille, "station", prop="gare", radius=40.0, kind="landmark")
+        g = _poi8("gare_pays_frouch", LABELS_M08["gare_pays_frouch"], cx + dr[0] * u, cz + dr[1] * u, f, taille, "station", prop="gare", radius=40.0, kind="landmark")
         g["side"] = -cote           # +1 : côté +X local (droite en suivant le cap de la voie)
         g["path"] = chemin
         out.append(g)

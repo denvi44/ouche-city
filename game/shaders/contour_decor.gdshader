@@ -1,4 +1,4 @@
-// Ouche City — contour « inverted hull » du décor (agent 03).
+// Frouch City — contour « inverted hull » du décor (agent 03).
 // Le maillage de contour est une copie du bâti dont chaque sommet porte, dans COLOR, une normale
 // LISSÉE (moyenne des faces voisines) : en gonflant le long de cette normale, les coins ne
 // s'ouvrent pas. Les faces avant sont masquées (cull_front) : seule reste une bordure sombre.

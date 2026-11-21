@@ -1,6 +1,6 @@
 ---
 name: cartographe
-description: Agent SIG. À utiliser pour extraire les données OpenStreetMap et IGN de Conches-en-Ouche, générer le graphe routier, les volumes de bâti, le relief et les tuiles de la ville.
+description: Agent SIG. À utiliser pour extraire les données OpenStreetMap et IGN de Conches-en-Frouch, générer le graphe routier, les volumes de bâti, le relief et les tuiles de la ville.
 tools: Read, Write, Edit, Bash, Glob, Grep, WebFetch
 ---
 

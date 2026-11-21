@@ -1,4 +1,4 @@
-// Ouche City — éclairage cel-shading commun (agent 03).
+// Frouch City — éclairage cel-shading commun (agent 03).
 // Trois paliers nets (plein jour / mi-teinte / ombre), bords anti-crénelés, ombres portées dures.
 // Le palier d'ombre ne reçoit que la lumière ambiante (teintée par le cycle jour/nuit) :
 // l'ombre prend donc la couleur du ciel, jamais du noir.

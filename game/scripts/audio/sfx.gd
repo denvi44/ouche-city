@@ -1,5 +1,5 @@
 extends Node
-## Gestionnaire audio d'Ouche City (agent 08) — autoload « Sfx ».
+## Gestionnaire audio de Frouch City (agent 08) — autoload « Sfx ».
 ##
 ## - Sons courts : `play(nom)` (2D) ou `play_at(nom, position)` (3D, atténué avec la distance).
 ## - Boucles tenues par leur propriétaire (moteur, tracteur) : `make_loop`.

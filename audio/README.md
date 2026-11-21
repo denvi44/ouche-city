@@ -1,4 +1,4 @@
-# Audio d'Ouche City
+# Audio de Frouch City
 
 Tous les sons sont synthétisés par le code (voir `docs/decisions/0006-audio-synthetise.md`).
 
@@ -24,7 +24,7 @@ Tous les sons sont synthétisés par le code (voir `docs/decisions/0006-audio-sy
 ## Écouter / retravailler
 
 ```sh
-godot --headless --path game -s ../audio/export_wav.gd -- --out=/tmp/ouche-audio
+godot --headless --path game -s ../audio/export_wav.gd -- --out=/tmp/frouch-audio
 ```
 
 Remplacer un son : déposer `game/assets/audio/<nom>.ogg` (ou `.wav`) ; `Sfx.stream_for` le prend à la place de la synthèse.

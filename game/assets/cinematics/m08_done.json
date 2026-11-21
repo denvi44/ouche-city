@@ -7,7 +7,7 @@
     {
       "dur": 4.5,
       "cam": {
-        "at": "gare_pays_ouche",
+        "at": "gare_pays_frouch",
         "off": [
           12,
           2.6,
@@ -15,7 +15,7 @@
         ]
       },
       "cam_to": {
-        "at": "gare_pays_ouche",
+        "at": "gare_pays_frouch",
         "off": [
           9,
           2.2,
@@ -23,7 +23,7 @@
         ]
       },
       "look": {
-        "at": "gare_pays_ouche",
+        "at": "gare_pays_frouch",
         "off": [
           -6,
           1.7,

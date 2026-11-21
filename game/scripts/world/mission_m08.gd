@@ -1,7 +1,7 @@
 class_name MissionM08
 extends MissionBase
 ## Mission 08 « Les oies font grève » (agent 05) : vous êtes l'oie meneuse. Rassemblez le troupeau de la mare d'un « HONK ! »,
-## menez-le sur la voie ferrée et bloquez le Train des Vacances (17 h 42, Paris → Pays d'Ouche) assez longtemps pour que les
+## menez-le sur la voie ferrée et bloquez le Train des Vacances (17 h 42, Paris → Pays de Frouch) assez longtemps pour que les
 ## Parisiens descendent et s'attendrissent. Le garde-barrière tente de chasser les oies ; un « HONK ! » bien placé le fait reculer.
 ##
 ## Règles : le train freine toujours, sans exception (humour tendre : personne n'est blessé). Il s'arrête devant les oies et attend
@@ -112,7 +112,7 @@ func setup(pois: Array, ground: Callable, _vehicle: Vehicle, players_root: Node3
 	var w := get_parent()
 	day_night = w.get("day_night")
 	for p in pois:
-		if p.id == "gare_pays_ouche":
+		if p.id == "gare_pays_frouch":
 			station_side = int(p.get("side", -1))
 			zones["station"] = Vector3(float(p.position[0]), ground.call(float(p.position[0]), float(p.position[1])), float(p.position[1]))
 		if p.id == "passage_niveau" or p.id == "etang_oies":

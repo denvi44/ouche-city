@@ -817,7 +817,7 @@ func _add_rail(root: Node3D) -> void:
 	root.add_child(hut)
 
 
-## Gare du Pays d'Ouche (POI `gare_pays_ouche`, prop `gare`) : quai, auvent, bâtiment des voyageurs avec horloge et enseigne, mobilier du quai
+## Gare du Pays de Frouch (POI `gare_pays_frouch`, prop `gare`) : quai, auvent, bâtiment des voyageurs avec horloge et enseigne, mobilier du quai
 ## (bancs, lampadaires, panneaux), chemin de gravier jusqu'à la route. Repère du POI : +Z le long de la voie ; `side` (+1 / -1) donne le côté.
 func _add_gare(root: Node3D) -> void:
 	var poi: Dictionary = root.get_meta("poi", {})
@@ -833,7 +833,7 @@ func _add_gare(root: Node3D) -> void:
 	gare.add_child(PropKit.station_canopy().build())
 	gare.add_child(PropKit.station_building().build())
 	# Enseignes (face quai et face parvis) et numéro de quai.
-	for spec in [[Vector3(10.0, 5.6, 0.0), -PI / 2.0, "GARE DU PAYS D'OUCHE"], [Vector3(19.1, 5.6, 0.0), PI / 2.0, "GARE DU PAYS D'OUCHE"]]:
+	for spec in [[Vector3(10.0, 5.6, 0.0), -PI / 2.0, "GARE DU PAYS DE FROUCH"], [Vector3(19.1, 5.6, 0.0), PI / 2.0, "GARE DU PAYS DE FROUCH"]]:
 		var board := MeshInstance3D.new()
 		var bm := BoxMesh.new()
 		bm.size = Vector3(0.12, 0.9, 7.0)

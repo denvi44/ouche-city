@@ -1,4 +1,4 @@
-// Ouche City — fenêtres, volets, portes, vitrines : façades peintes (agent 03).
+// Frouch City — fenêtres, volets, portes, vitrines : façades peintes (agent 03).
 // Aucune texture image : tout est dessiné en aplats par le shader, dans l'esprit « peint à la main ».
 //
 // Entrées (par mur, fournies par CityBuilder) :

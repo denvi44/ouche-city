@@ -887,7 +887,7 @@ static func goose_pond() -> PropKit:
 	k.add_box(Vector3(1.9, 0.1, 1.5), Vector3(9.5, 1.15, 2.0), Color(0.36, 0.25, 0.17), Vector3(0, 0, 0.12))
 	return k
 
-# --- Gare du Pays d'Ouche (mission 08) ---------------------------------------------------------------------------------------------------
+# --- Gare du Pays de Frouch (mission 08) ---------------------------------------------------------------------------------------------------
 ## Repère : +Z le long de la voie, +X vers le bâtiment (le quai est entre la voie, x ≈ 0, et le bâtiment). Le monde tourne le tout de 180° si
 ## la gare est de l'autre côté. Quai : x de 2,2 à 6,4 m, 80 m de long, 0,8 m de haut ; bâtiment : x de 10 à 19 m, 24 m de long.
 

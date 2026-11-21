@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ouche-city/contracts/cinematic.schema.json",
-  "title": "Cinématique Ouche City",
+  "$id": "https://frouch-city/contracts/cinematic.schema.json",
+  "title": "Cinématique Frouch City",
   "description": "Scène d'introduction ou de fin de mission : suite de plans de caméra ancrés sur des points d'intérêt (poi.json). Repère local d'un lieu : +Z vers la rue, +X à droite, +Y en haut, origine au sol du point. Narration uniquement (agent 08) ; lecture par game/scripts/cinematic/. v1.",
   "version": 1,
   "type": "object",
