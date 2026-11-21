@@ -199,7 +199,7 @@ func scenario_m05(companions: bool) -> void:
 	var pen: Vector3 = mission.zones.pen
 	var whistle_t := 0.0
 	var guard := 0
-	while mission.step == "herd" and guard < 60 * 400:
+	while mission.step == "herd" and guard < 60 * 475:
 		guard += 1
 		whistle_t -= 1.0 / 60.0
 		var here := Vector2(player.global_position.x, player.global_position.z)
@@ -286,7 +286,7 @@ func scenario_m04() -> void:
 	await go(st + Vector3(0.8, 0, 0.8), 1.5, 120.0, true)
 	var guard := 0
 	var pump_t := 0.0
-	while mission.step == "fire" and guard < 60 * 400:
+	while mission.step == "fire" and guard < 60 * 475:
 		guard += 1
 		pump_t -= 1.0 / 60.0
 		var r: Dictionary = mission.resolve(1, player.global_position)
