@@ -23,3 +23,7 @@ Exemples : m05 `timeLimitSec` 480 ; m06 mini-jeu `MINI_SPEED` 0,8 et zone 0,36-0
 m01 : le bot de conduite ne sait pas faire demi-tour (pas de test de conduite sur les rues de vallée). m02-m03 : pas de vraie IA de pilotage adverse (Dylan suit un script). m04 : pas de météo.
 m06 : intérieur du supermarché seulement. m07 : humour scatologique volontairement hors champ (onomatopées, fumée). m08 : voyageurs immobiles, pas de passage à niveau routier ni de barrières animées.
 Toutes : pas de voix, pas d'animations de scène ; cinématiques = caméra + légendes.
+
+## Histoire et enchaînement
+Voir `narrative/histoire.md` : fil rouge du Label, calendrier (samedi → vendredi), scènes `bridge` entre missions et `m08_epilogue`.
+Mission 3 : à l'entrée dans la première manche, `hud_lines` affiche « Comment jouer » ; `PICK_FIRST` = 20 s, `PICK_TIME` = 10 s.

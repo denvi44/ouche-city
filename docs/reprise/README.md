@@ -4,6 +4,7 @@ Ce dossier est le **point d'entrée** pour continuer le projet sans l'historique
 
 | Fichier | Contenu |
 | --- | --- |
+| **`10-etat-courant.md`** | **À lire en premier si tu reprends au milieu** : où j'en suis, ce qui est en cours, pièges, historique des pannes |
 | `01-etat-des-lieux.md` | Ce qui existe, ce qui est vérifié, ce qui ne l'est pas, chiffres clés |
 | `02-architecture.md` | Dossiers, autoloads, patrons de code (mission, réseau, rendu), où mettre quoi |
 | `03-commandes-et-tests.md` | Toutes les commandes, la pyramide de tests, pièges d'exécution (à lire avant de lancer quoi que ce soit) |
