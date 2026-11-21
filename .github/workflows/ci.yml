@@ -162,12 +162,24 @@ jobs:
           ditto -c -k --keepParent "$APP" build/macos/OucheCity-signed.zip
           xcrun notarytool submit build/macos/OucheCity-signed.zip --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" --wait
           xcrun stapler staple "$APP"
-      - name: Signature absente
+      - name: Signature ad hoc (secrets Apple absents)
         if: env.APPLE_CERT_P12_BASE64 == ''
         run: |
-          echo "::warning::Secrets Apple absents, build macOS non signée (voir docs/decisions/0001, ticket devops)."
+          echo "::warning::Secrets Apple absents : signature ad hoc seulement (clic droit, Ouvrir, au premier lancement)."
+          codesign --force --deep --sign - "build/macos/Ouche City.app"
+      - name: Empaqueter (ditto et tar conservent permissions et liens)
+        run: |
+          cd build/macos
+          rm -f OucheCity.zip OucheCity-signed.zip
+          ditto -c -k --keepParent "Ouche City.app" OucheCity-mac.zip
+          tar -czf OucheCity-mac.tar.gz "Ouche City.app"
+          ls -la
       - uses: actions/upload-artifact@v4
-        with: { name: ouche-city-macos, path: build/macos/*.zip }
+        with:
+          name: ouche-city-macos
+          path: |
+            build/macos/OucheCity-mac.tar.gz
+            build/macos/OucheCity-mac.zip
 
   server-image:
     name: Image Docker du serveur dédié
