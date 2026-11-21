@@ -158,28 +158,32 @@ class Minimap:
 		var r := minf(size.x, size.y) * 0.5 - 4.0
 		var k := r / RADIUS_M
 		draw_circle(c, r + 4.0, HudWidgets.INK)
-		draw_circle(c, r, Color(0.82, 0.88, 0.72))
+		draw_circle(c, r, Color(0.2, 0.24, 0.33))          # fond ardoise : jamais de vert sous les routes
 		load_roads()
-		for road in _roads:
-			var pts: PackedVector2Array = road.pts
-			var near := false
-			for p in pts:
-				if p.distance_to(player_pos) < RADIUS_M * 1.4:
-					near = true
-					break
-			if not near:
-				continue
-			var poly := PackedVector2Array()
-			for p in pts:
-				poly.append(HudWidgets.to_map(p, player_pos, k, c))
-			var kind: String = road.kind
-			var col := Color(0.96, 0.93, 0.85) if kind in ["secondary", "primary", "tertiary"] else (Color(0.9, 0.85, 0.72) if kind == "residential" else Color(0.78, 0.72, 0.6))
-			var wd := 5.0 if kind in ["secondary", "primary", "tertiary"] else (3.5 if kind == "residential" else 1.5)
-			for i in poly.size() - 1:
-				var a := poly[i]
-				var b := poly[i + 1]
-				if a.distance_to(c) < r + 30.0 or b.distance_to(c) < r + 30.0:
-					draw_line(HudWidgets.clamp_to_disc(a, c, r), HudWidgets.clamp_to_disc(b, c, r), col, wd)
+		# Disque de découpe : les routes sont coupées proprement au bord, jamais abandonnées parce qu'un sommet est loin.
+		var disc := PackedVector2Array()
+		for i in 40:
+			disc.append(c + Vector2(cos(TAU * float(i) / 40.0), sin(TAU * float(i) / 40.0)) * (r - 1.0))
+		var layers := [["residential", 5.0, Color(0.93, 0.88, 0.76)], ["major", 8.0, Color(1.0, 0.97, 0.88)], ["small", 2.5, Color(0.7, 0.68, 0.62)]]
+		for layer in [0, 1]:      # 0 : liseré sombre, 1 : remplissage clair
+			for road in _roads:
+				var pts: PackedVector2Array = road.pts
+				var near := false
+				for p in pts:
+					if p.distance_to(player_pos) < RADIUS_M * 1.6:
+						near = true
+						break
+				if not near:
+					continue
+				var poly := PackedVector2Array()
+				for p in pts:
+					poly.append(HudWidgets.to_map(p, player_pos, k, c))
+				var kind: String = road.kind
+				var spec: Array = layers[1] if kind in ["secondary", "primary", "tertiary"] else (layers[0] if kind == "residential" else layers[2])
+				var wd: float = spec[1]
+				var col: Color = spec[2] if layer == 1 else HudWidgets.INK
+				for piece in Geometry2D.intersect_polyline_with_polygon(poly, disc):
+					draw_polyline(piece, col, wd + (0.0 if layer == 1 else 2.5), true)
 		# Balises : points colorés (au bord du disque quand elles sont loin).
 		for m in markers:
 			var wp := Vector2(m.pos.x, m.pos.z)

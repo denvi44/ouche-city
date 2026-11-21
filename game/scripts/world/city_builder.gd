@@ -10,6 +10,8 @@ const MAT_DIR := "res://assets/materials/"
 const Y_VEGETATION := 0.03
 const Y_TROTTOIR := 0.07
 const Y_ROUTE := 0.1
+## Pas maximal (m) des rubans de route et de trottoir : le ruban suit le relief tous les 2 m (sans cela, une longue arête reste plane et l'herbe affleure au travers).
+const RIBBON_STEP := 2.0
 
 ## Matériaux de murs : façades peintes (fenêtres, volets, portes) sauf les annexes (remises, garages).
 const WALL_MAT := {
@@ -400,9 +402,35 @@ func _add_church_tower(ring: PackedVector2Array, m: Dictionary, h: float, ground
 
 
 ## Ruban le long d'une polyligne (routes, trottoirs).
-func add_ribbon(points: PackedVector2Array, width: float, y: float, mat: String) -> void:
-	if points.size() < 2:
+## Rééchantillonne une polyligne : aucun tronçon plus long que `step` (les sommets d'origine sont conservés).
+static func densify(points: PackedVector2Array, step: float) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for i in points.size():
+		out.append(points[i])
+		if i < points.size() - 1:
+			var seg := points[i].distance_to(points[i + 1])
+			var n := int(ceil(seg / step))
+			for k in range(1, n):
+				out.append(points[i].lerp(points[i + 1], float(k) / float(n)))
+	return out
+
+
+## Altitude de base d'une section de route : le point le plus haut du terrain sur toute la largeur (`half` de part et d'autre de l'axe).
+## Le ruban reste ainsi toujours au-dessus du sol (jamais de bande d'herbe qui coupe l'asphalte) et sans dévers ; chaussée et trottoir partagent ce profil.
+func rung_height(center: Vector2, perp: Vector2, half: float) -> float:
+	var h := height_at(center.x, center.y)
+	for k in [-1.0, -0.5, 0.5, 1.0]:
+		var q: Vector2 = center + perp * half * float(k)
+		h = maxf(h, height_at(q.x, q.y))
+	return h
+
+
+func add_ribbon(points_in: PackedVector2Array, width: float, y: float, mat: String, cross_width := -1.0) -> void:
+	if points_in.size() < 2:
 		return
+	var points := densify(points_in, RIBBON_STEP)
+	var cross_half := (cross_width if cross_width > 0.0 else width) * 0.5
+	var base := PackedFloat32Array()
 	var st := _tool(mat)
 	var half := width * 0.5
 	var left := PackedVector2Array()
@@ -422,13 +450,14 @@ func add_ribbon(points: PackedVector2Array, width: float, y: float, mat: String)
 			scale = clampf(1.0 / maxf(absf(perp.dot(Vector2(-seg.y, seg.x))), 0.01), 1.0, 2.0)
 		left.append(points[i] + perp * half * scale)
 		right.append(points[i] - perp * half * scale)
+		base.append(rung_height(points[i], perp, cross_half))
 	var v := 0.0
 	for i in points.size() - 1:
 		var seg_len := points[i].distance_to(points[i + 1])
-		var l0 := Vector3(left[i].x, height_at(left[i].x, left[i].y) + y, left[i].y)
-		var r0 := Vector3(right[i].x, height_at(right[i].x, right[i].y) + y, right[i].y)
-		var r1 := Vector3(right[i + 1].x, height_at(right[i + 1].x, right[i + 1].y) + y, right[i + 1].y)
-		var l1 := Vector3(left[i + 1].x, height_at(left[i + 1].x, left[i + 1].y) + y, left[i + 1].y)
+		var l0 := Vector3(left[i].x, base[i] + y, left[i].y)
+		var r0 := Vector3(right[i].x, base[i] + y, right[i].y)
+		var r1 := Vector3(right[i + 1].x, base[i + 1] + y, right[i + 1].y)
+		var l1 := Vector3(left[i + 1].x, base[i + 1] + y, left[i + 1].y)
 		_quad(st, l0, r0, r1, l1, Vector3.UP,
 			Vector2(0, v), Vector2(width, v), Vector2(width, v + seg_len), Vector2(0, v + seg_len))
 		v += seg_len
@@ -456,7 +485,7 @@ func add_road(r: Dictionary) -> void:
 	var mat: String = SURFACE_MAT.get(r.get("surface", "asphalt"), "route")
 	if r.kind in ["footway", "pedestrian"] and mat == "route":
 		mat = "paves"
-	add_ribbon(pts, w, Y_ROUTE, mat)
+	add_ribbon(pts, w, Y_ROUTE, mat, w + 2.0 * sw)
 
 
 func add_vegetation(v: Dictionary) -> void:

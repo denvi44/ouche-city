@@ -66,6 +66,7 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/guide_mode.gd
 	$(GODOT) --headless --path game -s ../qa/integration/props_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/ambient_audit.gd
+	$(GODOT) --headless --path game -s ../qa/integration/roads_cover_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/feasibility/audit.gd
 
 ## Captures 1920×1080 de la scène témoin (GPU conseillé ; sinon rendu Compatibility).
