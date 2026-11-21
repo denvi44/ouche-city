@@ -20,6 +20,7 @@ city:
 	cp -r gis/out/tiles gis/out/poi.json gis/out/road_graph.json gis/out/manifest.json game/assets/city/
 	rm -rf game/assets/missions && mkdir -p game/assets/missions && cp missions/*.json game/assets/missions/
 	rm -rf game/assets/dialogues && mkdir -p game/assets/dialogues && cp narrative/dialogues/*.yarn game/assets/dialogues/
+	rm -rf game/assets/cinematics && mkdir -p game/assets/cinematics && cp narrative/cinematics/*.json game/assets/cinematics/
 
 test: test-py test-godot
 
@@ -54,6 +55,7 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd
 	$(GODOT) --headless --path game -s ../qa/integration/controls_audit.gd
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/cinematic_audit.gd
 	$(GODOT) --headless --path game -s ../qa/integration/menu_save_audit.gd -- --save=/tmp/ouche_menu_test.json
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/feasibility/audit.gd
 

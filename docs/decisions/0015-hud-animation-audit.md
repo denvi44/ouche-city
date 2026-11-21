@@ -40,3 +40,11 @@ Saut 0,80 m / 0,58 s (4,5 m en courant). Ajout d'une montée de marche automatiq
 réappliqué au démarrage. Conflit = échange des deux actions ; Cmd/Ctrl/Alt refusés (pas de raccourci système).
 Écran `controls_menu.gd` accessible depuis le menu principal et la pause, aussi sensibilité souris et axe Y
 (`qa/integration/controls_audit.gd`).
+
+## Cinématiques
+`narrative/cinematics/*.json` (contrat `contracts/cinematic.schema.json`) : 21 scènes (introduction + réussite pour les
+7 missions, échec quand il existe), plans de caméra ancrés sur les POI (repère local du lieu), légendes, carton de titre.
+Lecteur `game/scripts/cinematic/cinematic_player.gd` (bandes noires, fondus, travelling, passage avec la touche « passer le
+dialogue », jeu en pause en solo) et metteur en scène `cinematic_director.gd` (intro au démarrage, fin quand l'étape passe à
+done/failed). Désactivable dans la pause. Audit `qa/integration/cinematic_audit.gd` : caméra jamais dans un mur ni derrière un
+bâtiment (un monde par mission), lecture complète, rétablissement de la caméra et du jeu.

@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m06_intro",
+  "mission": "m06",
+  "when": "intro",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          32,
+          36,
+          32
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          18,
+          24,
+          20
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Huit heures pile : l'heure des courses… et des anciens qui ont tout leur temps."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          -8,
+          3.4,
+          23
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          2.2,
+          8.5
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          -4,
+          2.9,
+          18
+        ]
+      },
+      "caption": {
+        "who": "Ginette",
+        "text": "Le caddie à deux à l'heure, la liste à rallonge, et la caisse un fermée. Comme d'habitude."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "supermarche",
+        "off": [
+          10,
+          2.4,
+          20
+        ]
+      },
+      "look": {
+        "at": "supermarche",
+        "off": [
+          0,
+          1.6,
+          8.5
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "supermarche",
+        "off": [
+          6,
+          2.1,
+          16
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "On ne double pas Mme Hubert. On l'attend, avec le sourire."
+      }
+    }
+  ],
+  "title": "Les courses de 8 h",
+  "subtitle": "Mardi · 8 h 00 · Le Panier d'Ouche"
+}

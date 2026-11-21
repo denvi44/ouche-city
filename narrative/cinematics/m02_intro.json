@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "m02_intro",
+  "mission": "m02",
+  "when": "intro",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "garage_kevin",
+        "off": [
+          30,
+          40,
+          34
+        ]
+      },
+      "look": {
+        "at": "garage_kevin",
+        "off": [
+          0,
+          0,
+          0
+        ]
+      },
+      "fov": 60,
+      "cam_to": {
+        "at": "garage_kevin",
+        "off": [
+          14,
+          26,
+          20
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Samedi, dix-neuf heures. Dylan a défié tout le quartier : drag à vingt et une heures, sur la route de campagne."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "garage_kevin",
+        "off": [
+          6,
+          2.4,
+          8
+        ]
+      },
+      "look": {
+        "at": "garage_kevin",
+        "off": [
+          0,
+          1.2,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "garage_kevin",
+        "off": [
+          4,
+          1.9,
+          5.5
+        ]
+      },
+      "caption": {
+        "who": "Kévin",
+        "text": "La Fusée a besoin de jantes, d'un pot et de néons. Beaucoup de néons."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "casse_dugenou",
+        "off": [
+          9,
+          3.0,
+          11
+        ]
+      },
+      "look": {
+        "at": "casse_dugenou",
+        "off": [
+          0,
+          1.2,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "casse_dugenou",
+        "off": [
+          6,
+          2.4,
+          8
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "Chez Dugenou, on trouve de tout. Surtout ce qu'on ne cherchait pas."
+      }
+    }
+  ],
+  "title": "Tuning du samedi soir",
+  "subtitle": "Samedi · 19 h 00 · le garage de Kévin"
+}

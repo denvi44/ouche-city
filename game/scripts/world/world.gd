@@ -47,6 +47,9 @@ func _ready() -> void:
 	add_child(amb)
 	if DisplayServer.get_name() != "headless":
 		add_child(preload("res://ui/hud.gd").new())
+	var director := CinematicDirector.new()
+	director.name = "Cinematiques"
+	add_child(director)
 
 	if Net.mode == Net.Mode.NONE:
 		# Scène lancée directement (éditeur, tests, captures) : solo local.

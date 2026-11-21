@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m04_failed",
+  "mission": "m04",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "place_fete",
+        "off": [
+          8,
+          2.6,
+          9
+        ]
+      },
+      "look": {
+        "at": "place_fete",
+        "off": [
+          0,
+          1.2,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "place_fete",
+        "off": [
+          5.5,
+          2.2,
+          6.5
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "Le méchoui est… très croustillant. On dira que c'est voulu."
+      }
+    }
+  ]
+}

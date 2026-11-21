@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m01_failed",
+  "mission": "m01",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "van_gege",
+        "off": [
+          7,
+          3.0,
+          8
+        ]
+      },
+      "look": {
+        "at": "van_gege",
+        "off": [
+          0,
+          1.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "van_gege",
+        "off": [
+          5,
+          2.4,
+          6
+        ]
+      },
+      "caption": {
+        "who": "Gégé",
+        "text": "Ben… on dira que c'était pour la science."
+      }
+    }
+  ]
+}

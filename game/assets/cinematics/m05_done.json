@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m05_done",
+  "mission": "m05",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "enclos_odette",
+        "off": [
+          8,
+          2.4,
+          10
+        ]
+      },
+      "look": {
+        "at": "enclos_odette",
+        "off": [
+          0,
+          1.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "enclos_odette",
+        "off": [
+          5.5,
+          2.0,
+          7.5
+        ]
+      },
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Les huit sont rentrées ! Tiens, un fromage. Il sent fort, mais il est bon."
+      }
+    }
+  ]
+}

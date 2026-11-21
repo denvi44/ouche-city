@@ -294,6 +294,13 @@ func _build_pause(root: Control) -> void:
 		Settings.subtitles = on
 		Settings.save_settings())
 	box.add_child(sub)
+	var cin := CheckButton.new()
+	cin.text = "Cinématiques d'introduction et de fin"
+	cin.button_pressed = Settings.cinematics
+	cin.toggled.connect(func(on: bool):
+		Settings.cinematics = on
+		Settings.save_settings())
+	box.add_child(cin)
 	var keys := Button.new()
 	keys.text = "Touches et souris"
 	keys.pressed.connect(func(): root.add_child(preload("res://ui/controls_menu.gd").new()))

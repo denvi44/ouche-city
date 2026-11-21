@@ -142,6 +142,8 @@ var bot_input := Callable()
 
 
 func gather_input(delta: float) -> Dictionary:
+	if CinematicPlayer.active and not is_ai:
+		return {"move": Vector2.ZERO, "yaw": _last_yaw, "jump": false, "sprint": false}
 	if bot_input.is_valid():
 		return bot_input.call(delta)
 	if Net.bot and Net.arg("bot-drive") != null and vehicle:

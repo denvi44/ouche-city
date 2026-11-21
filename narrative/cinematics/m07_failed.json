@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m07_failed",
+  "mission": "m07",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "wc_publics",
+        "off": [
+          8,
+          2.6,
+          10
+        ]
+      },
+      "look": {
+        "at": "wc_publics",
+        "off": [
+          0,
+          1.3,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "wc_publics",
+        "off": [
+          6,
+          2.2,
+          7.5
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Et ce fut un grand « PRRRT ». On fera comme si de rien n'était. Le voisin a tout vu."
+      }
+    }
+  ]
+}

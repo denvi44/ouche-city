@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m03_failed",
+  "mission": "m03",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "camp_pommiers",
+        "off": [
+          8,
+          2.6,
+          10
+        ]
+      },
+      "look": {
+        "at": "camp_pommiers",
+        "off": [
+          0,
+          1.6,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "camp_pommiers",
+        "off": [
+          6,
+          2.2,
+          7
+        ]
+      },
+      "caption": {
+        "who": "Ginette",
+        "text": "La sono est saisie. Elle sera rendue lundi, après la sieste du gendarme."
+      }
+    }
+  ]
+}

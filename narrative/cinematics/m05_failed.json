@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m05_failed",
+  "mission": "m05",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "pre_vaches",
+        "off": [
+          12,
+          3.0,
+          12
+        ]
+      },
+      "look": {
+        "at": "pre_vaches",
+        "off": [
+          0,
+          1.0,
+          0
+        ]
+      },
+      "fov": 55.0,
+      "cam_to": {
+        "at": "pre_vaches",
+        "off": [
+          9,
+          2.6,
+          9
+        ]
+      },
+      "caption": {
+        "who": "Mémé Odette",
+        "text": "Elles ont préféré la liberté. On les reverra à la fête de la pomme."
+      }
+    }
+  ]
+}
