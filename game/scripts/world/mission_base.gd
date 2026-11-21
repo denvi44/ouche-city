@@ -183,6 +183,36 @@ func hud_lines() -> PackedStringArray:
 	return PackedStringArray([title, objective()])
 
 
+## Jauges graphiques du HUD : [{id, label, value (0..1), color, text, zone (Vector2, facultatif : plage à viser ou à éviter),
+## danger (bool : plus c'est haut, pire c'est), cursor (bool : value est un curseur qui défile, ex. le rythme)}].
+func hud_gauges() -> Array:
+	return []
+
+
+## Balises d'objectif (boussole, minicarte, flèches de bord d'écran) : [{pos: Vector3, label: String, color: Color}].
+func hud_markers() -> Array:
+	return []
+
+
+## Jauge prête à l'emploi.
+static func gauge(id: String, label: String, value: float, color: Color, text := "", extra := {}) -> Dictionary:
+	var g := {"id": id, "label": label, "value": clampf(value, 0.0, 1.0), "color": color, "text": text}
+	g.merge(extra, true)
+	return g
+
+
+static func marker(pos: Vector3, label: String, color: Color) -> Dictionary:
+	return {"pos": pos, "label": label, "color": color}
+
+
+## Palette des balises (style guide : aplats chauds) : objectif, danger, lieu, allié.
+const C_GOAL := Color(0.97, 0.78, 0.2)
+const C_PLACE := Color(0.35, 0.7, 0.9)
+const C_DANGER := Color(0.85, 0.25, 0.2)
+const C_OK := Color(0.4, 0.75, 0.4)
+const C_ITEM := Color(0.95, 0.55, 0.2)
+
+
 ## Texte final (médaille, échec) affiché au centre de l'écran.
 func result_text() -> String:
 	return ""

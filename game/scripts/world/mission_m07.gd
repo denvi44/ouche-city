@@ -12,28 +12,28 @@ const MISSION_FILE := "res://assets/missions/m07_jus_de_pomme.json"
 const SYNC_PERIOD := 0.2
 const START_HOUR := 16.0
 const NEAR := {"door": 2.4, "wc": 3.0, "hubert": 2.4, "dog": 7.0, "post": 3.0}
-const BASE_RATE := 0.006                           # par seconde, à l'arrêt
-const WALK_ADD := 0.002                            # au-dessus de 1 m/s
+const BASE_RATE := 0.0045                          # par seconde, à l'arrêt
+const WALK_ADD := 0.0015                           # au-dessus de 1 m/s
 const RUN_ADD := 0.008                             # au-dessus de 5 m/s
-const COBBLE_ADD := 0.012                          # sur les pavés, au-dessus de 2,5 m/s
-const CLENCH_FACTOR := 0.4
-const CLENCH_SPEED := 2.0                          # m/s : marche de crabe
+const COBBLE_ADD := 0.010                         # sur les pavés, au-dessus de 2,5 m/s
+const CLENCH_FACTOR := 0.3
+const CLENCH_SPEED := 2.5                          # m/s : marche de crabe
 const STAMINA_DRAIN := 0.05
 const STAMINA_REGEN := 0.08
 const RELEASE_TIME := 3.0                          # s sans pouvoir serrer quand l'endurance tombe à zéro
 const RELEASE_SPIKE := 0.05
-const SPASM_PRESSURE := 0.04
-const SPASM_CLENCHED := 0.015
+const SPASM_PRESSURE := 0.03
+const SPASM_CLENCHED := 0.01
 const SPASM_EVERY := Vector2(9.0, 13.0)
-const DOG_SCARE := 0.08
-const START_PRESSURE := 0.2
+const DOG_SCARE := 0.05
+const START_PRESSURE := 0.15
 const CHAT_TIME := 6.0
 const CHAT_CUT := 1.5
 const QUEUE_TIME := 15.0
 const QUEUE_TIME_FAST := 7.0                       # quand Kévin Radio garde la file
 const WC_RELIEF := 0.55
 const SEARCH_TIME := 5.0
-const GOLD_PRESSURE := 0.7
+const GOLD_PRESSURE := 0.75
 const ID_GEGE := -1
 const ID_GINETTE := -2
 const ID_RADIO := -3
@@ -639,6 +639,12 @@ func _process(delta: float) -> void:
 		for p in _players_root.get_children():
 			if p is Player and not (p as Player).is_ai:
 				(p as Player).speed_cap = cap_for((p as Player).peer_id)
+				var pm := (p as Player).model
+				var vv := victim((p as Player).peer_id)
+				if pm != null and not vv.is_empty():
+					# Le corps raconte la mission : jambes serrées, buste penché, tremblement qui croît avec la pression.
+					pm.mood = "clench" if bool(vv.cl) else "normal"
+					pm.tremble = clampf((float(vv.p) - 0.45) / 0.5, 0.0, 1.0)
 			elif p is Player:
 				(p as Player).carrying = false
 
@@ -701,3 +707,31 @@ func result_text() -> String:
 	if step == "failed":
 		return {"accident": "PRRRRT !", "late": "Trop tard"}.get(result, "Accident")
 	return ""
+
+
+func hud_gauges() -> Array:
+	var out := []
+	var me := multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1
+	var v := victim(me)
+	if step == "run" and not v.is_empty():
+		out.append(gauge("pression", "Pression", float(v.p), C_DANGER, "%d %%" % int(float(v.p) * 100.0), {"danger": true, "zone": Vector2(GOLD_PRESSURE, 1.0), "shake": float(v.p) > 0.8}))
+		out.append(gauge("endurance", "Endurance " + ("(serré)" if bool(v.cl) else "(relâché)"), float(v.st), C_PLACE if not bool(v.cl) else C_ITEM, "", {"low_is_bad": true}))
+		out.append(gauge("temps", "Temps", time_left / time_limit, C_GOAL, MissionBase.format_time(time_left), {"low_is_bad": true}))
+		if str(v.fz) == "queue" or str(v.fz) == "search":
+			out.append(gauge("attente", "File" if str(v.fz) == "queue" else "Recherche de la clé", 1.0 - float(v.ft) / (QUEUE_TIME if str(v.fz) == "queue" else SEARCH_TIME), C_PLACE, "%d s" % int(ceil(float(v.ft)))))
+		if str(v.fz) == "chat":
+			out.append(gauge("causette", "Mme Hubert", _chat_left / CHAT_TIME, C_ITEM, "%d s" % int(ceil(_chat_left)), {"danger": true}))
+	return out
+
+
+func hud_markers() -> Array:
+	var out := []
+	if step != "run" or zones.is_empty():
+		return out
+	out.append(marker(_front_point("door", 1.0), "Chez vous (%d m)" % int(distance_home(multiplayer.get_unique_id() if multiplayer.has_multiplayer_peer() else 1)), C_GOAL))
+	out.append(marker(zones.wc, "Toilettes publiques", C_PLACE))
+	if not chat_done:
+		out.append(marker(spot("hubert"), "Mme Hubert (retient !)", C_DANGER))
+	if not dog_done:
+		out.append(marker(spot("dog"), "Chien du portail", C_DANGER))
+	return out

@@ -868,3 +868,43 @@ func result_text() -> String:
 	if step == "failed":
 		return {"burnt": "Agneau carbonisé", "late": "Trop tard"}.get(result, "Fête ratée")
 	return ""
+
+
+func hud_gauges() -> Array:
+	var out := []
+	if step == ITEMS_STEP:
+		out.append(gauge("temps", "Matériel", setup_left / 240.0, C_GOAL, MissionBase.format_time(setup_left), {"low_is_bad": true}))
+		out.append(gauge("objets", "Objets", float(items_taken.size()) / float(ITEMS.size()), C_OK, "%d / %d" % [items_taken.size(), ITEMS.size()]))
+	if step in ["fire", "serve"]:
+		out.append(gauge("feu", "Feu", heat, C_ITEM, "%d %%" % int(heat * 100.0), {"cursor": true, "zone": band, "danger_from": burn_above}))
+		out.append(gauge("cuisson", "Cuisson", cook, C_OK, "%d %%" % int(cook * 100.0)))
+		if burn > 0.01:
+			out.append(gauge("brule", "Brûlé", burn, C_DANGER, "%d %%" % int(burn * 100.0), {"danger": true}))
+	if step == "serve":
+		out.append(gauge("service", "Convives servis", float(_total_served()) / float(PLATES), C_OK, "%d / %d" % [_total_served(), PLATES]))
+		out.append(gauge("temps", "Service", serve_left / SERVE_TIME, C_GOAL, MissionBase.format_time(serve_left), {"low_is_bad": true}))
+	return out
+
+
+func hud_markers() -> Array:
+	var out := []
+	match step:
+		ITEMS_STEP:
+			for it in ITEMS:
+				if not item_taken(it) and item_pos.has(it):
+					out.append(marker(item_pos[it], ITEM_NAMES[it].capitalize(), C_ITEM))
+		"fire", "serve":
+			if zones.has("fete"):
+				out.append(marker(station(), "Foyer", C_GOAL))
+			if step == "serve":
+				for i in TABLE_LOCAL.size():
+					if int(served[i]) < per_table and table_pos(i) != Vector3.ZERO:
+						out.append(marker(table_pos(i), "Table %d" % (i + 1), C_PLACE))
+		"bonfire":
+			if zones.has("bucher"):
+				out.append(marker(zones.bucher, "Bûcher de la Saint-Jean", C_DANGER))
+	for d in dogs:
+		if d.st == "run" and _ground.is_valid():
+			var gy: float = _ground.call(float(d.x), float(d.z))
+			out.append(marker(Vector3(float(d.x), gy, float(d.z)), "Chien !", C_DANGER))
+	return out

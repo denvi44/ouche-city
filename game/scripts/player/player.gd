@@ -133,7 +133,13 @@ func _bot_drive_input() -> Dictionary:
 	return {"move": Vector2(0, -1), "yaw": atan2(-d.x, -d.z), "jump": false, "sprint": false}
 
 
+## Pilote automatique (QA, audit de faisabilité) : si valide, fournit l'entrée du joueur à la place du clavier.
+var bot_input := Callable()
+
+
 func gather_input(delta: float) -> Dictionary:
+	if bot_input.is_valid():
+		return bot_input.call(delta)
 	if Net.bot and Net.arg("bot-drive") != null and vehicle:
 		return _bot_drive_input()
 	if Net.bot:

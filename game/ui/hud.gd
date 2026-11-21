@@ -5,8 +5,20 @@ var _info: Label
 var _pause: PanelContainer
 var _open_btn: Button
 var _mission_label: Label
-var _hint: Label
+var _card: PanelContainer
+var _title: Label
+var _objective: Label
+var _gauge_box: VBoxContainer
+var _gauges := {}                   # id -> HudWidgets.GaugeBar
+var _status: Label
+var _minimap: HudWidgets.Minimap
+var _markers: HudWidgets.MarkerLayer
+var _prompt: PanelContainer
+var _key: Label
+var _prompt_text: Label
+var _speed_box: PanelContainer
 var _speed: Label
+var _hint: Label
 var _result: Label
 var _captions: Label
 var _dialogue: Label
@@ -56,28 +68,94 @@ func _outlined(l: Label, size: int) -> void:
 	l.add_theme_constant_override("outline_size", 8)
 
 
+func _panel_style(bg: Color, border := ThemeUtil.INK, radius := 12, width := 3) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.border_color = border
+	sb.set_border_width_all(width)
+	sb.set_corner_radius_all(radius)
+	sb.set_content_margin_all(12)
+	return sb
+
+
 func _build_mission(root: Control) -> void:
-	_mission_label = Label.new()
-	_mission_label.position = Vector2(24, 64)
-	_mission_label.custom_minimum_size = Vector2(620, 0)
-	_mission_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_outlined(_mission_label, 22)
-	root.add_child(_mission_label)
-	_hint = Label.new()
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_hint.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
-	_hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_hint.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	_hint.position.y -= 90
-	_outlined(_hint, 30)
-	root.add_child(_hint)
+	var ts: float = Settings.text_scale
+	# Carte de mission (haut gauche) : titre, consigne, jauges graphiques, journal.
+	_card = PanelContainer.new()
+	_card.position = Vector2(20, 58)
+	_card.add_theme_stylebox_override("panel", _panel_style(Color(0.2, 0.15, 0.12, 0.82), ThemeUtil.CREAM, 14, 2))
+	root.add_child(_card)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	box.custom_minimum_size = Vector2(480 * ts, 0)
+	_card.add_child(box)
+	_title = Label.new()
+	_title.add_theme_font_size_override("font_size", int(28 * ts))
+	_title.add_theme_color_override("font_color", Color(0.98, 0.8, 0.3))
+	box.add_child(_title)
+	_objective = Label.new()
+	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_objective.custom_minimum_size = Vector2(470 * ts, 0)
+	_objective.add_theme_font_size_override("font_size", int(19 * ts))
+	_objective.add_theme_color_override("font_color", ThemeUtil.CREAM)
+	box.add_child(_objective)
+	_gauge_box = VBoxContainer.new()
+	_gauge_box.add_theme_constant_override("separation", 4)
+	box.add_child(_gauge_box)
+	_status = Label.new()
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status.custom_minimum_size = Vector2(470 * ts, 0)
+	_status.add_theme_font_size_override("font_size", int(16 * ts))
+	_status.add_theme_color_override("font_color", Color(0.9, 0.86, 0.76))
+	box.add_child(_status)
+	_mission_label = _status
+	# Minicarte (haut droite) et balises d'objectif sur l'écran.
+	_minimap = HudWidgets.Minimap.new()
+	_minimap.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_minimap.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_minimap.position += Vector2(-18, 18)
+	root.add_child(_minimap)
+	_markers = HudWidgets.MarkerLayer.new()
+	root.add_child(_markers)
+	root.move_child(_markers, 0)
+	# Bulle d'action (bas centre) : touche + consigne.
+	_prompt = PanelContainer.new()
+	_prompt.add_theme_stylebox_override("panel", _panel_style(Color(0.97, 0.93, 0.82, 0.94), ThemeUtil.INK, 22, 3))
+	_prompt.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	_prompt.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_prompt.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_prompt.position.y -= 70
+	_prompt.visible = false
+	root.add_child(_prompt)
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 12)
+	_prompt.add_child(hb)
+	var cap := PanelContainer.new()
+	cap.add_theme_stylebox_override("panel", _panel_style(ThemeUtil.INK, ThemeUtil.INK, 8, 2))
+	hb.add_child(cap)
+	_key = Label.new()
+	_key.add_theme_font_size_override("font_size", int(26 * ts))
+	_key.add_theme_color_override("font_color", ThemeUtil.CREAM)
+	cap.add_child(_key)
+	_prompt_text = Label.new()
+	_prompt_text.add_theme_font_size_override("font_size", int(22 * ts))
+	_prompt_text.add_theme_color_override("font_color", ThemeUtil.INK)
+	_prompt_text.custom_minimum_size = Vector2(0, 0)
+	hb.add_child(_prompt_text)
+	_hint = _prompt_text
+	# Compteur de vitesse (bas droite, au volant).
+	_speed_box = PanelContainer.new()
+	_speed_box.add_theme_stylebox_override("panel", _panel_style(Color(0.2, 0.15, 0.12, 0.85), ThemeUtil.CREAM, 18, 2))
+	_speed_box.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	_speed_box.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_speed_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_speed_box.position -= Vector2(20, 50)
+	_speed_box.visible = false
+	root.add_child(_speed_box)
 	_speed = Label.new()
-	_speed.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	_speed.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_speed.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	_speed.position -= Vector2(24, 60)
-	_outlined(_speed, 40)
-	root.add_child(_speed)
+	_speed.add_theme_font_size_override("font_size", int(30 * ts))
+	_speed.add_theme_color_override("font_color", ThemeUtil.CREAM)
+	_speed_box.add_child(_speed)
 	_result = Label.new()
 	_result.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_result.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
@@ -254,19 +332,67 @@ func _process(_delta: float) -> void:
 	var mode_txt: String = {Net.Mode.SOLO: "Solo", Net.Mode.HOST: "Hôte", Net.Mode.CLIENT: "En ligne", Net.Mode.DEDICATED: "Serveur"}.get(Net.mode, "—")
 	var world := get_parent()
 	var mission := world.get("mission") as MissionBase if world else null
+	var me: Player = null
 	if mission:
-		_mission_label.text = mission_text(mission)
-		var me := world.players_root.get_node_or_null(str(multiplayer.get_unique_id())) as Player
-		_hint.text = ""
-		_speed.text = ""
+		me = world.players_root.get_node_or_null(str(multiplayer.get_unique_id())) as Player
+		var lines := mission.hud_lines()
+		var gauges := mission.hud_gauges()
+		_title.text = str(lines[0]) if lines.size() > 0 else ""
+		_objective.text = str(lines[1]) if lines.size() > 1 else ""
+		_update_gauges(gauges)
+		_status.text = "\n".join(status_lines(lines, not gauges.is_empty()))
+		_status.visible = _status.text != ""
+		_card.visible = true
+		var markers := mission.hud_markers()
+		_markers.markers = markers
+		_markers.text_scale = Settings.text_scale
+		_markers.queue_redraw()
+		_minimap.markers = markers
+		if me:
+			_minimap.player_pos = Vector2(me.global_position.x, me.global_position.z)
+			_minimap.player_yaw = me.facing
+		_minimap.queue_redraw()
+		_prompt.visible = false
+		_speed_box.visible = false
 		if me:
 			var r := mission.resolve(me.peer_id, me.global_position)
 			if r.has("label"):
-				_hint.text = ("[E]  " if r.kind != "none" else "") + r.label
+				_prompt.visible = true
+				_key.get_parent().visible = r.kind != "none"
+				_key.text = "E"
+				_prompt_text.text = str(r.label)
 			if me.is_driving() and me.vehicle:
-				_speed.text = "%d km/h   ·   [R] Radio Pommiers %s" % [int(me.vehicle.speed_kmh()), "♪" if Sfx.radio_on else "(éteinte)"]
+				_speed_box.visible = true
+				_speed.text = "%d km/h   ·   [R] Radio %s" % [int(me.vehicle.speed_kmh()), "♪" if Sfx.radio_on else "(éteinte)"]
 		_result.text = mission.result_text()
+	_captions.text = caption_text(_caption_lines, Time.get_ticks_msec() / 1000.0) if Settings.subtitles else ""
 	if _dialogue and Time.get_ticks_msec() / 1000.0 > _dialogue_until:
 		_dialogue.text = ""
-	_captions.text = caption_text(_caption_lines, Time.get_ticks_msec() / 1000.0) if Settings.subtitles else ""
 	_info.text = "Rue Sainte-Foy · %02d h %02d · %s · %d joueur(s)" % [int(h), int(fmod(h, 1.0) * 60), mode_txt, maxi(Net.players.size(), 1)]
+
+
+## Lignes d'état affichées sous les jauges : le journal et les compagnons (« • … ») et les menus ; les lignes de chiffres sont
+## remplacées par les jauges quand il y en a (fonction pure, testée).
+static func status_lines(lines: PackedStringArray, has_gauges: bool) -> PackedStringArray:
+	var out := PackedStringArray()
+	for i in range(2, lines.size()):
+		var l := lines[i]
+		if not has_gauges or l.begins_with("•") or l.begins_with("Menu") or l.begins_with("  ["):
+			out.append(l)
+	return out
+
+
+func _update_gauges(specs: Array) -> void:
+	var ids := []
+	for sp in specs:
+		ids.append(sp.id)
+	if ids != _gauges.keys():
+		for c in _gauge_box.get_children():
+			c.queue_free()
+		_gauges.clear()
+		for sp in specs:
+			var g := HudWidgets.GaugeBar.new()
+			_gauge_box.add_child(g)
+			_gauges[sp.id] = g
+	for sp in specs:
+		(_gauges[sp.id] as HudWidgets.GaugeBar).set_spec(sp, Settings.text_scale)

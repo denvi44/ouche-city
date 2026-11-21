@@ -150,7 +150,7 @@ func setup(pois: Array, ground: Callable, vehicle: Vehicle, players_root: Node3D
 	dylan.body_color = Color(0.2, 0.35, 0.8)
 	dylan.max_speed = 28.9
 	dylan.accel = 9.15
-	dylan.vehicle_name = "La Subaru de Dylan"
+	dylan.vehicle_name = "La Sapristi GT de Dylan"
 	dylan.ai_script = Callable(self, "_dylan_ai")
 	if zones.has("start"):
 		var lane := _lane(1)
@@ -1048,3 +1048,48 @@ func result_text() -> String:
 	if step == "drag" and race_state == "countdown":
 		return str(int(ceil(race_count)))
 	return ""
+
+
+func hud_gauges() -> Array:
+	var out := []
+	var h := day_night.hour if day_night else START_HOUR
+	if step in ["parts", "assembly", "test_drive"]:
+		out.append(gauge("heure", "Avant 21 h", (deadline_hour - h) / (deadline_hour - START_HOUR), C_GOAL, hour_text(), {"low_is_bad": true}))
+	if step == "parts":
+		out.append(gauge("pieces", "Pièces", float(parts.size()) / float(maxi(required_parts, 1)), C_OK, "%d / %d  ·  %d €" % [parts.size(), required_parts, budget]))
+	if step == "assembly":
+		out.append(gauge("montage", "Montage %d/%d" % [mini(assembly_idx + 1, assembly_total), assembly_total], mini_pos(), C_ITEM, "", {"cursor": true, "zone": MINI_ZONE}))
+	if step == "test_drive":
+		out.append(gauge("controles", "Contrôles", float(cp_index) / float(maxi(cp_total - 1, 1)), C_OK, "%d / %d" % [cp_index, maxi(cp_total - 1, 0)]))
+	if step == "drag" and race_state in ["go", "finished"]:
+		out.append(gauge("course", "Vous", race_sp / drag_length, C_OK, "%d m" % int(race_sp)))
+		out.append(gauge("dylan", "Dylan", race_sd / drag_length, C_DANGER, "%d m" % int(race_sd)))
+	return out
+
+
+func hud_markers() -> Array:
+	var out := []
+	match step:
+		"parts":
+			if zones.has("casse") and not sources.casse:
+				out.append(marker(zones.casse, "Casse Dugenou", C_ITEM))
+			if zones.has("annonce") and not sources.annonce:
+				out.append(marker(zones.annonce, "Annonce du père Bernard", C_ITEM))
+			if zones.has("shop"):
+				out.append(marker(zones.shop, "Auto Bling 27", C_PLACE))
+			if zones.has("dylan") and not sources.cour_dylan:
+				out.append(marker(zones.dylan, "Cour de Dylan", C_DANGER))
+			if parts.size() >= required_parts and zones.has("garage"):
+				out.append(marker(zones.garage, "Garage de Kévin", C_GOAL))
+		"assembly":
+			if zones.has("garage"):
+				out.append(marker(zones.garage, "Garage de Kévin", C_GOAL))
+		"test_drive":
+			if cp_index < td_points.size():
+				var p: Vector2 = td_points[cp_index]
+				var gy: float = _ground.call(p.x, p.y) if _ground.is_valid() else 0.0
+				out.append(marker(Vector3(p.x, gy, p.y), "Contrôle %d" % (cp_index + 1), C_GOAL))
+		"drag":
+			if zones.has("start"):
+				out.append(marker(zones.start, "Ligne de départ", C_GOAL))
+	return out

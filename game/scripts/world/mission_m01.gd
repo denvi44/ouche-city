@@ -993,3 +993,30 @@ func objective() -> String:
 		"failed":
 			return "Mission échouée."
 	return ""
+
+
+func hud_gauges() -> Array:
+	var out := []
+	if step in ["crates", "road", "checkpoint", "fair"]:
+		out.append(gauge("cargo", "Bouteilles intactes", float(cargo) / float(maxi(bottles_total, 1)), C_OK, "%d / %d  (cassées : %d)" % [cargo, bottles_total, broken]))
+		var left := maxf(time_limit - elapsed, 0.0)
+		out.append(gauge("temps", "Temps restant", left / time_limit, C_GOAL, format_time(left), {"danger": false, "low_is_bad": true}))
+	return out
+
+
+func hud_markers() -> Array:
+	var out := []
+	match step:
+		"crates":
+			for id in crates:
+				if crates[id].state == "ground":
+					out.append(marker(crates[id].pos, str(CRATE_NAMES.get(id, "Caisse")).capitalize(), C_ITEM))
+			if van:
+				out.append(marker(van.global_position, "Camionnette", C_PLACE))
+		"road", "checkpoint":
+			if zones.has("barrage"):
+				out.append(marker(zones.barrage, "Barrage du Bosc-Tenney", C_DANGER))
+		"fair":
+			if zones.has("stand"):
+				out.append(marker(zones.stand, "Stand du Comité", C_GOAL))
+	return out

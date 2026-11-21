@@ -936,3 +936,32 @@ func result_text() -> String:
 	if step == "round" and round_state == "count":
 		return str(int(ceil(count_left / BEAT)) if count_left > 0.0 else 0)
 	return ""
+
+
+func hud_gauges() -> Array:
+	var out := []
+	if step == "setup":
+		out.append(gauge("temps", "Matériel", setup_left / 300.0, C_GOAL, MissionBase.format_time(setup_left), {"low_is_bad": true}))
+		out.append(gauge("objets", "Objets", float(items_taken.size()) / float(ITEMS.size()), C_OK, "%d / %d" % [items_taken.size(), ITEMS.size()]))
+	if step == "round":
+		out.append(gauge("foule", "Pommiers", score_p / maxf(max_points(round_idx), 1.0), C_OK, "%d  contre  %d" % [int(score_p), int(score_r)], {"marker": clampf(score_r / maxf(max_points(round_idx), 1.0), 0.0, 1.0)}))
+		out.append(gauge("nuisance", "Nuisance", nuisance, C_DANGER, "%d %%" % int(nuisance * 100.0), {"danger": true, "zone": Vector2(police_at, 1.0)}))
+		if round_state == "play":
+			var ph := fposmod(play_t / BEAT + 0.5, 1.0)
+			out.append(gauge("rythme", "Rythme", ph, C_ITEM, {"perfect": "PARFAIT !", "good": "bien", "miss": "raté"}.get(str(last_hit.q), ""), {"cursor": true, "zone": Vector2(0.5 - GOOD / BEAT, 0.5 + GOOD / BEAT), "zone2": Vector2(0.5 - PERFECT / BEAT, 0.5 + PERFECT / BEAT)}))
+	return out
+
+
+func hud_markers() -> Array:
+	var out := []
+	if step == "setup":
+		for it in ITEMS:
+			if not item_taken(it) and item_pos.has(it):
+				out.append(marker(item_pos[it], ITEM_NAMES[it].capitalize(), C_ITEM))
+	elif step == "round" and zones.has("camp"):
+		out.append(marker(zones.camp, "Votre sono", C_GOAL))
+		if sab.kind != "":
+			var sp := spot("sab_" + str(sab.kind))
+			if sp != Vector3.ZERO:
+				out.append(marker(sp, SAB_DEFEND[sab.kind], C_DANGER))
+	return out

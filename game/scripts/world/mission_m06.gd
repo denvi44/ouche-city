@@ -18,8 +18,8 @@ const ITEMS_STEP := "shop"
 const WALK_MS := 2.0 / 3.6                          # 2 km/h
 const NEAR := {"item": 1.7, "pay": 2.4, "exit": 2.6, "chat": 2.0, "pass": 3.6}
 const START_MIN := 480.0                            # 8 h 00
-const COIN_ZONE := Vector2(0.38, 0.62)
-const MINI_SPEED := 1.7
+const COIN_ZONE := Vector2(0.36, 0.64)
+const MINI_SPEED := 0.8                            # × π rad/s : fenêtre de ≈ 190 ms au centre (audit de faisabilité : 90 ms était injouable)
 const PASS_COOLDOWN := 6.0
 const PASS_TIME := 3.5
 const STEP_ASIDE := 1.2
@@ -811,3 +811,38 @@ func result_text() -> String:
 	if step == "failed":
 		return {"evicted": "Raccompagnée par le gérant", "late": "Pause de midi"}.get(result, "Courses ratées")
 	return ""
+
+
+func hud_gauges() -> Array:
+	var out := []
+	if step in [ITEMS_STEP, "pay", "exit"]:
+		var worst := 0.0
+		for c in customers:
+			worst = maxf(worst, float(c.imp))
+		out.append(gauge("heure", "Médaille d'or avant %s" % clock_text(deadline.gold), (deadline.fail - clock_min) / (deadline.fail - START_MIN), C_GOAL, clock_text(clock_min), {"low_is_bad": true}))
+		out.append(gauge("cabas", "Cabas", float(items_got.size()) / float(ITEMS.size()), C_OK, "%d / %d" % [items_got.size(), ITEMS.size()]))
+		out.append(gauge("file", "Impatience de la file", worst, C_DANGER, "%d %%  ·  incidents %d/%d" % [int(worst * 100.0), incidents, max_incidents], {"danger": true}))
+	if not reading.is_empty():
+		out.append(gauge("lecture", "Lecture de l'étiquette", float(reading.t) / reading_sec, C_PLACE, ""))
+	if chat_left > 0.0:
+		out.append(gauge("causette", "Mme Hubert", chat_left / CHAT_TIME, C_ITEM, "%d s" % int(ceil(chat_left)), {"danger": true}))
+	if step == "pay":
+		out.append(gauge("monnaie", "Monnaie  %d/%d" % [coins, coins_needed], mini_pos(), C_ITEM, "", {"cursor": true, "zone": COIN_ZONE}))
+	return out
+
+
+func hud_markers() -> Array:
+	var out := []
+	if not zone_ok:
+		return out
+	if step == ITEMS_STEP:
+		for it in ITEMS:
+			if not (it in items_got):
+				out.append(marker(item_world(it), ITEM_NAMES[it].capitalize(), C_ITEM))
+		if items_got.size() == ITEMS.size():
+			out.append(marker(to_world(PAY_SPOT), "Caisse 2", C_GOAL))
+	elif step == "pay":
+		out.append(marker(to_world(PAY_SPOT), "Caisse 2", C_GOAL))
+	elif step == "exit":
+		out.append(marker(to_world(DOOR_SPOT), "Sortie", C_GOAL))
+	return out

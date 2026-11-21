@@ -51,6 +51,8 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m07_flow.gd -- --mission=m07 --no-companions
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m07_companions.gd -- --mission=m07
 	bash qa/integration/m07_online.sh
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/feasibility/audit.gd
 
 ## Captures 1920×1080 de la scène témoin (GPU conseillé ; sinon rendu Compatibility).
 screenshots:

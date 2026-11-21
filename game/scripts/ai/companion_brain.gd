@@ -249,10 +249,12 @@ func _herd_m05(delta: float) -> Dictionary:
 		return _hold("gate", "gagne la barrière", "se repose", delta)
 	var pos := body.global_position
 	var here := Vector2(pos.x, pos.z)
-	var target: Vector3 = m.herd_target(here)
+	# Kévin prend la vache la plus éloignée du joueur (les retardataires) pour ne pas gêner celui qui rentre les plus proches.
+	var far: bool = m.humans() > 0
+	var target: Vector3 = m.herd_target(here, far)
 	if target == Vector3.ZERO:
 		return idle()
-	var stray: Dictionary = m.nearest_stray(Vector2(m.zones.pen.x, m.zones.pen.z))
+	var stray: Dictionary = m.farthest_stray(m.human_pos()) if far else m.nearest_stray(Vector2(m.zones.pen.x, m.zones.pen.z))
 	status = "rabat %s" % MissionM05.COW_NAMES[int(stray.id) % MissionM05.COW_NAMES.size()]
 	if _horizontal(pos, target) < 3.0:
 		# En place : on avance vers la vache pour la pousser, et on siffle si elle est loin.

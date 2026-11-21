@@ -7,7 +7,7 @@
   "roles": ["victime", "portier", "diversion", "file"],
   "companions": { "portier": "ginette", "diversion": "kevin", "file": "kevin_radio" },
   "timeLimitSec": 150,
-  "pressure": { "start": 0.2, "baseRate": 0.006, "walkAdd": 0.002, "runAdd": 0.008, "cobbleAdd": 0.012, "clenchFactor": 0.4, "clenchSpeedMs": 2.0, "spasmEverySec": [9, 13] },
+  "pressure": { "start": 0.15, "baseRate": 0.0045, "walkAdd": 0.0015, "runAdd": 0.008, "cobbleAdd": 0.010, "clenchFactor": 0.3, "clenchSpeedMs": 2.5, "spasmEverySec": [9, 13] },
   "events": ["pavés", "mme_hubert", "toilettes_publiques", "chien_du_portail", "porte_fermee_a_cle"],
   "steps": [
     { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
@@ -15,6 +15,6 @@
     { "id": "door", "type": "event", "events": ["porte_fermee_a_cle"] },
     { "id": "outro", "type": "cutscene", "variants": ["gold", "silver", "bronze", "accident"] }
   ],
-  "medals": { "gold": { "homeWithPressureAtMost": 0.7 }, "silver": { "home": true }, "bronze": { "publicToilets": true } },
+  "medals": { "gold": { "homeWithPressureAtMost": 0.75 }, "silver": { "home": true }, "bronze": { "publicToilets": true } },
   "rewards": { "reputation": { "comite_fetes": 1 }, "unlocks": [] }
 }

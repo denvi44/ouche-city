@@ -384,15 +384,48 @@ func nearest_stray(pos: Vector2) -> Dictionary:
 
 
 ## Là où se placer pour pousser la vache libre la plus proche vers l'enclos : derrière elle, à 7 m, côté opposé à l'enclos.
-func herd_target(_from: Vector2) -> Vector3:
-	var c := nearest_stray(Vector2(zones.pen.x, zones.pen.z) if zones.has("pen") else _from)    # la plus proche de l'enclos : la plus facile à rentrer
-	if c.is_empty() or not zones.has("pen"):
+func herd_target(_from: Vector2, far := false) -> Vector3:
+	if not zones.has("pen"):
+		return Vector3.ZERO
+	var c := nearest_stray(Vector2(zones.pen.x, zones.pen.z)) if not far else farthest_stray(human_pos())
+	if c.is_empty():
 		return Vector3.ZERO
 	var cow_p := Vector2(c.x, c.z)
 	var away := (cow_p - Vector2(zones.pen.x, zones.pen.z)).normalized()
 	var p := cow_p + away * 7.0
 	var y: float = _ground.call(p.x, p.y) if _ground.is_valid() else 0.0
 	return Vector3(p.x, y, p.y)
+
+
+func humans() -> int:
+	var n := 0
+	if _players_root:
+		for p in _players_root.get_children():
+			if p is Player and not (p as Player).is_ai:
+				n += 1
+	return n
+
+
+## Position (x, z) du premier joueur humain ; l'enclos à défaut.
+func human_pos() -> Vector2:
+	if _players_root:
+		for p in _players_root.get_children():
+			if p is Player and not (p as Player).is_ai:
+				return Vector2((p as Player).global_position.x, (p as Player).global_position.z)
+	return Vector2(zones.pen.x, zones.pen.z) if zones.has("pen") else Vector2.ZERO
+
+
+## Vache libre la plus éloignée de `pos` (les retardataires : Kévin s'en occupe pendant que le joueur rentre les plus proches).
+func farthest_stray(pos: Vector2) -> Dictionary:
+	var best := {}
+	var bd := -1.0
+	for c in cows:
+		if c.st != "pen":
+			var d := Vector2(c.x, c.z).distance_to(pos)
+			if d > bd:
+				bd = d
+				best = c
+	return best
 
 
 func stray_count() -> int:
@@ -673,3 +706,26 @@ func result_text() -> String:
 	if step == "done":
 		return "%s — médaille : %s" % ["Troupeau rentré" if result == "win" else "Troupeau en fuite", {"gold": "OR", "silver": "ARGENT", "bronze": "BRONZE"}.get(medal, "aucune")]
 	return ""
+
+
+func hud_gauges() -> Array:
+	var out := []
+	if step in ["herd", "gate"]:
+		out.append(gauge("vaches", "À l'enclos", float(penned()) / float(maxi(cow_count, 1)), C_OK, "%d / %d" % [penned(), cow_count]))
+		out.append(gauge("temps", "Temps", time_left / time_limit, C_GOAL, MissionBase.format_time(time_left), {"low_is_bad": true}))
+		out.append(gauge("sifflet", "Sifflet", 1.0 - _whistle_cd / whistle_cd, C_PLACE, "prêt" if _whistle_cd <= 0.0 else "%d s" % int(ceil(_whistle_cd))))
+	return out
+
+
+func hud_markers() -> Array:
+	var out := []
+	if step == "herd":
+		for c in cows:
+			if c.st != "pen":
+				var y: float = _ground.call(float(c.x), float(c.z)) if _ground.is_valid() else 0.0
+				out.append(marker(Vector3(float(c.x), y, float(c.z)), COW_NAMES[int(c.id) % COW_NAMES.size()], C_ITEM if int(c.id) != 0 else C_DANGER))
+		if zones.has("pen"):
+			out.append(marker(zones.pen, "Enclos", C_GOAL))
+	elif step == "gate":
+		out.append(marker(_front(Vector3(0, 0, PEN_HALF)), "Barrière", C_GOAL))
+	return out

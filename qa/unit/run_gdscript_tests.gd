@@ -106,7 +106,7 @@ func _run() -> void:
 	check(limbs == 4, "deux bras et deux jambes (%d membres)" % limbs)
 	for i in 30:
 		cm.animate(1.0 / 60.0, 0.0)
-	check(absf(cm.leg_angle_l) < 0.05, "au repos : jambes droites")
+	check(absf(cm.leg_angle_l) < 0.06 and cm.knee_angle_l < 0.12, "au repos : jambes presque droites")
 	var max_leg := 0.0
 	var arm_opposed := true
 	for i in 120:
@@ -115,7 +115,7 @@ func _run() -> void:
 		var leg_r: float = bassin.get_child(1).rotation.x
 		if absf(cm.leg_angle_l) > 0.2 and cm.leg_angle_l * leg_r > 0.0:
 			arm_opposed = false
-	check(max_leg > 0.35, "marche : les jambes balancent (%.2f rad)" % max_leg)
+	check(max_leg > 0.5, "marche : les cuisses balancent (%.2f rad)" % max_leg)
 	check(arm_opposed, "marche : les jambes sont en opposition")
 	cm.carrying = true
 	for i in 90:
@@ -125,7 +125,7 @@ func _run() -> void:
 	cm.airborne = true
 	for i in 60:
 		cm.animate(1.0 / 60.0, 3.0)
-	check(cm.leg_angle_l < -0.5, "saut : jambe gauche repliée (%.2f rad)" % cm.leg_angle_l)
+	check(cm.knee_angle_l > 0.8 and cm.leg_angle_l > 0.3, "saut : cuisse en avant, genou replié (%.2f / %.2f rad)" % [cm.leg_angle_l, cm.knee_angle_l])
 	cm.free()
 
 	# --- Progression sauvegardée (contrat save.schema.json) ---
@@ -350,6 +350,103 @@ func _run() -> void:
 		ol.spawn("TOC !", Vector3.ZERO, "soft")
 	check(ol._bubbles.size() <= OnomaLayer.MAX_BUBBLES, "onomatopées : au plus %d bulles à l'écran" % OnomaLayer.MAX_BUBBLES)
 	ol.queue_free()
+	# --- Mouvements réalistes des personnages ---
+	var CMr = load("res://scripts/player/character_model.gd")
+	check(CMr.stride_for(0.55) < CMr.stride_for(1.4) and CMr.stride_for(1.4) < CMr.stride_for(4.2) and CMr.stride_for(4.2) < CMr.stride_for(7.5), "foulée : pas minuscules à 2 km/h, ample en course (%.2f, %.2f, %.2f, %.2f m)" % [CMr.stride_for(0.55), CMr.stride_for(1.4), CMr.stride_for(4.2), CMr.stride_for(7.5)])
+	var no_slide := true
+	for sp in [0.55, 1.0, 1.4, 2.5, 4.2]:
+		var st: float = CMr.stride_for(sp)
+		var amp: float = CMr.thigh_amplitude(st)
+		no_slide = no_slide and absf(2.0 * CMr.LEG_LENGTH * sin(amp) - st / 2.0) < 0.02
+	check(no_slide, "cuisse : l'excursion du pied vaut une demi-foulée (pas de patinage)")
+	check(CMr.knee_flex(0.0, 0.0) > 0.9 and CMr.knee_flex(PI, 0.0) < 0.2 and CMr.knee_flex(0.0, 1.0) > CMr.knee_flex(0.0, 0.0), "genou : fléchi au milieu du balancement, presque tendu à l'appui, plus en course")
+	var cr = CMr.make(Color(0.5, 0.5, 0.5))
+	root.add_child(cr)
+	for sp in [1.0, 2.0, 4.2]:
+		cr.animate(1.0 / 60.0, 0.0)
+		for i in 60:
+			cr.animate(1.0 / 60.0, sp)
+		var zs := []
+		var ys := []
+		for i in 180:
+			cr.animate(1.0 / 60.0, sp)
+			var rel: Vector3 = cr.to_local(cr._ankle_l.global_position)
+			zs.append(rel.z)
+			ys.append(rel.y)
+		var ymin := 99.0
+		for y in ys:
+			ymin = minf(ymin, y)
+		var vs := []
+		for i in range(1, zs.size()):
+			if ys[i] < ymin + 0.03:
+				vs.append((zs[i] - zs[i - 1]) * 60.0)
+		vs.sort()
+		var med: float = vs[vs.size() / 2] if vs.size() > 0 else 0.0
+		check(vs.size() > 8 and absf(med - sp) < sp * 0.35, "à %.1f m/s : le pied d'appui recule de %.2f m/s par rapport au corps (%d images d'appui)" % [sp, med, vs.size()])
+	var steps := [0]
+	cr.step_taken.connect(func(_s): steps[0] += 1)
+	for i in 120:
+		cr.animate(1.0 / 60.0, 4.2)
+	check(abs(steps[0] - 2.0 * 4.2 * 2.0 / CMr.stride_for(4.2)) <= 1.5, "pas : un à chaque appui du pied (%d en 2 s à 4,2 m/s)" % steps[0])
+	var hips_min := 9.0
+	for i in 120:
+		cr.animate(1.0 / 60.0, 4.2)
+		hips_min = minf(hips_min, cr.hips_height)
+	check(hips_min < CMr.HIP_Y - 0.02, "bassin : s'abaisse à chaque appui (%.3f m)" % (CMr.HIP_Y - hips_min))
+	cr.airborne = true
+	for i in 30:
+		cr.animate(1.0 / 60.0, 3.0)
+	cr.airborne = false
+	var land_min := 9.0
+	for i in 15:
+		cr.animate(1.0 / 60.0, 0.0)
+		land_min = minf(land_min, cr.hips_height)
+	check(land_min < CMr.HIP_Y - 0.06, "atterrissage amorti : le bassin plonge de %.2f m" % (CMr.HIP_Y - land_min))
+	cr.mood = "clench"
+	for i in 60:
+		cr.animate(1.0 / 60.0, 1.5)
+	check(cr._leg_l.rotation.z > 0.1 and cr._torso.rotation.x < -0.25 and cr.elbow_angle_l > 0.8, "jambes serrées : genoux rentrés, buste penché, coudes pliés")
+	cr.mood = "normal"
+	cr.tremble = 1.0
+	var mn := 9.0
+	var mx := -9.0
+	for i in 60:
+		cr.animate(1.0 / 60.0, 0.0)
+		mn = minf(mn, cr._torso.rotation.z)
+		mx = maxf(mx, cr._torso.rotation.z)
+	check(mx - mn > 0.04, "tremblement : le buste vibre (%.3f rad)" % (mx - mn))
+	cr.tremble = 0.0
+	var blinks := 0
+	var was_closed := false
+	for i in 60 * 9:
+		cr.animate(1.0 / 60.0, 0.0)
+		var closed: bool = cr._eyes.size() > 0 and cr._eyes[0].scale.y < 0.5
+		if closed and not was_closed:
+			blinks += 1
+		was_closed = closed
+	check(blinks >= 1 and blinks <= 5, "les yeux clignent (%d fois en 9 s)" % blinks)
+	cr.queue_free()
+	# --- HUD graphique : fonctions pures ---
+	var okc2: Color = HudWidgets.fill_color({"value": 0.1, "danger": true, "color": Color.BLUE})
+	var badc: Color = HudWidgets.fill_color({"value": 0.95, "danger": true, "color": Color.BLUE})
+	check(okc2.g > okc2.r and badc.r > badc.g, "jauge « danger » : verte quand c'est bas, rouge quand c'est haut")
+	check(HudWidgets.fill_color({"value": 0.9, "color": Color.BLUE}) == Color.BLUE and HudWidgets.fill_color({"value": 0.1, "low_is_bad": true, "color": Color.BLUE}).r > 0.5, "jauge « low_is_bad » : couleur normale, rouge sous 25 %")
+	var zsp: Vector2 = HudWidgets.zone_span(Vector2(0.45, 0.72), 200.0)
+	check(is_equal_approx(zsp.x, 90.0) and is_equal_approx(zsp.y, 54.0) and HudWidgets.zone_span(Vector2(-1, 2), 100.0) == Vector2(0, 100), "plage de jauge : position et largeur, bornées")
+	check(HudWidgets.to_map(Vector2(110, 40), Vector2(100, 50), 0.5, Vector2(105, 105)) == Vector2(110, 100), "minicarte : projection centrée sur le joueur, nord en haut")
+	check(HudWidgets.clamp_to_disc(Vector2(300, 105), Vector2(105, 105), 100.0).is_equal_approx(Vector2(205, 105)) and HudWidgets.clamp_to_disc(Vector2(120, 105), Vector2(105, 105), 100.0) == Vector2(120, 105), "minicarte : une balise lointaine se colle au bord du disque")
+	var view := Vector2(1920, 1080)
+	check(HudWidgets.on_screen(Vector2(900, 500), view, 24.0, false) and not HudWidgets.on_screen(Vector2(-50, 500), view, 24.0, false) and not HudWidgets.on_screen(Vector2(900, 500), view, 24.0, true), "balise : sur l'écran, hors champ, derrière la caméra")
+	var ep: Vector2 = HudWidgets.edge_point(Vector2(3000, 540), view, 30.0)
+	check(is_equal_approx(ep.x, 1890.0) and is_equal_approx(ep.y, 540.0), "balise à droite : flèche collée au bord droit (%s)" % str(ep))
+	var epb: Vector2 = HudWidgets.edge_point(Vector2(960, 300), view, 30.0, true)
+	check(epb.y > 540.0 and epb.y <= 1050.0, "balise derrière la caméra : flèche en bas de l'écran (%s)" % str(epb))
+	var taken := []
+	var s1: Vector2 = HudWidgets.MarkerLayer.free_slot(taken, Vector2(100, 100))
+	var s2: Vector2 = HudWidgets.MarkerLayer.free_slot(taken, Vector2(120, 100))
+	check(s1 == Vector2(100, 100) and s2.y >= 120.0, "libellés de balises : le second est décalé pour ne pas recouvrir le premier")
+	var lines_h := PackedStringArray(["Titre", "Consigne", "Pression [███] 40 %", "Menu :", "  [1] Oui", "• Ginette : attend", "• Journal"])
+	check(Hud.status_lines(lines_h, true) == PackedStringArray(["Menu :", "  [1] Oui", "• Ginette : attend", "• Journal"]) and Hud.status_lines(lines_h, false).size() == 5, "HUD : les lignes de chiffres cèdent la place aux jauges, le journal et les menus restent")
 	var wav: AudioStreamWAV = Synth.to_stream(eng, true)
 	check(wav.data.size() == eng.size() * 2 and wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.mix_rate == 22050, "flux WAV 16 bits mono, bouclé")
 	var Amb = load("res://scripts/audio/ambiance.gd")
