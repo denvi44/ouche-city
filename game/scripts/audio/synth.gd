@@ -550,3 +550,43 @@ static func whistle() -> PackedFloat32Array:
 		var gate := 1.0 if (s < 0.16 or (s > 0.2 and s < 0.34) or s > 0.38) else 0.0
 		out[i] = (sin(TAU * ph) * 0.8 + sin(TAU * ph * 2.0) * 0.12) * gate * _env(s, 1.1, 0.01, 0.2)
 	return normalized(out, 0.75)
+
+
+# --- Supermarché (mission 06) -------------------------------------------------------------------------------------------------------------
+
+## Bip de scanner : une note aiguë brève.
+static func beep() -> PackedFloat32Array:
+	var out := _buf(0.14)
+	for i in out.size():
+		var s := float(i) / RATE
+		out[i] = sin(TAU * 1750.0 * s) * _env(s, 0.14, 0.004, 0.04)
+	return normalized(out, 0.7)
+
+
+## Pièce de monnaie qui tombe : tintement métallique qui rebondit.
+static func coin() -> PackedFloat32Array:
+	var out := _buf(0.5)
+	for i in out.size():
+		var s := float(i) / RATE
+		var v := 0.0
+		for hit in [0.0, 0.14, 0.24]:
+			var ls: float = s - float(hit)
+			if ls > 0.0:
+				var f := 2400.0 if hit == 0.0 else 2000.0
+				v += (sin(TAU * f * ls) + 0.5 * sin(TAU * f * 2.76 * ls)) * exp(-ls * 18.0) * (0.7 if hit > 0.0 else 1.0)
+		out[i] = v
+	return normalized(out, 0.7)
+
+
+## Soupir agacé : souffle grave qui retombe.
+static func sigh() -> PackedFloat32Array:
+	_rng.seed = 606
+	var out := _buf(0.9)
+	var ph := 0.0
+	for i in out.size():
+		var s := float(i) / RATE
+		var f := 190.0 - 70.0 * clampf(s / 0.8, 0.0, 1.0)
+		ph += f / RATE
+		var shape := sin(PI * clampf(s / 0.9, 0.0, 1.0))
+		out[i] = (_lookup(_reed(), ph) * 0.5 + _noise() * 0.35) * shape * _env(s, 0.9, 0.08, 0.3)
+	return normalized(out, 0.7)

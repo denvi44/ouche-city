@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | set(fiction.LABELS_M06.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
@@ -187,3 +187,27 @@ def test_lieux_de_mission05():
     couloir = LineString([centre, pre["position"]]).buffer(5.0)
     assert not any(b.intersects(couloir) for b in batiments), "un bâtiment barre le couloir"
     assert not any(b.intersects(Point(pre["position"]).buffer(25.0)) for b in batiments), "le pré n'est pas dégagé"
+
+
+def test_supermarche_mission06():
+    """Le supermarché existe, est posé en terrain libre (emprise de 26 × 18 m), presque plat, porte vers une route."""
+    import math
+    from shapely.geometry import LineString, Polygon
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    sm = pois["supermarche"]
+    assert sm["prop"] == "supermarket" and sm["missions"] == ["m06_courses_de_8h"] and sm["label"].startswith("Supermarché")
+    x, z = sm["position"]
+    f = sm["facing"]
+    fx, fz = math.sin(f), math.cos(f)
+    px, pz = fz, -fx
+    coins = [(x + px * a * 13 + fx * b * 9, z + pz * a * 13 + fz * b * 9) for a, b in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    emprise = Polygon(coins)
+    batiments, routes = [], []
+    for fch in (ROOT / "gis/out/tiles").glob("*.json"):
+        t = json.loads(fch.read_text())
+        batiments += [Polygon(b["footprint"]) for b in t["buildings"]]
+        routes += [LineString(r["points"]) for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    assert not any(b.intersects(emprise) for b in batiments), "un bâtiment dans l'emprise"
+    assert not any(r.intersects(emprise) for r in routes), "une route traverse l'emprise"
+    devant = LineString([(x, z), (x + fx * 60, z + fz * 60)])
+    assert any(r.distance(devant) < 1.0 for r in routes), "la porte ne regarde pas une route"

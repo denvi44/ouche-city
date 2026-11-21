@@ -27,6 +27,9 @@ const CATALOG := {
 	"sizzle": {"gen": "sizzle", "caption": "", "db": -9.0, "bus": "Effets"},
 	"firework": {"gen": "firework", "caption": "[Feu d'artifice]", "db": -4.0, "bus": "Effets"},
 	"whistle": {"gen": "whistle", "caption": "[Sifflet du berger]", "db": -3.0, "bus": "Effets"},
+	"beep": {"gen": "beep", "caption": "[Bip de caisse]", "db": -6.0, "bus": "Effets"},
+	"coin": {"gen": "coin", "caption": "", "db": -5.0, "bus": "Effets"},
+	"sigh": {"gen": "sigh", "caption": "[Soupir agacé d'un client]", "db": -4.0, "bus": "Effets"},
 	"bird": {"gen": "bird", "caption": "", "db": -10.0, "bus": "Ambiance"},
 }
 const LOOPS := {

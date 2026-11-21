@@ -519,3 +519,109 @@ static func gate_leaf() -> PropKit:
 	k.add_box(Vector3(0.1, 1.2, 0.08), Vector3(2.15, 0.6, 0), WOOD_DARK)
 	k.add_box(Vector3(2.2, 0.08, 0.05), Vector3(1.1, 0.7, 0.0), WOOD_DARK, Vector3(0, 0, 0.5))
 	return k
+
+
+# --- Supermarché (mission 06) -------------------------------------------------------------------------------------------------------------
+
+const PRODUCT_COLORS := [Color(0.9, 0.3, 0.25), Color(0.95, 0.8, 0.25), Color(0.3, 0.6, 0.85), Color(0.35, 0.7, 0.4), Color(0.95, 0.95, 0.9), Color(0.8, 0.5, 0.2), Color(0.7, 0.4, 0.75)]
+
+
+## Gondole double face : montants, quatre niveaux, produits de couleurs variées (déterministe selon `seed`), tête de gondole.
+## `length` le long de X, profondeur 1 m (Z), hauteur 1,8 m.
+static func shelf(length := 6.0, seed := 1) -> PropKit:
+	var k := PropKit.new()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	k.add_box(Vector3(length, 0.12, 1.0), Vector3(0, 0.06, 0), Color(0.78, 0.78, 0.8))
+	var posts := int(length / 2.0) + 1
+	for i in posts:
+		var x := -length / 2.0 + i * (length / float(posts - 1))
+		k.add_box(Vector3(0.06, 1.8, 0.06), Vector3(x, 0.9, -0.45), Color(0.45, 0.47, 0.52))
+		k.add_box(Vector3(0.06, 1.8, 0.06), Vector3(x, 0.9, 0.45), Color(0.45, 0.47, 0.52))
+	k.add_box(Vector3(0.05, 1.7, 0.9), Vector3(0, 0.9, 0), Color(0.85, 0.85, 0.88))
+	for lv in 4:
+		var y := 0.3 + lv * 0.42
+		k.add_box(Vector3(length, 0.04, 0.95), Vector3(0, y, 0), Color(0.82, 0.82, 0.85))
+		var x := -length / 2.0 + 0.3
+		while x < length / 2.0 - 0.3:
+			var w := rng.randf_range(0.18, 0.4)
+			var h := rng.randf_range(0.18, 0.34)
+			var col: Color = PRODUCT_COLORS[rng.randi() % PRODUCT_COLORS.size()]
+			for side in [-1.0, 1.0]:
+				k.add_box(Vector3(w, h, 0.28), Vector3(x + w / 2.0, y + 0.02 + h / 2.0, side * 0.27), col)
+				k.add_box(Vector3(w * 0.8, h * 0.25, 0.01), Vector3(x + w / 2.0, y + 0.02 + h * 0.55, side * 0.415), CREAM)
+			x += w + 0.04
+	k.add_box(Vector3(length + 0.1, 0.18, 1.05), Vector3(0, 1.88, 0), Color(0.25, 0.5, 0.35))
+	return k
+
+
+## Meuble réfrigéré de fond de magasin : caisson blanc, portes vitrées, laitages et fromages, bandeau bleu.
+static func fridge(length := 8.0) -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(length, 2.1, 0.9), Vector3(0, 1.05, 0), Color(0.93, 0.94, 0.95))
+	var n := int(length / 1.0)
+	for i in n:
+		var x := -length / 2.0 + 0.5 + i
+		k.add_box(Vector3(0.9, 1.7, 0.03), Vector3(x, 1.0, 0.46), Color(0.7, 0.85, 0.95))
+		for lv in 3:
+			for j in 3:
+				k.add_box(Vector3(0.22, 0.2, 0.2), Vector3(x - 0.27 + j * 0.27, 0.35 + lv * 0.5, 0.3), PRODUCT_COLORS[(i + lv * 2 + j) % PRODUCT_COLORS.size()])
+	k.add_box(Vector3(length, 0.3, 0.95), Vector3(0, 2.25, 0), Color(0.25, 0.45, 0.8))
+	return k
+
+
+## Comptoir de boulangerie : vitrine, corbeille de baguettes, pains ronds, balance.
+static func bakery(length := 4.0) -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(length, 1.0, 0.9), Vector3(0, 0.5, 0), WOOD)
+	k.add_box(Vector3(length, 0.06, 1.0), Vector3(0, 1.03, 0), Color(0.9, 0.88, 0.82))
+	k.add_box(Vector3(length - 0.2, 0.55, 0.04), Vector3(0, 1.35, 0.4), Color(0.75, 0.88, 0.95))
+	for i in 7:
+		k.add_cyl(0.045, 0.045, 0.8, Vector3(-length / 2.0 + 0.4 + i * 0.12, 1.2, -0.12), Color(0.82, 0.55, 0.22), Vector3(0.3, 0, 0.9 + i * 0.05), 6)
+	for i in 4:
+		k.add_sphere(0.14, Vector3(0.3 + i * 0.32, 1.17, 0.05), Color(0.78, 0.5, 0.2), Vector3(1, 0.7, 1), 7)
+	k.add_box(Vector3(0.5, 0.05, 0.4), Vector3(-length / 2.0 + 0.4, 1.09, 0.2), Color(0.5, 0.52, 0.56))
+	k.add_box(Vector3(length, 0.28, 0.95), Vector3(0, 1.95, -0.05), Color(0.82, 0.55, 0.25))
+	return k
+
+
+## Caisse : meuble, tapis roulant sombre, caisse enregistreuse à écran, scanner, séparateur, sac.
+static func checkout() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(2.6, 0.9, 0.7), Vector3(0, 0.45, 0), Color(0.88, 0.88, 0.9))
+	k.add_box(Vector3(1.6, 0.05, 0.55), Vector3(-0.4, 0.92, 0), Color(0.15, 0.15, 0.17))
+	k.add_box(Vector3(0.5, 0.42, 0.4), Vector3(0.85, 1.1, 0.05), Color(0.35, 0.37, 0.42))
+	k.add_box(Vector3(0.36, 0.26, 0.03), Vector3(0.85, 1.42, 0.0), Color(0.3, 0.8, 0.5), Vector3(-0.25, 0, 0), true)
+	k.add_box(Vector3(0.3, 0.04, 0.22), Vector3(0.1, 0.96, 0.18), Color(0.7, 0.9, 1.0), Vector3.ZERO, true)
+	k.add_box(Vector3(0.03, 0.16, 0.5), Vector3(0.35, 1.02, 0), Color(0.9, 0.5, 0.2))
+	k.add_box(Vector3(2.8, 0.1, 0.8), Vector3(0, 0.9, 0), Color(0.6, 0.62, 0.66))
+	k.add_cyl(0.02, 0.02, 1.6, Vector3(1.25, 1.7, 0.3), Color(0.35, 0.37, 0.42), Vector3.ZERO, 5)
+	k.add_box(Vector3(0.8, 0.22, 0.06), Vector3(1.25, 2.55, 0.3), Color(0.25, 0.5, 0.35))
+	return k
+
+
+## Chariot de courses : panier en fil, poignée, quatre roulettes, siège enfant.
+static func caddie() -> PropKit:
+	var k := PropKit.new()
+	var metal := Color(0.62, 0.64, 0.68)
+	k.add_box(Vector3(0.55, 0.04, 0.95), Vector3(0, 0.38, 0.05), metal)
+	for sx in [-1.0, 1.0]:
+		k.add_box(Vector3(0.03, 0.45, 0.95), Vector3(sx * 0.27, 0.62, 0.05), metal)
+		k.add_box(Vector3(0.03, 0.45, 0.03), Vector3(sx * 0.27, 0.62, 0.52), metal, Vector3(0, 0, 0))
+	k.add_box(Vector3(0.55, 0.45, 0.03), Vector3(0, 0.62, 0.52), metal)
+	k.add_box(Vector3(0.55, 0.03, 0.03), Vector3(0, 0.95, -0.42), Color(0.9, 0.3, 0.25))
+	k.add_box(Vector3(0.03, 0.55, 0.03), Vector3(-0.27, 0.68, -0.42), metal)
+	k.add_box(Vector3(0.03, 0.55, 0.03), Vector3(0.27, 0.68, -0.42), metal)
+	for sx in [-1.0, 1.0]:
+		for sz in [-0.4, 0.45]:
+			k.add_cyl(0.05, 0.05, 0.04, Vector3(sx * 0.22, 0.05, sz), IRON, Vector3(0, 0, PI / 2), 6)
+	return k
+
+
+## Panneau d'entrée à deux montants (le texte est un Label3D posé par le constructeur).
+static func super_sign() -> PropKit:
+	var k := PropKit.new()
+	k.add_box(Vector3(9.0, 1.4, 0.3), Vector3(0, 0, 0), Color(0.88, 0.2, 0.2))
+	k.add_box(Vector3(9.2, 0.12, 0.35), Vector3(0, 0.74, 0), CREAM)
+	k.add_box(Vector3(9.2, 0.12, 0.35), Vector3(0, -0.74, 0), CREAM)
+	return k

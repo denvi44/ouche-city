@@ -43,6 +43,8 @@ var _errand_tries := 0
 var _clock := 0.0
 var _crate_since := 0.0
 var _blacklist := {}                # id de caisse -> date (horloge du cerveau) de fin de mise à l'écart
+var _rp := 0                         # indice du prochain point d'un parcours fixe (missions 04-06)
+var _rk := ""                        # clé du parcours en cours
 var _stuck_count := 0
 var _escape := Vector2.ZERO
 var _back_t := 0.0                  # > 0 : on recule d'un pas pour se dégager d'un angle de mur
@@ -66,7 +68,7 @@ func idle() -> Dictionary:
 func think(delta: float) -> Dictionary:
 	_act_cooldown = maxf(_act_cooldown - delta, 0.0)
 	_clock += delta
-	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05)):
+	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06)):
 		status = "attend"
 		return idle()
 	match role:
@@ -96,6 +98,13 @@ func think(delta: float) -> Dictionary:
 			return _serve_m04(delta)
 		"rabatteur":
 			return _herd_m05(delta)
+		"caddie":
+			return _shop_m06(delta)
+		"bavarde":
+			return _chat_m06(delta)
+		"chauffeur":
+			status = "attend au volant, moteur au ralenti"
+			return idle()
 		"guetteur" when mission is MissionM05:
 			return _hold("watch", "gagne son poste de guet", "guette le troupeau", delta)
 		"barriere":
@@ -161,6 +170,70 @@ func _post_m03(spot_name: String, going: String, there: String, delta: float) ->
 				return idle()
 			return _walk_to(target, delta)
 	return _hold(spot_name, going, there, delta)
+
+
+## Indice du point de parcours le plus proche (hors point d'arrivée) : on reprend le trajet là où l'on est.
+func _nearest_point(pts: Array) -> int:
+	var here := Vector2(body.global_position.x, body.global_position.z)
+	var best := 0
+	var bd := INF
+	for i in maxi(pts.size() - 1, 1):
+		var d := here.distance_to(Vector2(pts[i].x, pts[i].z))
+		if d < bd:
+			bd = d
+			best = i
+	return best
+
+
+## Suit une liste de points monde en ligne droite (parcours dans les allées du supermarché) ; renvoie true à l'arrivée.
+func _follow_points(pts: Array, delta: float) -> Dictionary:
+	var pos := body.global_position
+	var here := Vector2(pos.x, pos.z)
+	while _rp < pts.size() - 1 and here.distance_to(Vector2(pts[_rp].x, pts[_rp].z)) < 0.9:
+		_rp += 1
+	var tgt: Vector3 = pts[mini(_rp, pts.size() - 1)]
+	var d := Vector2(tgt.x, tgt.z) - here
+	if d.length() < 0.25:
+		return {}
+	var yaw := atan2(-d.x, -d.y)
+	_last_yaw = yaw
+	return {"move": Vector2(0, -1), "yaw": yaw, "jump": false, "sprint": false}
+
+
+## Mission 06, caddie : va chercher ses articles (à 2 à l'heure) en suivant les allées.
+func _shop_m06(delta: float) -> Dictionary:
+	var m = mission
+	for it in m.companion_items(body.peer_id):
+		if it in m.items_got:
+			continue
+		var pts: Array = m.route_to(it)
+		if _rk != it:
+			_rk = it
+			_rp = _nearest_point(pts)
+		var goal: Vector3 = pts[pts.size() - 1]
+		status = "va chercher %s" % m.ITEM_NAMES[it]
+		if _horizontal(body.global_position, goal) < 1.3:
+			_try_interact(["read"])
+			return idle()
+		var inp := _follow_points(pts, delta)
+		return inp if not inp.is_empty() else idle()
+	status = "a rempli sa part du cabas"
+	return idle()
+
+
+## Mission 06, bavarde : file dire bonjour à Mme Hubert et ne la lâche plus.
+func _chat_m06(delta: float) -> Dictionary:
+	var m = mission
+	var pts: Array = m.route_to_chat()
+	if _horizontal(body.global_position, pts[pts.size() - 1]) < 1.0:
+		status = "papote avec Mme Hubert dans l'allée"
+		return idle()
+	status = "va dire bonjour à Mme Hubert"
+	if _rk != "chat":
+		_rk = "chat"
+		_rp = 0
+	var inp := _follow_points(pts, delta)
+	return inp if not inp.is_empty() else idle()
 
 
 ## Mission 05, rabatteur : se place derrière la vache libre la plus proche (côté opposé à l'enclos) et siffle quand il est près.

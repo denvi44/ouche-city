@@ -100,7 +100,7 @@ static func shop_spots(pois: Array, height_at: Callable) -> Dictionary:
 	var out := {"planter": [], "bench": [], "bollard": []}
 	var n := 0
 	for p in pois:
-		if p.get("kind", "") != "shop" or not p.has("facing"):
+		if p.get("kind", "") != "shop" or not p.has("facing") or p.has("prop"):
 			continue
 		var x := float(p.position[0])
 		var z := float(p.position[1])

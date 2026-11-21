@@ -164,7 +164,7 @@ func _run() -> void:
 	pr2.free()
 
 	# --- Audio : synthèse ---
-	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle"]
+	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework", "whistle", "beep", "coin", "sigh"]
 	for n in synth_names:
 		var smp: PackedFloat32Array = Callable(Synth, n).call()
 		var peak := 0.0
@@ -216,7 +216,7 @@ func _run() -> void:
 	var specs := {"lamp": [4.0, 5.2, 14], "bench": [0.8, 1.3, 11], "planter": [0.8, 1.1, 18], "bollard": [0.7, 1.0, 3], "well": [2.8, 3.4, 9],
 		"hay_bale": [1.2, 1.6, 4], "barrel": [0.8, 1.1, 6], "chair": [0.9, 1.2, 9], "table": [0.7, 1.2, 27], "table_set": [0.9, 1.3, 45],
 		"spit": [1.2, 1.9, 20], "brazier": [0.5, 0.8, 14], "pyre": [2.0, 3.6, 37], "flames": [2.0, 3.6, 3], "dog": [0.8, 1.2, 12],
-		"lamb": [0.6, 1.0, 12], "cow": [1.4, 1.8, 24], "pen": [1.5, 1.8, 40], "gate_leaf": [1.0, 1.3, 6], "charcoal": [0.5, 0.9, 8]}
+		"lamb": [0.6, 1.0, 12], "caddie": [0.9, 1.1, 12], "checkout": [2.4, 2.8, 9], "bakery": [1.8, 2.2, 12], "fridge": [2.3, 2.5, 30], "shelf": [1.8, 2.1, 100], "cow": [1.4, 1.8, 24], "pen": [1.5, 1.8, 40], "gate_leaf": [1.0, 1.3, 6], "charcoal": [0.5, 0.9, 8]}
 	var tri_total := 0
 	for n in specs:
 		var kit = Callable(PK, n).call()
@@ -260,6 +260,43 @@ func _run() -> void:
 		var mk = CMt.make(Color(0.5, 0.5, 0.5), Color(0.2, 0.2, 0.3), Color(0.3, 0.3, 0.3), {"headgear": kind})
 		check(mk.find_child("Tete", true, false) != null, "couvre-chef « %s » construit" % kind) if kind in ["kepi", "straw", "none"] else null
 	check(Pl.default_style(3) != Pl.default_style(4) and Pl.default_style(3) == Pl.default_style(3), "style des joueurs : déterministe, varié selon l'identifiant")
+	# Supermarché : plan cohérent (articles, parcours des clients, caisse hors des gondoles).
+	var SM = load("res://scripts/world/supermarket.gd")
+	var M6c = load("res://scripts/world/mission_m06.gd")
+	var free_of_rows := func(p: Vector2) -> bool:
+		for row in SM.ROWS:
+			if absf(p.x) <= float(row.half) + 0.5 and absf(p.y - float(row.z)) < 0.95:
+				return false
+		return true
+	var spots_ok := true
+	for it in SM.shopping_spots():
+		var sp: Vector3 = SM.shopping_spots()[it]
+		spots_ok = spots_ok and absf(sp.x) < SM.HALF_X - 0.5 and absf(sp.z) < SM.HALF_Z - 0.5 and free_of_rows.call(Vector2(sp.x, sp.z))
+	check(spots_ok and SM.shopping_spots().size() == 6, "supermarché : les six articles sont dans le magasin, hors des gondoles")
+	var routes_ok := true
+	for r in M6c.ROUTES:
+		for pt in r:
+			if pt.y < SM.HALF_Z - 0.3:
+				routes_ok = routes_ok and absf(pt.x) < SM.HALF_X - 0.5 and free_of_rows.call(pt) and pt.y > -SM.HALF_Z + 1.0
+		for i in r.size() - 1:
+			# Chaque tronçon intérieur reste libre de gondoles (on échantillonne).
+			for t in 10:
+				var q: Vector2 = r[i].lerp(r[i + 1], t / 9.0)
+				if q.y < SM.HALF_Z - 0.3:
+					routes_ok = routes_ok and free_of_rows.call(q)
+	check(routes_ok, "supermarché : les parcours des clients passent par les allées")
+	for rt in M6c.ITEM_ROUTES:
+		var pts: Array = [Vector2(0, 9.5), Vector2(0, 6.5)] + M6c.ITEM_ROUTES[rt] + [Vector2(SM.shopping_spots()[rt].x, SM.shopping_spots()[rt].z)]
+		var okr := true
+		for i in pts.size() - 1:
+			for t in 10:
+				okr = okr and free_of_rows.call(pts[i].lerp(pts[i + 1], t / 9.0))
+		check(okr, "supermarché : le trajet vers « %s » ne traverse aucune gondole" % rt)
+	var store = SM.build(true, 0.3)
+	check(store.find_child("Interieur", true, false) != null and absf((store.get_child(0) as Node3D).position.y - 0.3) < 0.001, "supermarché : intérieur relevé de 0,3 m")
+	check(store.find_children("*", "StaticBody3D", true, false).size() >= 10, "supermarché : murs, gondoles et comptoirs ont des collisions (%d)" % store.find_children("*", "StaticBody3D", true, false).size())
+	check(SM.lift_for(func(x, _z): return x * 0.01, Vector3(0, 0, 0), 0.0) > 0.16, "supermarché : le sol est relevé au point le plus haut du terrain")
+	store.free()
 	var wav: AudioStreamWAV = Synth.to_stream(eng, true)
 	check(wav.data.size() == eng.size() * 2 and wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.mix_rate == 22050, "flux WAV 16 bits mono, bouclé")
 	var Amb = load("res://scripts/audio/ambiance.gd")

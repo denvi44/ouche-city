@@ -1,0 +1,25 @@
+{
+  "id": "m06_courses_de_8h",
+  "title": "Les courses de 8 h",
+  "requires": ["m05_vaches_en_goguette"],
+  "players": { "min": 1, "max": 4 },
+  "summary": "Huit heures, ouverture du Panier d'Ouche. Vous avez six articles sur votre liste, un cabas à roulettes et toute la patience du monde. Les autres clients, eux, ont un train à prendre. Vous avancez à 2 à l'heure : la file derrière vous aussi.",
+  "roles": ["acheteur", "bavarde", "caddie", "chauffeur"],
+  "companions": { "bavarde": "ginette", "caddie": "gege", "chauffeur": "kevin" },
+  "walk": { "kmh": 2.0 },
+  "clock": { "start": "08:00", "secondsPerGameMinute": 6, "gold": "08:50", "silver": "09:00", "bronze": "09:30", "fail": "09:30" },
+  "list": ["baguette", "camembert", "lait", "cidre", "palets", "litiere"],
+  "reading": { "sec": 3 },
+  "customers": { "solo": 6, "coop": 9, "firstAtSec": 3, "everySec": 14, "speed": 1.5, "patienceSec": 12 },
+  "incidents": { "maxBeforeEviction": 4, "penaltySec": 6, "goldMaxIncidents": 1 },
+  "payment": { "coins": 4, "failPenaltySec": 8 },
+  "steps": [
+    { "id": "intro", "type": "cutscene", "skip": "majority_vote" },
+    { "id": "shop", "type": "collect", "items": ["baguette", "camembert", "lait", "cidre", "palets", "litiere"] },
+    { "id": "pay", "type": "minigames", "minigame": "count_coins" },
+    { "id": "exit", "type": "free" },
+    { "id": "outro", "type": "cutscene", "variants": ["gold", "win", "default"] }
+  ],
+  "medals": { "gold": { "finishBefore": "08:50", "maxIncidents": 1 }, "silver": { "finishBefore": "09:00" }, "bronze": { "finishBefore": "09:30" } },
+  "rewards": { "reputation": { "troisieme_age": 1 }, "unlocks": [] }
+}

@@ -15,5 +15,5 @@
     { "id": "outro", "type": "cutscene", "variants": ["gold", "win", "default"] }
   ],
   "medals": { "gold": { "penned": 8 }, "silver": { "penned": 6 }, "bronze": { "penned": 4 } },
-  "rewards": { "reputation": { "campagne": 1 }, "unlocks": [] }
+  "rewards": { "reputation": { "campagne": 1 }, "unlocks": ["m06_courses_de_8h"] }
 }

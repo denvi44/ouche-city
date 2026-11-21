@@ -26,6 +26,8 @@ const OUTFITS := {
 }
 
 var peer_id := 1
+## Plafond de vitesse imposé par la mission (m/s) : « 2 à l'heure » aux courses de la mission 06 ; INF = aucun.
+var speed_cap := INF
 ## Compagnon IA : identifiant négatif, simulé par le serveur via son cerveau.
 var is_ai := false
 var brain: CompanionBrain
@@ -183,6 +185,7 @@ func simulate(inp: Dictionary, delta: float) -> void:
 	var speed := SPRINT_SPEED if inp.sprint else WALK_SPEED
 	if carrying:
 		speed *= CARRY_FACTOR
+	speed = minf(speed, speed_cap)
 	velocity.x = move_toward(velocity.x, dir.x * speed, ACCEL * delta)
 	velocity.z = move_toward(velocity.z, dir.z * speed, ACCEL * delta)
 	if is_on_floor():

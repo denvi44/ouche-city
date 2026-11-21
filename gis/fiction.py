@@ -616,3 +616,71 @@ def lieux_mission05(tuiles: dict, taille: float, normaliser, spawn, utilises: se
 
 
 TAU_FICTION = 2 * math.pi
+
+
+# --- Mission 06 « Les courses de 8 h » : le supermarché -------------------------------------------------
+M06 = "m06_courses_de_8h"
+LABELS_M06 = {"supermarche": "Supermarché Le Panier d'Ouche"}
+SUPER_W = 26.0            # m le long de la façade
+SUPER_D = 18.0            # m de profondeur
+
+
+def lieux_mission06(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Supermarché indépendant : emprise de 26 × 18 m (marge de 4 m) sans bâtiment, route ni eau, la plus plate possible, à 60-220 m
+    de l'apparition, tournée (porte à l'avant) vers la route la plus proche. Balayage déterministe d'une grille de 10 m."""
+    from shapely.strtree import STRtree
+    from shapely.geometry import Polygon as P
+    obstacles = [Polygon(b["footprint"]) for t in tuiles.values() for b in t["buildings"]]
+    obstacles += [Polygon(v["polygon"]) for t in tuiles.values() for v in t["vegetation"] if v["kind"] == "water"]
+    arbre = STRtree(obstacles)
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    en_zone = {(t["tile"]["x"], t["tile"]["y"]) for t in tuiles.values()}
+    par_xy = {(t["tile"]["x"], t["tile"]["y"]): t for t in tuiles.values()}
+    sx, sz = spawn
+    meilleur = None
+    for x in range(int(sx) - 220, int(sx) + 220, 10):
+        for z in range(int(sz) - 220, int(sz) + 220, 10):
+            d = math.hypot(x - sx, z - sz)
+            if not (60 < d < 220) or (int(x // taille), int(z // taille)) not in en_zone:
+                continue
+            pt = Point(x, z)
+            proche = min(routes, key=lambda r: r.distance(pt))
+            dr = proche.distance(pt)
+            if not (16.0 < dr < 55.0):
+                continue
+            np_ = proche.interpolate(proche.project(pt))
+            f = math.atan2(np_.x - x, np_.y - z)
+            fx, fz = math.sin(f), math.cos(f)
+            px, pz = fz, -fx
+            coins = [(x + px * sgx * (SUPER_W / 2 + 4) + fx * sgz * (SUPER_D / 2 + 4), z + pz * sgx * (SUPER_W / 2 + 4) + fz * sgz * (SUPER_D / 2 + 4))
+                     for sgx, sgz in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+            if any((int(qx // taille), int(qz // taille)) not in en_zone for qx, qz in coins):
+                continue
+            poly = P(coins)
+            if any(obstacles[i].intersects(poly) for i in arbre.query(poly)):
+                continue
+            if any(r.intersects(poly) for r in routes):
+                continue
+            hs = []
+            for ix in (-1, -0.5, 0, 0.5, 1):
+                for iz in (-1, -0.5, 0, 0.5, 1):
+                    qx = x + px * ix * SUPER_W / 2 + fx * iz * SUPER_D / 2
+                    qz = z + pz * ix * SUPER_W / 2 + fz * iz * SUPER_D / 2
+                    h = _hauteur(par_xy, qx, qz, taille)
+                    if h is None:
+                        hs = None
+                        break
+                    hs.append(h)
+                if hs is None:
+                    break
+            if not hs:
+                continue
+            pente = max(hs) - min(hs)
+            if meilleur is None or pente < meilleur[0] - 1e-9:
+                meilleur = (pente, x, z, f)
+    if meilleur is None:
+        return []
+    _, x, z, f = meilleur
+    p = _poi2("supermarche", "shop", LABELS_M06["supermarche"], x, z, f, taille, "shop", prop="supermarket", radius=SUPER_W / 2)
+    p["missions"] = [M06]
+    return [p]

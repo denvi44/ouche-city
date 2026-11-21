@@ -110,6 +110,14 @@ func _build() -> void:
 		Net.mission_id = "m05"
 		_solo())
 	box.add_child(m5)
+	var m6_ok: bool = Progress.is_available("m06_courses_de_8h", ["m05_vaches_en_goguette"])
+	var m6 := Button.new()
+	m6.text = "Solo : Les courses de 8 h (mission 6)" if m6_ok else "Mission 6 : terminez d'abord les vaches"
+	m6.disabled = not m6_ok
+	m6.pressed.connect(func():
+		Net.mission_id = "m06"
+		_solo())
+	box.add_child(m6)
 	_button(box, "Héberger une partie", _host)
 	_address = LineEdit.new()
 	_address.placeholder_text = "Adresse de l'hôte (ex. 192.168.1.20)"

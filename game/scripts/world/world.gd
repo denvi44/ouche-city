@@ -3,7 +3,7 @@ extends Node3D
 ## Le même script tourne sur le serveur (dédié ou local) et sur les clients.
 
 const CITY_DIR := "res://assets/city"
-const MISSION_IDS := {"m01": "m01_calva_gege", "m02": "m02_tuning_samedi", "m03": "m03_battle_sono", "m04": "m04_mechoui_saint_jean", "m05": "m05_vaches_en_goguette"}
+const MISSION_IDS := {"m01": "m01_calva_gege", "m02": "m02_tuning_samedi", "m03": "m03_battle_sono", "m04": "m04_mechoui_saint_jean", "m05": "m05_vaches_en_goguette", "m06": "m06_courses_de_8h"}
 const PlayerScript := preload("res://scripts/player/player.gd")
 
 var players_root: Node3D
@@ -83,7 +83,7 @@ func _build_van_and_mission() -> void:
 	for p in pois:
 		if p.id == van_id:
 			van_poi = p
-	if not van_poi.is_empty() and not (mission_key in ["m03", "m04", "m05"]):      # ces missions se jouent à pied
+	if not van_poi.is_empty() and not (mission_key in ["m03", "m04", "m05", "m06"]):      # ces missions se jouent à pied
 		van = Car.new() if mission_key == "m02" else Vehicle.new()
 		van.name = "Fusee" if mission_key == "m02" else "Van"
 		var x := float(van_poi.position[0])
@@ -100,6 +100,8 @@ func _build_van_and_mission() -> void:
 			mission = MissionM04.new()
 		"m05":
 			mission = MissionM05.new()
+		"m06":
+			mission = MissionM06.new()
 		_:
 			mission = MissionM01.new()
 	mission.name = "Mission"
@@ -307,6 +309,8 @@ func _qa_report() -> void:
 		vinfo = "van=%.1f,%.1f,%.1f conducteur=%d etape=%s nids=%d tracteur=%s" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step, mission.potholes.size(), mission.tractor != null]
 	elif van:
 		vinfo = "van=%.1f,%.1f,%.1f conducteur=%d etape=%s nids=0 tracteur=false" % [van.global_position.x, van.global_position.y, van.global_position.z, van.driver, mission.step]
+	elif mission is MissionM06:
+		vinfo = "van=- etape=%s cabas=%d clients=%d" % [mission.step, mission.items_got.size(), mission.customers.size()]
 	elif mission is MissionM05:
 		vinfo = "van=- etape=%s vaches=%d enclos=%d" % [mission.step, mission.cows.size(), mission.penned()]
 	elif mission is MissionM04:

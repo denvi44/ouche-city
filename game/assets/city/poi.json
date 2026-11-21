@@ -1864,6 +1864,24 @@
    ],
    "step": "herd",
    "facing": 0.0
+  },
+  {
+   "id": "supermarche",
+   "kind": "shop",
+   "label": "Supermarché Le Panier d'Ouche",
+   "position": [
+    1549.0,
+    1352.0
+   ],
+   "tile": "6_5",
+   "radius": 13.0,
+   "source": "design",
+   "missions": [
+    "m06_courses_de_8h"
+   ],
+   "step": "shop",
+   "facing": -0.92,
+   "prop": "supermarket"
   }
  ]
 }
