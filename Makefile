@@ -38,6 +38,9 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m03_flow.gd -- --mission=m03 --no-companions
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m03_companions.gd -- --mission=m03
 	bash qa/integration/m03_online.sh
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m04_flow.gd -- --mission=m04 --no-companions
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m04_companions.gd -- --mission=m04
+	bash qa/integration/m04_online.sh
 
 ## Captures 1920×1080 de la scène témoin (GPU conseillé ; sinon rendu Compatibility).
 screenshots:

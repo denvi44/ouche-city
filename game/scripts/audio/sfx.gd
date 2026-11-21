@@ -23,6 +23,9 @@ const CATALOG := {
 	"step": {"gen": "step", "caption": "", "db": -12.0, "bus": "Effets"},
 	"radio_blip": {"gen": "radio_blip", "caption": "[Radio : Kévin Radio parle]", "db": -6.0, "bus": "Effets"},
 	"bell": {"gen": "bell", "caption": "[Cloches de l'église]", "db": -6.0, "bus": "Ambiance"},
+	"bark": {"gen": "bark", "caption": "[Aboiement]", "db": -3.0, "bus": "Effets"},
+	"sizzle": {"gen": "sizzle", "caption": "", "db": -9.0, "bus": "Effets"},
+	"firework": {"gen": "firework", "caption": "[Feu d'artifice]", "db": -4.0, "bus": "Effets"},
 	"bird": {"gen": "bird", "caption": "", "db": -10.0, "bus": "Ambiance"},
 }
 const LOOPS := {

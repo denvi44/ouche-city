@@ -479,3 +479,54 @@ static func track(id: String) -> PackedFloat32Array:
 				_note(out, int(arp[b]) + 12, t0, beat * 0.9, 0.2, 0.004)
 				_note(out, int(arp[b]) + 12, t0 + beat * 0.5, beat * 0.4, 0.1, 0.004)
 	return normalized(out, 0.85)
+
+
+
+# --- Méchoui de la Saint-Jean (mission 04) ----------------------------------------------------------------------------
+
+## Aboiement : deux « ouaf » brefs, un timbre rauque (anche grave + bruit).
+static func bark() -> PackedFloat32Array:
+	_rng.seed = 404
+	var out := _buf(0.55)
+	for i in out.size():
+		var s := float(i) / RATE
+		var v := 0.0
+		for start in [0.0, 0.26]:
+			var ls: float = s - float(start)
+			if ls > 0.0 and ls < 0.2:
+				var f := 420.0 - 700.0 * ls
+				v += (_lookup(_reed(), f * ls) * 0.8 + _noise() * 0.35) * _env(ls, 0.2, 0.005, 0.12)
+		out[i] = v
+	return normalized(out, 0.8)
+
+
+## Crépitement de braises : bruit haché, fort au départ puis décroissant.
+static func sizzle() -> PackedFloat32Array:
+	_rng.seed = 405
+	var out := _buf(0.45)
+	for i in out.size():
+		var s := float(i) / RATE
+		var crack := 1.0 if _rng.randf() < 0.04 else 0.25
+		out[i] = _noise() * crack * exp(-s * 6.0)
+	return normalized(out, 0.7)
+
+
+## Feu d'artifice : sifflement montant puis éclatement et pluie d'étincelles.
+static func firework() -> PackedFloat32Array:
+	_rng.seed = 406
+	var out := _buf(1.6)
+	var ph := 0.0
+	for i in out.size():
+		var s := float(i) / RATE
+		var v := 0.0
+		if s < 0.55:
+			ph += (500.0 + 2600.0 * s) / RATE
+			v += sin(TAU * ph) * 0.35 * (0.3 + s)
+		if s >= 0.55:
+			var ls := s - 0.55
+			v += _noise() * exp(-ls * 7.0) * 0.9
+			v += sin(TAU * 70.0 * ls) * exp(-ls * 9.0) * 0.8
+			if _rng.randf() < 0.012 * exp(-ls * 1.6):
+				v += _noise() * 0.8
+		out[i] = v
+	return normalized(out, 0.85)

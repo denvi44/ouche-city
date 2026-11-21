@@ -43,6 +43,9 @@ var _errand_tries := 0
 var _clock := 0.0
 var _crate_since := 0.0
 var _blacklist := {}                # id de caisse -> date (horloge du cerveau) de fin de mise à l'écart
+var _stuck_count := 0
+var _escape := Vector2.ZERO
+var _back_t := 0.0                  # > 0 : on recule d'un pas pour se dégager d'un angle de mur
 var _strict := 0.0                  # > 0 : pas de raccourcis, on suit les points du graphe
 var _hist_t := 0.0
 var _hist_pos := Vector2.ZERO
@@ -63,7 +66,7 @@ func idle() -> Dictionary:
 func think(delta: float) -> Dictionary:
 	_act_cooldown = maxf(_act_cooldown - delta, 0.0)
 	_clock += delta
-	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03)):
+	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04)):
 		status = "attend"
 		return idle()
 	match role:
@@ -85,6 +88,12 @@ func think(delta: float) -> Dictionary:
 			return _post_m03("videur", "gagne les portes", "tient les portes", delta)
 		"saboteur":
 			return _post_m03("clos", "file chez les rivaux", "sabote la sono rivale", delta)
+		"cuisinier":
+			return _post_m03("grill", "gagne le foyer", "tient le feu", delta)
+		"gardien":
+			return _post_m03("garde", "prend position", "garde le méchoui", delta)
+		"serveur":
+			return _serve_m04(delta)
 	var me := body.peer_id
 	var pos := body.global_position
 	# 1. Une caisse sur l'épaule : direction la camionnette, puis chargement.
@@ -135,17 +144,46 @@ func _hold(spot_name: String, going: String, there: String, delta: float) -> Dic
 
 ## Mission 03 : d'abord son objet à rapporter (caisson, rallonge ou groupe), puis son poste.
 func _post_m03(spot_name: String, going: String, there: String, delta: float) -> Dictionary:
-	var m := mission as MissionM03
-	var it := m.companion_item(body.peer_id)
-	if m.step == "setup" and it != "" and not m.item_taken(it):
+	var m = mission
+	var it: String = m.companion_item(body.peer_id)
+	if m.step == m.ITEMS_STEP and it != "" and not m.item_taken(it):
 		var target: Vector3 = m.item_pos.get(it, Vector3.ZERO)
 		if target != Vector3.ZERO:
-			status = "va chercher %s" % MissionM03.ITEM_NAMES[it]
+			status = "va chercher %s" % m.ITEM_NAMES[it]
 			if _horizontal(body.global_position, target) < 2.2:
 				_try_interact(["item"])
 				return idle()
 			return _walk_to(target, delta)
 	return _hold(spot_name, going, there, delta)
+
+
+## Mission 04, serveuse : prend une assiette au foyer et la porte à la table qui en a le moins reçu.
+func _serve_m04(delta: float) -> Dictionary:
+	var m = mission
+	if m.step != "serve":
+		return _post_m03("pass", "gagne le foyer", "attend l'agneau doré", delta)
+	var pos := body.global_position
+	if m.is_carrying(body.peer_id):
+		var best := -1
+		var best_n := 99
+		for i in 4:
+			if int(m.served[i]) < m.per_table and int(m.served[i]) < best_n:
+				best_n = int(m.served[i])
+				best = i
+		if best < 0:
+			return idle()
+		var tp: Vector3 = m.table_pos(best)
+		status = "porte une assiette à la table %d" % (best + 1)
+		if _horizontal(pos, tp) < 2.4:
+			_try_interact(["serve"])
+			return idle()
+		return _walk_to(tp, delta)
+	status = "va chercher une assiette"
+	var st: Vector3 = m.station()
+	if _horizontal(pos, st) < 3.2:
+		_try_interact(["take"])
+		return idle()
+	return _walk_to(st, delta)
 
 
 ## Course de Ginette : aller chez le père Bernard, proposer 60 % du prix (deux essais au plus).
@@ -276,8 +314,18 @@ func _walk_to(target: Vector3, delta: float) -> Dictionary:
 		_jitter_t = 0.9
 		_jitter = -_jitter
 		_replan_t = 0.0
-		if _wp < _path.size() - 1:
+		_stuck_count += 1
+		if _stuck_count % 3 == 0:
+			_back_t = 1.2           # plusieurs blocages de suite : on rejoint le sommet de route le plus proche, tout droit
+			_escape = nav.closest_vertex(here)
+		elif _wp < _path.size() - 1:
 			_wp += 1
+	if _back_t > 0.0:
+		_back_t -= delta
+		var ed := _escape - here
+		var eyaw := atan2(-ed.x, -ed.y) if ed.length() > 0.3 else yaw
+		_last_yaw = eyaw
+		return {"move": Vector2(0, -1), "yaw": eyaw, "jump": false, "sprint": false}
 	if _jitter_t > 0.0:
 		_jitter_t -= delta
 		yaw += 1.1 * _jitter

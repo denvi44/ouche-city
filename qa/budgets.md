@@ -9,6 +9,7 @@ Configs de référence (`CLAUDE.md`) : **Mac M1 8 Go** et **PC GTX 1060 / RX 580
 | Ombres (soleil) | ≤ 2,5 ms, distance 160 m | à mesurer |
 | Triangles visibles | ≤ 1,5 M | scène témoin : ≈ 150 k, contours inclus (26 tuiles, 1 359 bâtiments : le bâti est dessiné deux fois, corps + coque de contour) |
 | Appels de rendu | ≤ 2 000 | scène témoin : 236 surfaces (1 par matériau et par tuile) + joueurs |
+| Accessoires détaillés (`PropKit`) | ≤ 4 000 triangles par accessoire, ≤ 40 000 de mobilier de rue visible | lampadaire ≈ 0,9 k triangles, MultiMesh par tuile (corps + contour) ; testé par `run_gdscript_tests.gd` |
 | PNJ actifs (IA complète) | ≤ 60 dans 150 m | M1 |
 | Véhicules simulés | ≤ 40 | M1 |
 | Mémoire vive (client) | ≤ 3 Go | à mesurer |

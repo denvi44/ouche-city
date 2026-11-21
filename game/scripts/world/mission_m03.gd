@@ -22,6 +22,7 @@ const PLAYLISTS := ["musette_remix", "techno_foraine", "tube_ete_2003"]
 const PLAYLIST_NAMES := {"musette_remix": "Musette remix", "techno_foraine": "Techno foraine", "tube_ete_2003": "Tube de l'été 2003"}
 const AUDIENCE := {"musette_remix": "anciens", "techno_foraine": "jeunes", "tube_ete_2003": "tous"}
 const COUNTER_BONUS := 1.2                        # jouer pour le public que le rival ne vise pas
+const ITEMS_STEP := "setup"
 const ITEMS := ["caisson", "rallonge", "groupe"]
 const ITEM_NAMES := {"caisson": "le caisson de la Fusée", "rallonge": "la rallonge de Ginette", "groupe": "le groupe électrogène"}
 const ITEM_POI := {"caisson": "item_caisson", "rallonge": "item_rallonge", "groupe": "item_groupe"}

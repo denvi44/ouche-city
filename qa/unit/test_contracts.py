@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
@@ -154,3 +154,18 @@ def test_lieux_de_mission03():
     for i, a in enumerate(ids):
         for b in ids[i + 1:]:
             assert math.dist(a, b) > 20
+
+
+def test_lieux_de_mission04():
+    """La cuisine du méchoui, le bûcher et les trois objets existent, distincts de ceux des autres missions."""
+    import math
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    ids = ("place_fete", "bucher", "item_agneau", "item_broche", "item_charbon")
+    for pid in ids:
+        assert pid in pois, f"lieu manquant : {pid}"
+        assert pois[pid]["missions"] == ["m04_mechoui_saint_jean"]
+    assert pois["place_fete"]["prop"] == "fete" and pois["bucher"]["prop"] == "pyre"
+    assert math.dist(pois["place_fete"]["position"], pois["bucher"]["position"]) > 100
+    autres = [p for p in pois.values() if p.get("missions") and p["missions"] != ["m04_mechoui_saint_jean"] and p.get("building")]
+    bat4 = {pois[i]["building"] for i in ids}
+    assert not (bat4 & {p["building"] for p in autres}), "un bâtiment sert à deux missions"

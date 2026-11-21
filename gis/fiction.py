@@ -501,3 +501,57 @@ def lieux_mission03(tuiles: dict, taille: float, normaliser, spawn, utilises: se
         out.append(_poi3(pid, LABELS_M03[pid], x, z, f, taille, "setup", building=b["id"], radius=3.0))
         pris.append(centre(b))
     return out
+
+
+# --- Mission 04 « Le méchoui de la Saint-Jean » : lieux de blockout --------------------------------------
+M04 = "m04_mechoui_saint_jean"
+LABELS_M04 = {
+    "place_fete": "Cuisine du méchoui (Comité des fêtes)",
+    "bucher": "Bûcher de la Saint-Jean",
+    "item_agneau": "L'agneau de la ferme du Pré-Fleuri",
+    "item_broche": "La broche de Tonton Gégé",
+    "item_charbon": "Le charbon de la quincaillerie Lebrun-Dupré",
+}
+
+
+def _poi4(pid, label, x, z, facing, taille, step, prop=None, building=None, radius=5.0):
+    p = _poi2(pid, "mission_target", label, x, z, facing, taille, step, prop=prop, building=building, radius=radius)
+    p["missions"] = [M04]
+    return p
+
+
+def lieux_mission04(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Lieux de la mission 04 : cuisine du méchoui (maison à 60-200 m), bûcher (à 150 m au moins de la cuisine),
+    trois objets chez des voisins à 70-280 m de la cuisine, deux à deux écartés de 40 m."""
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    batiments = [b for t in tuiles.values() for b in t["buildings"] if b["id"] not in utilises and b["typology"] in ("pavillon", "brique", "colombages") and 25 < Polygon(b["footprint"]).area < 180]
+    batiments.sort(key=lambda b: (_h("m04", b["id"]), b["id"]))
+
+    def centre(b):
+        c = Polygon(b["footprint"]).centroid
+        return c.x, c.y
+
+    def dist(a, b):
+        return math.hypot(a[0] - b[0], a[1] - b[1])
+
+    out: list[dict] = []
+    cuisine = next((b for b in batiments if 60 < dist(centre(b), spawn) < 200), None)
+    if cuisine is None:
+        return out
+    cc = centre(cuisine)
+    (x, z), f = emplacement_enseigne(cuisine["footprint"], routes)
+    out.append(_poi4("place_fete", LABELS_M04["place_fete"], x, z, f, taille, "fire", prop="fete", building=cuisine["id"], radius=8.0))
+    pris = [cc]
+    bucher = next((b for b in batiments if b is not cuisine and 150 < dist(centre(b), cc) < 330), None)
+    if bucher:
+        (x, z), f = emplacement_enseigne(bucher["footprint"], routes)
+        out.append(_poi4("bucher", LABELS_M04["bucher"], x, z, f, taille, "bonfire", prop="pyre", building=bucher["id"], radius=6.0))
+        pris.append(centre(bucher))
+    for pid in ("item_agneau", "item_broche", "item_charbon"):
+        b = next((b for b in batiments if b["id"] != cuisine["id"] and 70 < dist(centre(b), cc) < 280 and all(dist(centre(b), q) > 40 for q in pris)), None)
+        if b is None:
+            continue
+        (x, z), f = emplacement_enseigne(b["footprint"], routes)
+        out.append(_poi4(pid, LABELS_M04[pid], x, z, f, taille, "gather", building=b["id"], radius=3.0))
+        pris.append(centre(b))
+    return out

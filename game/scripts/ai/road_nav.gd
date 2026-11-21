@@ -19,7 +19,51 @@ static func load_default(vehicles := false) -> RoadNav:
 	var data = CityBuilder.read_json(GRAPH_PATH)
 	if data is Dictionary:
 		nav.build(data.get("edges", []), ["primary", "secondary", "tertiary", "residential", "service"] if vehicles else [])
+		if not vehicles:
+			nav.block_buildings(footprints())
 	return nav
+
+
+## Contours de tous les bâtiments de la zone (PackedVector2Array).
+static func footprints() -> Array:
+	var out := []
+	for key in CityBuilder.load_manifest().get("tiles", []):
+		var tile = CityBuilder.read_json("res://assets/city/tiles/%s.json" % key)
+		if tile is Dictionary:
+			for b in tile.get("buildings", []):
+				var ring := PackedVector2Array()
+				for v in b.footprint:
+					ring.append(Vector2(float(v[0]), float(v[1])))
+				out.append(ring)
+	return out
+
+
+## Désactive les points du graphe situés dans un bâtiment : certaines rues (passages sous porche) traversent un
+## contour que les collisions rendent infranchissable, et les piétons s'y bloquaient.
+func block_buildings(rings: Array) -> int:
+	var grid := {}
+	for ring in rings:
+		var r := ring as PackedVector2Array
+		var lo := r[0]
+		var hi := r[0]
+		for v in r:
+			lo = Vector2(minf(lo.x, v.x), minf(lo.y, v.y))
+			hi = Vector2(maxf(hi.x, v.x), maxf(hi.y, v.y))
+		for cx in range(int(floor(lo.x / 40.0)), int(floor(hi.x / 40.0)) + 1):
+			for cz in range(int(floor(lo.y / 40.0)), int(floor(hi.y / 40.0)) + 1):
+				var key := Vector2i(cx, cz)
+				if not grid.has(key):
+					grid[key] = []
+				grid[key].append(r)
+	var blocked := 0
+	for id in astar.get_point_ids():
+		var p := astar.get_point_position(id)
+		for r in grid.get(Vector2i(int(floor(p.x / 40.0)), int(floor(p.y / 40.0))), []):
+			if Geometry2D.is_point_in_polygon(p, r):
+				astar.set_point_disabled(id, true)
+				blocked += 1
+				break
+	return blocked
 
 
 func build(edges: Array, kinds: Array = []) -> void:
@@ -66,6 +110,13 @@ func find_path(from: Vector2, to: Vector2) -> PackedVector2Array:
 				out.append(p)
 	out.append(to)
 	return out
+
+
+## Sommet du graphe le plus proche de `p` (sortie d'un angle de mur) ; `p` si le graphe est vide.
+func closest_vertex(p: Vector2) -> Vector2:
+	if astar.get_point_count() == 0:
+		return p
+	return astar.get_point_position(astar.get_closest_point(p))
 
 
 static func length_of(path: PackedVector2Array) -> float:

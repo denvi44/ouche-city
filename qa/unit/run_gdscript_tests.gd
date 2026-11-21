@@ -164,7 +164,7 @@ func _run() -> void:
 	pr2.free()
 
 	# --- Audio : synthèse ---
-	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird"]
+	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird", "bark", "sizzle", "firework"]
 	for n in synth_names:
 		var smp: PackedFloat32Array = Callable(Synth, n).call()
 		var peak := 0.0
@@ -210,6 +210,37 @@ func _run() -> void:
 	check(is_equal_approx(M3.BEAT, 60.0 / Synth.TRACK_BPM), "rythme de la mission 3 = rythme des playlists (%.2f s)" % M3.BEAT)
 	check(M3.PERFECT < M3.GOOD and M3.GOOD < M3.BEAT / 2.0, "fenêtres de timing : parfait < bon < demi-temps")
 	check(is_equal_approx(M3.COUNT_TIME / M3.BEAT, round(M3.COUNT_TIME / M3.BEAT)), "le compte à rebours est un nombre entier de temps (boucle alignée)")
+	# Atelier d'accessoires : chaque accessoire est détaillé (nombreuses parties), borné et sous le budget de triangles.
+	var PK = load("res://scripts/world/prop_kit.gd")
+	var SF = load("res://scripts/world/street_furniture.gd")
+	var specs := {"lamp": [4.0, 5.2, 14], "bench": [0.8, 1.3, 11], "planter": [0.8, 1.1, 18], "bollard": [0.7, 1.0, 3], "well": [2.8, 3.4, 9],
+		"hay_bale": [1.2, 1.6, 4], "barrel": [0.8, 1.1, 6], "chair": [0.9, 1.2, 9], "table": [0.7, 1.2, 27], "table_set": [0.9, 1.3, 45],
+		"spit": [1.2, 1.9, 20], "brazier": [0.5, 0.8, 14], "pyre": [2.0, 3.6, 37], "flames": [2.0, 3.6, 3], "dog": [0.8, 1.2, 12],
+		"lamb": [0.6, 1.0, 12], "charcoal": [0.5, 0.9, 8]}
+	var tri_total := 0
+	for n in specs:
+		var kit = Callable(PK, n).call()
+		var bb: AABB = kit.bounds()
+		var lim: Array = specs[n]
+		check(kit.part_count() >= int(lim[2]) and bb.end.y >= float(lim[0]) and bb.end.y <= float(lim[1]), "accessoire %s : %d parties, hauteur %.2f m" % [n, kit.part_count(), bb.end.y])
+		check(kit.mesh().get_surface_count() >= 1 and kit.triangle_count() < 4000, "accessoire %s : %d triangles" % [n, kit.triangle_count()])
+		tri_total += kit.triangle_count()
+	var lampk = PK.lamp()
+	check(lampk.mesh().get_surface_count() >= 2 and lampk.outline_mesh().get_surface_count() == 1, "lampadaire : plusieurs couleurs, un seul contour")
+	check(PK.table(4).part_count() > PK.table(0).part_count(), "table : les assiettes garnies ajoutent des parties")
+	var tile_json = load("res://scripts/world/city_builder.gd").read_json("res://assets/city/tiles/%s.json" % load("res://scripts/world/city_builder.gd").load_manifest().tiles[0])
+	var lamps: Array = SF.lamp_spots(tile_json, func(_x, _z): return 0.0)
+	check(lamps.size() > 0 and lamps == SF.lamp_spots(tile_json, func(_x, _z): return 0.0), "lampadaires : %d sur la première tuile, placement déterministe" % lamps.size())
+	# Navigation : un passage qui traverse un bâtiment est désactivé, le chemin contourne.
+	var nv := RoadNav.new()
+	nv.build([{"points": [[0, 0], [40, 0]], "kind": "residential"}, {"points": [[0, 0], [0, 20], [40, 20], [40, 0]], "kind": "residential"}])
+	var blk := PackedVector2Array([Vector2(15, -4), Vector2(25, -4), Vector2(25, 4), Vector2(15, 4)])
+	var nblocked: int = nv.block_buildings([blk])
+	var detour2: PackedVector2Array = nv.find_path(Vector2(0, 0), Vector2(40, 0))
+	var through := false
+	for pt in detour2:
+		through = through or Geometry2D.is_point_in_polygon(pt, blk)
+	check(nblocked >= 2 and not through and RoadNav.length_of(detour2) > 60.0, "navigation : le passage sous un bâtiment est évité (%d points bloqués, détour %.0f m)" % [nblocked, RoadNav.length_of(detour2)])
 	var wav: AudioStreamWAV = Synth.to_stream(eng, true)
 	check(wav.data.size() == eng.size() * 2 and wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and wav.mix_rate == 22050, "flux WAV 16 bits mono, bouclé")
 	var Amb = load("res://scripts/audio/ambiance.gd")

@@ -28,7 +28,7 @@ var port: int = DEFAULT_PORT
 var open_to_others := false
 ## Pilotage automatique du joueur local (bots de playtest QA).
 var bot := false
-## Mission jouée : "m01", "m02" ou "m03" (menu principal ou `--mission=`).
+## Mission jouée : "m01" à "m04" (menu principal ou `--mission=`).
 var mission_id := "m01"
 ## peer_id -> { "name": String, "os": String, "ready": bool }
 var players: Dictionary = {}

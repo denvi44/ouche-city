@@ -476,6 +476,7 @@ func build_tile(data: Dictionary) -> Node3D:
 		root.add_child(gi)
 	if data.get("trees", []).size() > 0:
 		root.add_child(_build_trees(data.trees))
+	root.add_child(StreetFurniture.build_tile(data, height_at))
 	return root
 
 
@@ -595,7 +596,8 @@ func build_signs(pois: Array) -> Node3D:
 ## et accessoire simple (`prop`). Aplats toon, aucun asset externe.
 const STEP_COLOR := {"crates": Color(0.95, 0.75, 0.2), "vehicle": Color(0.3, 0.6, 0.9), "checkpoint": Color(0.85, 0.25, 0.2), "fair": Color(0.4, 0.75, 0.35),
 	"parts": Color(0.95, 0.75, 0.2), "assembly": Color(0.7, 0.5, 0.9), "test_drive": Color(0.3, 0.6, 0.9), "meet": Color(0.95, 0.5, 0.7), "drag": Color(0.85, 0.25, 0.2),
-	"stage": Color(0.3, 0.8, 0.95), "rival": Color(0.9, 0.3, 0.6), "setup": Color(0.95, 0.75, 0.2)}
+	"stage": Color(0.3, 0.8, 0.95), "rival": Color(0.9, 0.3, 0.6), "setup": Color(0.95, 0.75, 0.2),
+	"fire": Color(0.95, 0.5, 0.15), "gather": Color(0.95, 0.75, 0.2), "bonfire": Color(0.9, 0.25, 0.2)}
 
 
 func _toon(color: Color) -> ShaderMaterial:
@@ -658,6 +660,21 @@ func _add_prop(root: Node3D, prop: String) -> void:
 				_box(root, Vector3(0.12, 2.6, 0.12), Vector3(sx, 1.3, 0.5), Color(0.38, 0.26, 0.18))
 			for i in 6:
 				_box(root, Vector3(0.62, 0.1, 1.5), Vector3(-1.55 + i * 0.62, 2.65, 0), Color(0.85, 0.22, 0.2) if i % 2 == 0 else Color(0.97, 0.95, 0.88))
+		"fete":
+			# Cuisine du méchoui : brasero, deux mâts à guirlande de fanions, tonneaux et bottes de paille.
+			root.add_child(PropKit.brazier().build())
+			for sx in [-4.0, 4.0]:
+				_box(root, Vector3(0.14, 3.4, 0.14), Vector3(sx, 1.7, 0), Color(0.4, 0.28, 0.2))
+			var flags := PropKit.bunting(8.0).build()
+			flags.position = Vector3(-4.0, 3.2, 0)
+			root.add_child(flags)
+			for spec in [[PropKit.barrel(), Vector3(-3.2, 0, -1.4), 0.0], [PropKit.barrel(), Vector3(-2.4, 0, -1.9), 0.6], [PropKit.hay_bale(), Vector3(3.4, 0, -1.6), 0.4], [PropKit.hay_bale(), Vector3(4.6, 0, -1.2), -0.3]]:
+				var n: Node3D = spec[0].build()
+				n.position = spec[1]
+				n.rotation.y = spec[2]
+				root.add_child(n)
+		"pyre":
+			root.add_child(PropKit.pyre().build())
 		"strip":
 			_add_strip(root)
 		"stage":
@@ -811,5 +828,6 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 	var poi = read_json(dir.path_join("poi.json"))
 	if poi is Dictionary:
 		root.add_child(build_signs(poi.get("pois", [])))
+		root.add_child(StreetFurniture.build_shops(poi.get("pois", []), height_at))
 		root.add_child(build_mission_markers(poi.get("pois", []), mission_id))
 	return root
