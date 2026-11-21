@@ -21,6 +21,7 @@ var carrying := false
 var vehicle: Vehicle = null
 
 var camera_rig: Node3D
+var model: CharacterModel
 
 var _shape: CollisionShape3D
 var _last_yaw := 0.0
@@ -69,34 +70,17 @@ func _build_visual() -> void:
 	visual.name = "Visuel"
 	add_child(visual)
 	var color: Color = PALETTE[absi(peer_id) % PALETTE.size()]
-	_part(CapsuleMesh.new(), color, Vector3(0, 0.95, 0), func(m): m.radius = 0.33; m.height = 1.25; m.radial_segments = 10; m.rings = 3)
-	_part(SphereMesh.new(), Color(0.96, 0.8, 0.66), Vector3(0, 1.78, 0), func(m): m.radius = 0.24; m.height = 0.48; m.radial_segments = 10; m.rings = 5)
-	# Le béret : signe distinctif du Normand d'Ouche City.
-	_part(CylinderMesh.new(), Color(0.15, 0.17, 0.25), Vector3(0.03, 2.0, 0), func(m): m.top_radius = 0.2; m.bottom_radius = 0.26; m.height = 0.08; m.radial_segments = 12)
-	# Nez, pour savoir où l'on regarde.
-	_part(SphereMesh.new(), Color(0.93, 0.65, 0.55), Vector3(0, 1.76, -0.24), func(m): m.radius = 0.06; m.height = 0.12; m.radial_segments = 6; m.rings = 3)
+	model = CharacterModel.make(color)
+	visual.add_child(model)
 	var label := Label3D.new()
 	label.text = display_name
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.position.y = 2.4
+	label.position.y = 2.5
 	label.font_size = 48
 	label.outline_size = 12
 	label.pixel_size = 0.004
 	label.no_depth_test = false
 	add_child(label)
-
-
-func _part(mesh: PrimitiveMesh, color: Color, pos: Vector3, setup: Callable) -> void:
-	setup.call(mesh)
-	var mat := ShaderMaterial.new()
-	mat.shader = preload("res://shaders/toon.gdshader")
-	mat.set_shader_parameter("couleur", color)
-	mat.next_pass = preload("res://assets/materials/contour_personnage.tres")
-	mesh.material = mat
-	var mi := MeshInstance3D.new()
-	mi.mesh = mesh
-	mi.position = pos
-	visual.add_child(mi)
 
 
 # --- Entrées ------------------------------------------------------------------------
@@ -197,5 +181,8 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
 	if is_driving():
 		return
+	if model:
+		model.carrying = carrying
+		model.airborne = not is_on_floor() and absf(velocity.y) > 1.0
 	super._process(delta)
 	visual.rotation.y = lerp_angle(visual.rotation.y, facing, clampf(12.0 * delta, 0.0, 1.0))

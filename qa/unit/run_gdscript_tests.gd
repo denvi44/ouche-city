@@ -89,6 +89,45 @@ func _run() -> void:
 	var credit: String = Hud.map_credit(manifest)
 	check("IGN" in credit or "OpenStreetMap" in credit, "mention des sources")
 
+	# --- Personnage articulé ---
+	var CM = load("res://scripts/player/character_model.gd")
+	var cm = CM.make(Color(0.8, 0.2, 0.2))
+	root.add_child(cm)
+	var limbs := 0
+	for n in ["Bassin"]:
+		check(cm.get_node_or_null(n) != null, "bassin présent")
+	var bassin: Node3D = cm.get_node("Bassin")
+	for c in bassin.get_children():
+		if c is Node3D and not (c is MeshInstance3D) and c.name != "Tronc":
+			limbs += 1       # 2 jambes
+	for c in bassin.get_node("Tronc").get_children():
+		if c is Node3D and not (c is MeshInstance3D) and c.name != "Tete":
+			limbs += 1       # 2 bras
+	check(limbs == 4, "deux bras et deux jambes (%d membres)" % limbs)
+	for i in 30:
+		cm.animate(1.0 / 60.0, 0.0)
+	check(absf(cm.leg_angle_l) < 0.05, "au repos : jambes droites")
+	var max_leg := 0.0
+	var arm_opposed := true
+	for i in 120:
+		cm.animate(1.0 / 60.0, 4.2)
+		max_leg = maxf(max_leg, absf(cm.leg_angle_l))
+		var leg_r: float = bassin.get_child(1).rotation.x
+		if absf(cm.leg_angle_l) > 0.2 and cm.leg_angle_l * leg_r > 0.0:
+			arm_opposed = false
+	check(max_leg > 0.35, "marche : les jambes balancent (%.2f rad)" % max_leg)
+	check(arm_opposed, "marche : les jambes sont en opposition")
+	cm.carrying = true
+	for i in 90:
+		cm.animate(1.0 / 60.0, 0.0)
+	check(cm.arm_angle_l < -2.8, "portage : bras levés (%.2f rad)" % cm.arm_angle_l)
+	cm.carrying = false
+	cm.airborne = true
+	for i in 60:
+		cm.animate(1.0 / 60.0, 3.0)
+	check(cm.leg_angle_l < -0.5, "saut : jambe gauche repliée (%.2f rad)" % cm.leg_angle_l)
+	cm.free()
+
 	print("%d tests, %d échec(s)" % [_count, _fails])
 	quit(1 if _fails > 0 else 0)
 
