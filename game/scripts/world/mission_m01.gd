@@ -1,5 +1,5 @@
 class_name MissionM01
-extends Node
+extends MissionBase
 ## Mission 01 « Le Calva de Tonton Gégé » (agent 05), état à autorité serveur.
 ##
 ## Étapes jouables : caisses (4 sources) → route (camionnette, cargaison fragile) → barrage de
@@ -7,8 +7,6 @@ extends Node
 ## Ce qui n'est pas encore là : cinématique d'intro, choix d'équipe votés, événements de route
 ## (nids-de-poule, tracteur, vaches), compagnons IA, livraison à pied (livrée à l'arrivée).
 ## Les paramètres viennent de missions/m01_calva_gege.json (copié dans res://assets/missions/).
-
-signal changed          ## État mis à jour (client et serveur) : le HUD se rafraîchit.
 
 const MISSION_FILE := "res://assets/missions/m01_calva_gege.json"
 const PICK_RADIUS := 2.8
@@ -42,31 +40,27 @@ const CRATE_POIS := ["cave_gege", "grange_pommiers", "poulailler_ginette", "fumi
 const CRATE_NAMES := {"cave_gege": "la cave de Gégé", "grange_pommiers": "la grange", "poulailler_ginette": "le poulailler", "fumier_tas": "le tas de fumier"}
 
 # Paramètres issus du JSON.
-var title := "Le Calva de Tonton Gégé"
 var time_limit := 1110.0
 var bottles_total := 24
 var bottles_per_crate := 6
 var min_delivered := 12
 var medals := {"gold": 22, "silver": 16, "bronze": 12}
 var money_per_bottle := 20
+var rewards := {}
+var mission_id := "m01_calva_gege"
 
 # État répliqué.
-var step := "crates"            # crates | road | fair | done | failed
-var started := false
-var elapsed := 0.0
 var cargo := 0                  # bouteilles intactes dans la camionnette
 var broken := 0
 var medal := ""
 var money := 0
 var driver := 0
 var crates := {}                # id -> {"state": ground|carried|loaded, "carrier": peer, "pos": Vector3, "bottles": int}
-var messages: Array = []        # derniers événements (texte)
 var barrage_passed := false
 var checkpoint_left := 0.0      # s restantes pour choisir (étape « checkpoint »)
 var failed_options: Array = []  # options déjà tentées en vain
 var barrier_open := false
 
-var van: Vehicle
 var zones := {}                 # "barrage" / "stand" -> Vector3
 var zone_dirs := {}             # direction de la route (x, z) en chaque zone
 var rng := RandomNumberGenerator.new()
@@ -100,10 +94,11 @@ var _pothole_nodes: Array = []
 var _crate_nodes := {}
 var _dirty := true
 var _sync_t := 0.0
-var _players_root: Node3D
 
 
 func _ready() -> void:
+	title = "Le Calva de Tonton Gégé"
+	step = "crates"
 	rng.seed = 20260101        # mêmes tirages à chaque partie (reproductible) ; Ginette et la chance font le reste
 	var m = CityBuilder.read_json(MISSION_FILE)
 	if m is Dictionary:
@@ -115,6 +110,8 @@ func _ready() -> void:
 		min_delivered = int(m.cargo.minDelivered)
 		medals = {"gold": int(m.medals.gold), "silver": int(m.medals.silver), "bronze": int(m.medals.bronze)}
 		money_per_bottle = int(m.rewards.moneyPerBottle)
+		rewards = m.rewards
+		mission_id = m.id
 
 
 ## Pose les caisses et les zones d'après les POI du cartographe. `ground` : fonction hauteur du sol.
@@ -149,10 +146,6 @@ func setup(pois: Array, ground: Callable, vehicle: Vehicle, players_root: Node3D
 		_crate_nodes[id] = _make_crate_node(id)
 		get_parent().add_child.call_deferred(_crate_nodes[id])
 	_refresh_nodes()
-
-
-func actor(id: int) -> Node3D:
-	return _players_root.get_node_or_null(str(id)) as Node3D if _players_root else null
 
 
 ## Distance horizontale d'un acteur à une zone (INF si absent).
@@ -192,10 +185,6 @@ func _offset(zone: String, along: float, side: float) -> Vector3:
 	var perp := Vector2(-d.y, d.x)
 	var o := Vector2(zones[zone].x, zones[zone].z) + d * along + perp * side
 	return Vector3(o.x, zones[zone].y, o.y)
-
-
-func is_server() -> bool:
-	return multiplayer.has_multiplayer_peer() and multiplayer.is_server()
 
 
 # --- Interaction (résolution partagée : indication HUD côté client, action côté serveur) -----
@@ -318,6 +307,7 @@ func _physics_process(delta: float) -> void:
 	if not started:
 		if _players_root and _players_root.get_child_count() > 0:
 			started = true
+			root_progress().start(mission_id)
 			_log("C'est parti : %d bouteilles de calva à livrer à la foire !" % bottles_total)
 			_mark()
 		return
@@ -690,11 +680,19 @@ func medal_for(bottles: int) -> String:
 	return ""
 
 
+func root_progress() -> Node:
+	return get_node("/root/Progress")
+
+
 func _finish(ok: bool, why: String) -> void:
 	if ok and cargo >= min_delivered:
 		medal = medal_for(cargo)
 		money = cargo * money_per_bottle
 		step = "done"
+		if is_server():
+			var prog := root_progress()
+			prog.add_money(money)
+			prog.complete(mission_id, medal, rewards.get("reputation", {}), rewards.get("unlocks", []), rewards.get("vehicles", []))
 		_log("Livré ! %d bouteilles au stand du Comité des fêtes. Médaille : %s. +%d €." % [cargo, {"gold": "or", "silver": "argent", "bronze": "bronze"}.get(medal, "aucune"), money])
 	else:
 		step = "failed"
@@ -919,6 +917,46 @@ func _process(_delta: float) -> void:
 		for p in _players_root.get_children():
 			if p is Player:
 				(p as Player).carrying = carried_by((p as Player).peer_id) != ""
+
+
+func companion_roles() -> Dictionary:
+	return {-1: "arrimeur", -2: "negociatrice", -3: "guetteur", -4: "diversion"}
+
+
+func result_text() -> String:
+	if step == "done":
+		return "Médaille : %s" % {"gold": "OR", "silver": "ARGENT", "bronze": "BRONZE"}.get(medal, "aucune")
+	if step == "failed":
+		return "Mission ratée"
+	return ""
+
+
+## Panneau de mission du HUD.
+func hud_lines() -> PackedStringArray:
+	var lines: PackedStringArray = [title, objective()]
+	if step in ["crates", "road", "checkpoint", "fair"]:
+		lines.append("Bouteilles intactes : %d / %d   (cassées : %d)   ·   Temps restant : %s" % [cargo, bottles_total, broken, format_time(time_limit - elapsed)])
+	for c in companions():
+		lines.append("• %s : %s" % [c.display_name, companion_status(c)])
+	for msg in messages.slice(maxi(messages.size() - 3, 0)):
+		lines.append("• " + msg)
+	return lines
+
+
+func companion_status(c: Player) -> String:
+	var role: String = companion_roles().get(c.peer_id, "")
+	match role:
+		"arrimeur":
+			if c.carrying:
+				return "porte une caisse à la camionnette"
+			return "s'occupe des caisses" if step == "crates" else "attend près de la camionnette"
+		"negociatrice":
+			return "négocie avec le gendarme" if step == "checkpoint" else "se tient prête au barrage"
+		"diversion":
+			return "prêt à faire diversion" if step == "checkpoint" else "se planque près du barrage"
+		"guetteur":
+			return "guette et commente à la radio"
+	return "attend"
 
 
 ## Consignes affichées par le HUD.

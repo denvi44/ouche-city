@@ -108,47 +108,16 @@ static func caption_text(lines: Array, now: float) -> String:
 
 
 static func format_time(seconds: float) -> String:
-	var s := maxi(int(ceil(seconds)), 0)
-	return "%d:%02d" % [s / 60, s % 60]
+	return MissionBase.format_time(seconds)
 
 
-static func companions_of(m: MissionM01) -> Array:
-	var out := []
-	if m._players_root:
-		for p in m._players_root.get_children():
-			if p is Player and (p as Player).is_ai:
-				out.append(p)
-	return out
-
-
-## Ce que fait un compagnon, déduit de l'état public (valable sur tous les pairs).
-static func companion_status(c: Player, m: MissionM01) -> String:
-	var role: String = Player.OUTFITS.get(c.peer_id, {}).get("role", "")
-	match role:
-		"arrimeur":
-			if c.carrying:
-				return "porte une caisse à la camionnette"
-			return "s'occupe des caisses" if m.step == "crates" else "attend près de la camionnette"
-		"negociatrice":
-			return "négocie avec le gendarme" if m.step == "checkpoint" else "se tient prête au barrage"
-		"diversion":
-			return "prêt à faire diversion" if m.step == "checkpoint" else "se planque près du barrage"
-		"guetteur":
-			return "guette et commente à la radio"
-	return "attend"
+static func companions_of(m: MissionBase) -> Array:
+	return m.companions()
 
 
 ## Texte du panneau de mission (fonction pure, testée).
-static func mission_text(m: MissionM01) -> String:
-	var lines: PackedStringArray = [m.title]
-	lines.append(m.objective())
-	if m.step in ["crates", "road", "fair"]:
-		lines.append("Bouteilles intactes : %d / %d   (cassées : %d)   ·   Temps restant : %s" % [m.cargo, m.bottles_total, m.broken, format_time(m.time_limit - m.elapsed)])
-	for c in companions_of(m):
-		lines.append("• %s : %s" % [c.display_name, companion_status(c, m)])
-	for msg in m.messages.slice(maxi(m.messages.size() - 3, 0)):
-		lines.append("• " + msg)
-	return "\n".join(lines)
+static func mission_text(m: MissionBase) -> String:
+	return "\n".join(m.hud_lines())
 
 
 ## Mention obligatoire des sources de la carte, d'après le manifeste du cartographe.
@@ -245,7 +214,7 @@ func _process(_delta: float) -> void:
 	var h: float = dn.hour if dn else 12.0
 	var mode_txt: String = {Net.Mode.SOLO: "Solo", Net.Mode.HOST: "Hôte", Net.Mode.CLIENT: "En ligne", Net.Mode.DEDICATED: "Serveur"}.get(Net.mode, "—")
 	var world := get_parent()
-	var mission := world.get("mission") as MissionM01 if world else null
+	var mission := world.get("mission") as MissionBase if world else null
 	if mission:
 		_mission_label.text = mission_text(mission)
 		var me := world.players_root.get_node_or_null(str(multiplayer.get_unique_id())) as Player
@@ -257,10 +226,6 @@ func _process(_delta: float) -> void:
 				_hint.text = ("[E]  " if r.kind != "none" else "") + r.label
 			if me.is_driving() and me.vehicle:
 				_speed.text = "%d km/h   ·   [R] Radio Pommiers %s" % [int(me.vehicle.speed_kmh()), "♪" if Sfx.radio_on else "(éteinte)"]
-		_result.text = ""
-		if mission.step == "done":
-			_result.text = "Médaille : %s" % {"gold": "OR", "silver": "ARGENT", "bronze": "BRONZE"}.get(mission.medal, "aucune")
-		elif mission.step == "failed":
-			_result.text = "Mission ratée"
+		_result.text = mission.result_text()
 	_captions.text = caption_text(_caption_lines, Time.get_ticks_msec() / 1000.0) if Settings.subtitles else ""
 	_info.text = "Rue Sainte-Foy · %02d h %02d · %s · %d joueur(s)" % [int(h), int(fmod(h, 1.0) * 60), mode_txt, maxi(Net.players.size(), 1)]

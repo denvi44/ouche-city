@@ -309,6 +309,13 @@ func _run() -> void:
 	check(mission.medal_for(12) == "bronze" and mission.medal_for(15) == "bronze", "bronze de 12 à 15")
 	check(mission.medal_for(11) == "", "rien sous 12")
 
+	# --- Progression : la livraison réussie est enregistrée ---------------------------------------------
+	var prog = root.get_node("Progress")
+	check(prog.is_done("m01_calva_gege") and prog.medal_of("m01_calva_gege") == "silver", "progression : mission 1 terminée, médaille d'argent")
+	check(prog.money() == 20 * mission.money_per_bottle, "progression : %d € gagnés" % prog.money())
+	check(prog.mission_state("m02_tuning_samedi") == "available", "progression : la mission 2 est débloquée")
+	check(prog.data.reputation.get("comite_fetes", 0) == 1, "progression : réputation du Comité des fêtes +1")
+
 	# --- Sons déclenchés par les événements (journalisés même sans carte son) ----------------------------
 	var sfx = root.get_node("Sfx")
 	check(sfx.counts.get("crate", 0) >= 4, "son : 4 prises de caisse (%d)" % sfx.counts.get("crate", 0))

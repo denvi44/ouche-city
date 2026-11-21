@@ -20,6 +20,7 @@ config/windows_native_icon=""
 Settings="*res://scripts/core/settings.gd"
 Net="*res://scripts/net/network_manager.gd"
 Sfx="*res://scripts/audio/sfx.gd"
+Progress="*res://scripts/core/progress.gd"
 
 [display]
 

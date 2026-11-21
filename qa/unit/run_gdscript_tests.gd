@@ -128,6 +128,41 @@ func _run() -> void:
 	check(cm.leg_angle_l < -0.5, "saut : jambe gauche repliée (%.2f rad)" % cm.leg_angle_l)
 	cm.free()
 
+	# --- Progression sauvegardée (contrat save.schema.json) ---
+	var PG = load("res://scripts/core/progress.gd")
+	var pr = PG.new()
+	pr.path = "user://test_progress.json"
+	pr.persist = true
+	pr.data = PG.fresh()
+	check(PG.is_valid(pr.data), "sauvegarde neuve : clés du contrat présentes")
+	check(not PG.is_valid({"money": 5}) and not PG.is_valid("x"), "sauvegarde incomplète refusée")
+	pr.add_money(420)
+	pr.complete("m01_calva_gege", "silver", {"comite_fetes": 1}, ["m02_tuning_samedi"], [])
+	check(pr.money() == 420 and pr.is_done("m01_calva_gege") and pr.medal_of("m01_calva_gege") == "silver", "mission terminée : argent 420, médaille argent")
+	check(pr.mission_state("m02_tuning_samedi") == "available" and pr.data.reputation.comite_fetes == 1, "mission 2 débloquée, réputation +1")
+	pr.complete("m01_calva_gege", "bronze")
+	check(pr.medal_of("m01_calva_gege") == "silver", "on garde la meilleure médaille")
+	pr.complete("m01_calva_gege", "gold")
+	check(pr.medal_of("m01_calva_gege") == "gold", "une meilleure médaille remplace l'ancienne")
+	pr.add_money(-9999)
+	check(pr.money() == 0, "l'argent ne devient jamais négatif")
+	pr.add_money(420)
+	pr.save()
+	var pr2 = PG.new()
+	pr2.path = "user://test_progress.json"
+	pr2.persist = true
+	pr2.load_save()
+	check(pr2.money() == 420 and pr2.is_done("m01_calva_gege") and pr2.is_available("m02_tuning_samedi", ["m01_calva_gege"]), "sauvegarde relue à l'identique")
+	var st_ok := true
+	for k in pr2.data.missions:
+		var ms: Dictionary = pr2.data.missions[k]
+		st_ok = st_ok and ms.state in ["locked", "available", "in_progress", "done"] and (ms.medal == null or ms.medal in ["gold", "silver", "bronze"])
+	check(st_ok and pr2.data.money is int or pr2.data.money is float, "états et médailles conformes au contrat")
+	check(not pr2.is_available("m09_inconnue", ["m02_tuning_samedi"]), "mission dont les prérequis ne sont pas finis : verrouillée")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_progress.json"))
+	pr.free()
+	pr2.free()
+
 	# --- Audio : synthèse ---
 	var synth_names := ["klaxon", "engine_loop", "tractor_loop", "thud", "glass", "crate", "moo", "chime", "fail", "fanfare", "step", "radio_blip", "bell", "wind_loop", "bird"]
 	for n in synth_names:

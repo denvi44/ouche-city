@@ -13,7 +13,7 @@ var builder: CityBuilder
 var env: Environment
 var sun: DirectionalLight3D
 var van: Vehicle
-var mission: MissionM01
+var mission: MissionBase
 
 
 func _ready() -> void:
@@ -118,7 +118,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
 		for i in 3:
 			if event.is_action_pressed("choose_%d" % (i + 1)):
-				mission.request_choice(MissionM01.OPTIONS[i])
+				mission.request_choice(MissionM01.OPTIONS[i] if mission is MissionM01 else str(i + 1))
 	if event.is_action_pressed("radio_toggle") and van and van.driver == multiplayer.get_unique_id():
 		Sfx.toggle_radio()
 	if event.is_action_pressed("horn") and mission and van and van.driver == multiplayer.get_unique_id():
