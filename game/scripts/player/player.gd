@@ -9,6 +9,9 @@ const SPRINT_SPEED := 7.5
 const CARRY_FACTOR := 0.7             # une caisse de calva, ça pèse
 const JUMP_VELOCITY := 5.2
 const GRAVITY := 18.0
+## Sous cette altitude on est tombé sous la carte (le terrain descend jusqu'à −48 m : le seuil est fixé par le monde au chargement).
+static var void_y := -150.0
+static var void_respawn_y := 20.0
 const STEP_HEIGHT := 0.35                          # bordures, seuils, marches basses : franchis sans sauter
 const ACCEL := 35.0
 const PALETTE := [Color(0.85, 0.3, 0.25), Color(0.25, 0.5, 0.8), Color(0.95, 0.75, 0.2), Color(0.35, 0.65, 0.35),
@@ -121,6 +124,8 @@ func _build_visual() -> void:
 	var label := Label3D.new()
 	label.text = display_name
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.add_to_group("etiquettes")
+	label.set_meta("prio", 3)
 	label.position.y = 2.5 if avatar != "oie" else 1.7
 	label.font_size = 48
 	label.outline_size = 12
@@ -220,8 +225,8 @@ func simulate(inp: Dictionary, delta: float) -> void:
 	if dir.length_squared() > 0.01:
 		facing = atan2(-dir.x, -dir.z)
 	# Filet de sécurité : retour au point de départ si l'on tombe sous la carte.
-	if global_position.y < -30.0:
-		global_position = Vector3(global_position.x, 2.0, global_position.z)
+	if global_position.y < void_y:
+		global_position = Vector3(global_position.x, void_respawn_y, global_position.z)
 		velocity = Vector3.ZERO
 
 

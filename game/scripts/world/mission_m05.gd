@@ -145,6 +145,8 @@ func _build_visuals() -> void:
 		var label := Label3D.new()
 		label.text = COW_NAMES[i % COW_NAMES.size()]
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label.add_to_group("etiquettes")
+		label.set_meta("prio", 4)
 		label.font_size = 40
 		label.pixel_size = 0.01
 		label.outline_size = 10
@@ -391,17 +393,21 @@ func herd_target(_from: Vector2, far := false) -> Vector3:
 	if c.is_empty():
 		return Vector3.ZERO
 	var cow_p := Vector2(c.x, c.z)
-	# But de la poussée : le centre de l'enclos si la vache est devant la porte, sinon le devant de la porte
-	# (sans cela, une vache collée au côté de la clôture y reste coincée).
+	var away := (cow_p - push_goal(cow_p)).normalized()
+	var p := cow_p + away * 7.0
+	var y: float = _ground.call(p.x, p.y) if _ground.is_valid() else 0.0
+	return Vector3(p.x, y, p.y)
+
+
+## But de la poussée d'une vache : le centre de l'enclos si elle est devant la porte, sinon le devant de la porte
+## (sans cela, une vache collée au côté de la clôture y reste coincée).
+func push_goal(cow_p: Vector2) -> Vector2:
 	var goal := Vector2(zones.pen.x, zones.pen.z)
 	var l := to_pen(cow_p)
 	if not (l.y > PEN_HALF - 1.0 and absf(l.x) < GATE_HALF + 2.0):
 		var a := _front(Vector3(0, 0, PEN_HALF + 6.0))
 		goal = Vector2(a.x, a.z)
-	var away := (cow_p - goal).normalized()
-	var p := cow_p + away * 7.0
-	var y: float = _ground.call(p.x, p.y) if _ground.is_valid() else 0.0
-	return Vector3(p.x, y, p.y)
+	return goal
 
 
 func humans() -> int:

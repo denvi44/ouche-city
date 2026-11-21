@@ -628,6 +628,10 @@ func _run() -> void:
 	check(sans.size() == 2 and str(sans[1].nom) == "Le village", "drone : repli sans POI (clocher et vue d'ensemble au centre)")
 	check(DS.smooth(0.0) == 0.0 and DS.smooth(1.0) == 1.0 and is_equal_approx(DS.smooth(0.5), 0.5), "drone : lissage de grue")
 
+	var LD = load("res://scripts/world/label_declutter.gd")
+	var sel: Array = LD.select([Rect2(0, 0, 100, 30), Rect2(50, 10, 100, 30), Rect2(0, 100, 100, 30), Rect2(90, 5, 40, 20)], 0.0)
+	check(sel == [true, false, true, false], "étiquettes : la plus prioritaire reste, celle qui la chevauche est masquée (%s)" % str(sel))
+	check(LD.select([Rect2(0, 0, 100, 30), Rect2(100, 0, 100, 30)], 0.0) == [true, true], "étiquettes côte à côte : toutes deux visibles")
 	print("%d tests, %d échec(s)" % [_count, _fails])
 	quit(1 if _fails > 0 else 0)
 

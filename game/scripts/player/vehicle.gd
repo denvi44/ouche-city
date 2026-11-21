@@ -163,8 +163,8 @@ func simulate(inp: Dictionary, delta: float) -> void:
 	var loss := absf(before) - absf(speed)
 	if loss > 1.5 and multiplayer.has_multiplayer_peer() and multiplayer.is_server() and get_slide_collision_count() > 0:
 		impact.emit(loss)
-	if global_position.y < -30.0:
-		global_position = Vector3(global_position.x, 3.0, global_position.z)
+	if global_position.y < Player.void_y:
+		global_position = Vector3(global_position.x, Player.void_respawn_y, global_position.z)
 		velocity = Vector3.ZERO
 		speed = 0.0
 

@@ -28,7 +28,8 @@ const ITEM_NAMES := {"caisson": "le caisson de la Fusée", "rallonge": "la rallo
 const ITEM_POI := {"caisson": "item_caisson", "rallonge": "item_rallonge", "groupe": "item_groupe"}
 const ITEM_COLOR := {"caisson": Color(0.85, 0.25, 0.3), "rallonge": Color(0.95, 0.75, 0.2), "groupe": Color(0.35, 0.65, 0.4)}
 const NEAR := {"deck": 14.0, "item": 3.5, "spot": 5.0, "post": 4.0}
-const PICK_TIME := 8.0
+const PICK_TIME := 10.0
+const PICK_FIRST := 20.0                          # la première manche : le temps de lire comment jouer
 const BREAK_TIME := 5.0
 const POLICE_TIME := 12.0
 const SABOTAGE_TIME := 6.0
@@ -346,7 +347,7 @@ func _begin_round(r: int) -> void:
 	step = "round"
 	round_idx = r
 	round_state = "pick"
-	pick_left = PICK_TIME
+	pick_left = PICK_FIRST if r == 0 else PICK_TIME
 	play_t = 0.0
 	score_p = 0.0
 	score_r = 0.0
@@ -369,10 +370,11 @@ func _open_menu(kind: String) -> void:
 		for id in PLAYLISTS:
 			var extra := ""
 			if nuis_mult[id] > 1.0:
-				extra = ", nuisance +%d %%" % int(round((nuis_mult[id] - 1.0) * 100.0))
+				extra = ", +%d %% de bruit" % int(round((nuis_mult[id] - 1.0) * 100.0))
 			elif id == "tube_ete_2003":
 				extra = ", public ×0,7"
-			menu_options.append("%s (%s%s)" % [PLAYLIST_NAMES[id], AUDIENCE[id], extra])
+			var pour: String = {"anciens": "plaît aux anciens", "jeunes": "plaît aux jeunes", "tous": "plaît à tout le monde"}[AUDIENCE[id]]
+			menu_options.append("%s : %s%s" % [PLAYLIST_NAMES[id], pour, extra])
 	elif kind == "police":
 		menu_options = ["Barbecue pour les gendarmes (−35 % de nuisance)", "Accuser le Clos Fleuri (50 % : −50 % de nuisance, sinon +15 %)", "Distribuer des merguez (−25 % de nuisance, la foule applaudit)"]
 
@@ -840,14 +842,15 @@ func objective() -> String:
 		"round":
 			match round_state:
 				"pick":
-					return "Manche %d/%d : choisissez la playlist (touches 1 à 3), le Clos Fleuri vise le public « %s »." % [round_idx + 1, rounds_total(), RIVAL_AUDIENCE[round_idx]]
+					var best: String = {"jeunes": "anciens", "tous": "jeunes", "anciens": "jeunes"}[RIVAL_AUDIENCE[round_idx]]
+					return "Manche %d/%d — choisissez la musique avec les touches 1, 2 ou 3 (%d s). Le Clos Fleuri joue pour les %s : visez plutôt les %s pour un bonus !" % [round_idx + 1, rounds_total(), int(ceil(pick_left)), RIVAL_AUDIENCE[round_idx], best]
 				"count":
-					return "Manche %d : préparez-vous… %d" % [round_idx + 1, int(ceil(count_left / BEAT)) if count_left > 0.0 else 0]
+					return "Manche %d — allez à la sono (marqueur « Votre sono ») et préparez-vous : appuyez sur E quand le curseur passe au milieu. Début dans %d…" % [round_idx + 1, int(ceil(count_left / BEAT)) if count_left > 0.0 else 0]
 				"play":
 					var extra := ""
 					if sab.kind != "":
 						extra = " — %s Courez à %s !" % [SAB_NAMES[sab.kind], SAB_DEFEND[sab.kind].to_lower()]
-					return "E en rythme avec la grosse caisse, restez près de la sono.%s" % extra
+					return "Restez près de la sono et appuyez sur E à chaque coup de grosse caisse, quand le curseur est au milieu de la barre.%s" % extra
 				"police":
 					return "Les gendarmes sont là : répondez (touches 1 à 3), %d s !" % int(ceil(police_left))
 				"result":
@@ -889,6 +892,12 @@ func nuisance_bar() -> String:
 
 func hud_lines() -> PackedStringArray:
 	var lines: PackedStringArray = [title, objective()]
+	if step == "round" and round_idx == 0 and (round_state in ["pick", "count"] or (round_state == "play" and play_t < 40.0)):
+		lines.append("Comment jouer :")
+		lines.append("  1. Choisissez la musique (touches 1, 2, 3) : chacune plaît à un public. Jouez pour celui que le Clos Fleuri vise le moins.")
+		lines.append("  2. Restez à moins de %d m de la sono (marqueur « Votre sono »)." % int(NEAR.deck))
+		lines.append("  3. Appuyez sur E quand le curseur █ passe au milieu de la barre de rythme : plus c'est juste, plus la foule se rallie.")
+		lines.append("  4. Le bruit fait monter la Nuisance : à %d %%, les gendarmes arrivent." % int(police_at * 100.0))
 	if step == "round":
 		lines.append("Manche %d/%d  ·  Pommiers %d  —  Clos Fleuri %d  ·  Playlist : %s" % [round_idx + 1, rounds_total(), int(score_p), int(score_r), PLAYLIST_NAMES.get(playlist, "")])
 		lines.append("Nuisance %s%s" % [nuisance_bar(), "  (gendarmes à %d %%)" % int(police_at * 100.0) if not police_done else ""])

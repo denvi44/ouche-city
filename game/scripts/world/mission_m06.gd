@@ -192,6 +192,8 @@ func _build_visuals() -> void:
 	var label := Label3D.new()
 	label.text = "Mme Hubert"
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.add_to_group("etiquettes")
+	label.set_meta("prio", 4)
 	label.position.y = 2.4
 	label.font_size = 40
 	label.pixel_size = 0.004

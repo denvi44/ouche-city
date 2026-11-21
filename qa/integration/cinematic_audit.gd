@@ -3,7 +3,7 @@ extends SceneTree
 ## le sujet, le lecteur joue réellement une scène complète (travelling, légendes, fondus, passage, rétablissement de la caméra
 ## et du jeu). Usage : godot --headless --fixed-fps 60 --path game -s ../qa/integration/cinematic_audit.gd
 const WORLD := "res://scenes/temoin_rue_sainte_foy.tscn"
-const IDS := ["intro", "done", "failed"]
+const IDS := ["intro", "done", "failed", "bridge", "epilogue"]
 var fails := 0
 
 
@@ -42,7 +42,8 @@ func _run() -> void:
 		for w in IDS:
 			var d := CinematicPlayer.load_def("%s_%s" % [m, w])
 			if d.is_empty():
-				check(w == "failed", "%s_%s : absente (seul « failed » est facultatif)" % [m, w])
+				var facultative: bool = w == "failed" or (w == "bridge" and m == "m08") or (w == "epilogue" and m != "m08")
+				check(facultative, "%s_%s : absente (facultatives : failed, bridge de la dernière mission, epilogue des autres)" % [m, w])
 				continue
 			count += 1
 			var ok := true
@@ -72,7 +73,7 @@ func _run() -> void:
 				if not ok:
 					break
 			check(ok, "%s_%s : %d plans, %.0f s%s" % [m, w, shots.size(), CinematicPlayer.total_duration(d), "" if ok else " — " + why])
-	check(count >= 14, "au moins 14 cinématiques (%d)" % count)
+	check(count >= 22, "au moins 22 cinématiques, liaisons et épilogue compris (%d)" % count)
 	# --- Lecture complète dans le monde (tolérante : les murs ont déjà été vérifiés) ---
 	var cam0 := root.get_viewport().get_camera_3d()
 	var d1 := CinematicPlayer.load_def("m01_done")

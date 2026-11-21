@@ -280,8 +280,9 @@ func _herd_m05(delta: float) -> Dictionary:
 	if stray.is_empty():
 		return idle()
 	var cow_p := Vector2(stray.x, stray.z)
-	var away := (cow_p - Vector2(m.zones.pen.x, m.zones.pen.z)).normalized()
-	var tp := cow_p + away * 7.0
+	var goal: Vector2 = m.push_goal(cow_p)
+	var away: Vector2 = (cow_p - goal).normalized()
+	var tp: Vector2 = cow_p + away * 7.0
 	var target := Vector3(tp.x, 0.0, tp.y)
 	status = "rabat %s" % MissionM05.COW_NAMES[int(stray.id) % MissionM05.COW_NAMES.size()]
 	if _horizontal(pos, target) < 3.0:
@@ -436,15 +437,22 @@ func _clear(a: Vector2, b: Vector2) -> bool:
 func _clear_at(a: Vector2, b: Vector2, h: float) -> bool:
 	var space := body.get_world_3d().direct_space_state
 	var y := body.global_position.y + h
-	var q := PhysicsRayQueryParameters3D.create(Vector3(a.x, y, a.y), Vector3(b.x, y, b.y))
+	var from := Vector3(a.x, y, a.y)
+	var to := Vector3(b.x, y, b.y)
+	var dir := (to - from).normalized()
+	var q := PhysicsRayQueryParameters3D.create(from, to)
 	q.exclude = [body.get_rid()]
 	q.collision_mask = 1                 # le mobilier de rue (couche 2) ne gêne pas les compagnons
-	for _i in 4:
+	for _i in 10:
 		var hit := space.intersect_ray(q)
 		if hit.is_empty():
 			return true
 		if hit.collider is StaticBody3D:
-			return false
+			# Une pente douce du terrain (valleys jusqu'à −48 m) n'est pas un obstacle : on la franchit, on ne s'arrête que sur un mur ou un talus raide.
+			if absf((hit.normal as Vector3).y) < 0.6:
+				return false
+			q.from = (hit.position as Vector3) + dir * 0.1
+			continue
 		q.exclude.append(hit.collider.get_rid())   # un corps mobile : on regarde derrière
 	return true
 

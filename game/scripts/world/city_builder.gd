@@ -1132,6 +1132,8 @@ func build_mission_markers(pois: Array, mission_id := "") -> Node3D:
 		var label := Label3D.new()
 		label.text = str(p.label)
 		label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		label.add_to_group("etiquettes")
+		label.set_meta("prio", 1)       # un lieu de mission passe avant les noms de passants
 		label.fixed_size = true                 # taille constante à l'écran : lisible de loin
 		label.font_size = 48
 		label.pixel_size = 0.0007

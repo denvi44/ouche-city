@@ -26,6 +26,15 @@ func _ready() -> void:
 	add_child(city)
 	spawn_point = find_spawn(CITY_DIR)
 	spawn_point.y = builder.height_at(spawn_point.x, spawn_point.z) + 1.0
+	# Seuil de chute sous la carte : bien en dessous du point le plus bas du relief (les vallées descendent à −48 m).
+	var low := 0.0
+	var high := 0.0
+	for g in builder.grids.values():
+		for h in g.heights:
+			low = minf(low, float(h))
+			high = maxf(high, float(h))
+	PlayerScript.void_y = low - 60.0
+	PlayerScript.void_respawn_y = high + 10.0
 	players_root = Node3D.new()
 	players_root.name = "Joueurs"
 	add_child(players_root)
@@ -47,6 +56,8 @@ func _ready() -> void:
 	add_child(amb)
 	if DisplayServer.get_name() != "headless":
 		add_child(preload("res://ui/hud.gd").new())
+	if DisplayServer.get_name() != "headless":
+		add_child(LabelDeclutter.new())     # noms flottants : jamais les uns sur les autres
 	var director := CinematicDirector.new()
 	director.name = "Cinematiques"
 	add_child(director)
