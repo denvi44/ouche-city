@@ -159,6 +159,28 @@
       "distance": 12,
       "eyeHeight": 2.2,
       "lookHeight": 1.5
+    },
+    {
+      "id": "facades_gros_plan",
+      "type": "along_road",
+      "road": "Rue Sainte-Foy",
+      "eyeHeight": 1.7,
+      "lookAhead": 12
+    },
+    {
+      "id": "facades_eglise",
+      "type": "anchor",
+      "anchor": "eglise",
+      "offset": [
+        -6,
+        2.0,
+        26
+      ],
+      "lookOffset": [
+        0,
+        7,
+        0
+      ]
     }
   ]
 }

@@ -11,9 +11,10 @@ const Y_VEGETATION := 0.03
 const Y_TROTTOIR := 0.07
 const Y_ROUTE := 0.1
 
+## Matériaux de murs : façades peintes (fenêtres, volets, portes) sauf les annexes (remises, garages).
 const WALL_MAT := {
-	"colombages": "colombages", "brique": "brique", "pavillon": "crepi_pavillon",
-	"commerce": "commerce", "public": "pierre_public", "eglise": "pierre_eglise", "annexe": "crepi_pavillon",
+	"colombages": "colombages", "brique": "facade_brique", "pavillon": "facade_crepi",
+	"commerce": "facade_commerce", "public": "facade_pierre_public", "eglise": "facade_pierre_eglise", "annexe": "crepi_pavillon",
 }
 const VEG_MAT := {
 	"grass": "vert_bocage", "park": "parc", "garden": "parc", "forest": "foret", "farmland": "champ", "water": "eau",
@@ -22,6 +23,10 @@ const SURFACE_MAT := {"asphalt": "route", "pavers": "paves", "gravel": "gravier"
 
 var _materials := {}
 var _tools := {}   # nom de matériau -> SurfaceTool
+## Couleur de sommet appliquée aux triangles émis (données de façade : voir facade_details.gdshaderinc).
+var _cur_color := Color.WHITE
+## Polylignes des routes de la tuile en cours : sert à choisir le mur de la porte (côté rue).
+var _tile_roads: Array = []
 var _collect_hull := false
 var _hull_tris: Array = []   # triangles du bâti en cours : [a, b, c] (Vector3) pour le contour
 ## Grilles de relief des tuiles chargées : "x_y" -> { origin, size, res, heights }
@@ -124,9 +129,9 @@ func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, n: Vector3, ua: V
 		var tu := ub; ub = uc; uc = tu
 	if _collect_hull:
 		_hull_tris.append([a, b, c])
-	st.set_normal(n); st.set_uv(ua); st.add_vertex(a)
-	st.set_normal(n); st.set_uv(ub); st.add_vertex(b)
-	st.set_normal(n); st.set_uv(uc); st.add_vertex(c)
+	st.set_color(_cur_color); st.set_normal(n); st.set_uv(ua); st.add_vertex(a)
+	st.set_color(_cur_color); st.set_normal(n); st.set_uv(ub); st.add_vertex(b)
+	st.set_color(_cur_color); st.set_normal(n); st.set_uv(uc); st.add_vertex(c)
 
 
 func _quad(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, n: Vector3, ua: Vector2, ub: Vector2, uc: Vector2, ud: Vector2) -> void:
@@ -152,6 +157,37 @@ static func signed_area(ring: PackedVector2Array) -> float:
 
 static func _hash01(s: String) -> float:
 	return float(s.hash() & 0xFFFF) / 65536.0
+
+
+## Indice de l'arête de `ring` qui porte la porte : la plus proche d'une rue, d'au moins 2,6 m.
+func _door_edge(ring: PackedVector2Array, typo: String) -> int:
+	if typo == "annexe":
+		return -1
+	var best := -1
+	var best_d := INF
+	for i in ring.size():
+		var a := ring[i]
+		var c := ring[(i + 1) % ring.size()]
+		if a.distance_to(c) < 2.6:
+			continue
+		var mid := (a + c) * 0.5
+		var d := INF
+		for road in _tile_roads:
+			for k in range(road.size() - 1):
+				d = minf(d, seg_distance(mid, road[k], road[k + 1]))
+		if d < best_d:
+			best_d = d
+			best = i
+	return best
+
+
+static func seg_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
+	var ab := b - a
+	var l2 := ab.length_squared()
+	if l2 < 0.0001:
+		return p.distance_to(a)
+	var t := clampf((p - a).dot(ab) / l2, 0.0, 1.0)
+	return p.distance_to(a + ab * t)
 
 
 ## Modèle de toit à deux pans : faîtage parallèle au plus long côté.
@@ -217,8 +253,10 @@ func add_building(b: Dictionary) -> void:
 	var m := ridge_model(ring, h, roof)
 	var full := split_ring_at_ridge(ring, m) if m.k > 0.0 else ring
 	var ccw_xz := signed_area(full) > 0.0
-	var wall := _tool(WALL_MAT.get(typo, "brique"))
-	var u := 0.0
+	var wall := _tool(WALL_MAT.get(typo, "facade_brique"))
+	var seed := _hash01(str(b.id))
+	var door_edge := _door_edge(full, typo)
+	var has_details := typo != "annexe"
 	for i in full.size():
 		var a := full[i]
 		var c := full[(i + 1) % full.size()]
@@ -230,11 +268,16 @@ func add_building(b: Dictionary) -> void:
 		var n := Vector3(n2.x, 0.0, n2.y)
 		var ha := roof_height(m, a)
 		var hc := roof_height(m, c)
+		# Données de façade : graine, longueur, porte (0 / 0,5 / 1 avec vitrine), hauteur d'égout.
+		var door_flag := 0.0
+		if i == door_edge:
+			door_flag = 1.0 if typo == "commerce" else 0.5
+		_cur_color = Color(seed, minf(seg_l / 100.0, 1.0), door_flag, minf(h / 40.0, 1.0)) if has_details else Color(seed, 0.0, 0.0, 0.0)
 		_quad(wall,
 			Vector3(a.x, ground, a.y), Vector3(c.x, ground, c.y),
 			Vector3(c.x, ground + hc, c.y), Vector3(a.x, ground + ha, a.y), n,
-			Vector2(u, 0), Vector2(u + seg_l, 0), Vector2(u + seg_l, hc), Vector2(u, ha))
-		u += seg_l
+			Vector2(0, 0), Vector2(seg_l, 0), Vector2(seg_l, hc), Vector2(0, ha))
+		_cur_color = Color.WHITE
 	# Toit
 	var roof_mat := "ardoise"
 	if typo in ["brique", "annexe"] or (typo in ["colombages", "pavillon"] and _hash01(b.id) < 0.45):
@@ -288,7 +331,8 @@ func _add_church_tower(ring: PackedVector2Array, m: Dictionary, h: float, ground
 	var s := 3.0
 	var top := h + 12.0
 	var corners := [center + Vector2(-s, -s), center + Vector2(s, -s), center + Vector2(s, s), center + Vector2(-s, s)]
-	var wall := _tool("pierre_eglise")
+	var wall := _tool(WALL_MAT["eglise"])
+	_cur_color = Color(0.0, 0.0, 0.0, 0.0)      # le clocher : mur nu, sans fenêtres ni porte
 	for i in 4:
 		var a: Vector2 = corners[i]
 		var c: Vector2 = corners[(i + 1) % 4]
@@ -296,6 +340,7 @@ func _add_church_tower(ring: PackedVector2Array, m: Dictionary, h: float, ground
 		var n := Vector3(mid.x, 0, mid.y).normalized()
 		_quad(wall, Vector3(a.x, ground, a.y), Vector3(c.x, ground, c.y), Vector3(c.x, ground + top, c.y), Vector3(a.x, ground + top, a.y),
 			n, Vector2(0, 0), Vector2(2 * s, 0), Vector2(2 * s, top), Vector2(0, top))
+	_cur_color = Color.WHITE
 	var spire := _tool("ardoise")
 	var apex := Vector3(center.x, ground + top + 13.0, center.y)
 	for i in 4:
@@ -386,6 +431,10 @@ func build_tile(data: Dictionary) -> Node3D:
 	var body := StaticBody3D.new()
 	body.name = "Collisions"
 	root.add_child(body)
+	_tile_roads.clear()
+	for r in data.roads:
+		if r.kind not in ["footway", "track"]:
+			_tile_roads.append(to_ring(r.points))
 	_collect_hull = true
 	_hull_tris.clear()
 	for b in data.buildings:

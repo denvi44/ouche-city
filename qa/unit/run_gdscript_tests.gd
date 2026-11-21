@@ -128,6 +128,43 @@ func _run() -> void:
 	check(cm.leg_angle_l < -0.5, "saut : jambe gauche repliée (%.2f rad)" % cm.leg_angle_l)
 	cm.free()
 
+	# --- Façades : portes et fenêtres peintes ---
+	var tile2 := {"schemaVersion": 1, "tile": {"x": 0, "y": 0}, "origin": [0, 0], "size": 250,
+		"ground": {"resolution": 2, "baseAltitude": 0.0, "heights": [0.0, 0.0, 0.0, 0.0]},
+		"buildings": [
+			{"id": "b_10", "footprint": [[10, 10], [10, 20], [30, 20], [30, 10]], "height": 7.0, "roof": "flat", "typology": "brique", "groundZ": 0.0},
+			{"id": "b_11", "footprint": [[60, 10], [60, 14], [66, 14], [66, 10]], "height": 3.0, "roof": "flat", "typology": "annexe", "groundZ": 0.0},
+			{"id": "b_12", "footprint": [[100, 10], [100, 20], [120, 20], [120, 10]], "height": 7.0, "roof": "flat", "typology": "commerce", "groundZ": 0.0}],
+		"roads": [{"id": "r_1", "name": "Rue Test", "kind": "residential", "points": [[0, 100], [250, 100]], "width": 5.0, "sidewalk": 1.2}],
+		"vegetation": [], "trees": [], "attribution": ["test"]}
+	var b2 = Builder.new()
+	b2.register_tile(tile2)
+	var node2: Node3D = b2.build_tile(tile2)
+	var bm := (node2.get_node("Batiments") as MeshInstance3D).mesh as ArrayMesh
+	var info := {}
+	for si in bm.get_surface_count():
+		var nm := bm.surface_get_name(si)
+		var arr: Array = bm.surface_get_arrays(si)
+		var cols: PackedColorArray = arr[Mesh.ARRAY_COLOR]
+		var vs: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var doors := 0
+		var detail_walls := 0
+		for t in range(0, cols.size() - 2, 3):
+			if cols[t].a > 0.0 and cols[t].g > 0.0:
+				detail_walls += 1
+			if cols[t].b > 0.4:
+				doors += 1
+				info[nm + "_door_z"] = (vs[t].z + vs[t + 1].z + vs[t + 2].z) / 3.0
+		info[nm + "_doors"] = doors / 2     # deux triangles par mur
+		info[nm + "_detail"] = detail_walls / 2
+	check(info.get("facade_brique_doors", 0) == 1, "maison : une seule porte")
+	check(absf(info.get("facade_brique_door_z", -1.0) - 20.0) < 0.1, "maison : porte sur le mur côté rue (z = 20, rue à z = 100)")
+	check(info.get("facade_brique_detail", 0) == 4, "maison : 4 murs avec fenêtres")
+	check(info.get("facade_commerce_doors", 0) == 1, "commerce : porte + vitrine sur un mur")
+	check(not info.has("crepi_pavillon_doors") or info.get("crepi_pavillon_doors", 0) == 0, "annexe : pas de porte")
+	check(info.get("crepi_pavillon_detail", 0) == 0, "annexe : aucun détail de façade")
+	node2.free()
+
 	# --- Navigation piétonne (graphe routier) ---
 	var RN = load("res://scripts/ai/road_nav.gd")
 	var nav = RN.load_default()
