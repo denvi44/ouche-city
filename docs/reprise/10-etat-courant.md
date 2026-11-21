@@ -43,8 +43,7 @@ pytest 190 ; tests GDScript 256 ; audit de faisabilité : m01 746 s/1110, m02 43
 32 cinématiques (`cinematic_audit`) ; `make test` complet ≈ 40 min (aucune sortie tant qu'il n'est pas fini : lance-le en arrière-plan et surveille `EXIT n` à la fin du journal).
 
 ## Ce qui n'existe PAS (honnêteté)
-- **Choix du personnage jouable** : un seul héros dirigé (« Vous » ; l'oie en mission 8). Gégé, Ginette, Kévin, Kévin Radio sont des compagnons IA ; en ligne, les humains
-  prennent des **rôles** de mission, sans avatar nommé. Un sélecteur de héros (avatar, nom, voix de légende, remplacement du compagnon correspondant) est à spécifier avec le propriétaire (`08-backlog.md`).
+- **Héros par mission** : fait (voir `narrative/histoire.md`). Reste à faire : en ligne, attribuer un héros distinct à chaque joueur humain (seul l'hôte incarne le héros), et mettre les répliques « Vous » au nom du héros.
 - Aucune mesure de performance sur GPU réel (Mac M1, GTX 1060) ; sons jamais écoutés ; pas de notarisation Apple ; lobby/comptes (FastAPI + PostgreSQL) non faits ; piétons ambiants/trafic/police libres non faits ; filtre daltonien non appliqué au rendu.
 
 ## Pièges rencontrés (lis avant de toucher)

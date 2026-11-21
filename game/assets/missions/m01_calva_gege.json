@@ -1,6 +1,7 @@
 {
   "id": "m01_calva_gege",
   "title": "Le Calva de Tonton Gégé",
+  "hero": "gege",
   "players": { "min": 1, "max": 4 },
   "timeLimit": { "solo": "18:30", "coop": "18:00" },
   "companions": { "negociateur": "ginette", "arrimeur": "gege", "guetteur": "kevin_radio", "diversion": "kevin" },

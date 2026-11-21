@@ -397,7 +397,10 @@ func _process(_delta: float) -> void:
 	_captions.text = caption_text(_caption_lines, Time.get_ticks_msec() / 1000.0) if Settings.subtitles else ""
 	if _dialogue and Time.get_ticks_msec() / 1000.0 > _dialogue_until:
 		_dialogue.text = ""
-	_info.text = "Rue Sainte-Foy · %02d h %02d · %s · %d joueur(s)" % [int(h), int(fmod(h, 1.0) * 60), mode_txt, maxi(Net.players.size(), 1)]
+	var scene := get_tree().current_scene
+	var hid: int = int(scene.get("hero_id")) if scene != null and scene.get("hero_id") != null else 0
+	var hero_txt := ("Vous êtes " + Heroes.name_of(hid) + " · ") if hid != 0 else ""
+	_info.text = "Rue Sainte-Foy · %02d h %02d · %s%s · %d joueur(s)" % [int(h), int(fmod(h, 1.0) * 60), hero_txt, mode_txt, maxi(Net.players.size(), 1)]
 
 
 ## Lignes d'état affichées sous les jauges : le journal et les compagnons (« • … ») et les menus ; les lignes de chiffres sont

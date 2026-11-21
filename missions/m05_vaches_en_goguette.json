@@ -1,6 +1,7 @@
 {
   "id": "m05_vaches_en_goguette",
   "title": "Les vaches sont de sortie",
+  "hero": "odette",
   "requires": ["m04_mechoui_saint_jean"],
   "players": { "min": 1, "max": 4 },
   "summary": "Au petit matin, la barrière de Mémé Odette est restée ouverte : huit vaches normandes se promènent dans le pré. Il faut les rabattre dans l'enclos avant que le laitier ne passe.",

@@ -31,6 +31,11 @@ func speaker_node(speaker: String) -> Node3D:
 		return null
 	var key: String = SPEAKER_NODES.get(speaker, "")
 	var players: Node = world.get("players_root")
+	# Le héros de la mission, c'est le joueur : ses répliques sortent de sa bouche.
+	if key != "" and world.get("hero_id") != null and int(world.get("hero_id")) != 0 and str(int(world.get("hero_id"))) == key and players:
+		var me := players.get_node_or_null("1") as Node3D
+		if me:
+			return me
 	if key != "":
 		if players:
 			var p := players.get_node_or_null(key) as Node3D

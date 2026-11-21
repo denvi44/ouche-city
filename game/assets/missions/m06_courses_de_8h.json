@@ -1,6 +1,7 @@
 {
   "id": "m06_courses_de_8h",
   "title": "Les courses de 8 h",
+  "hero": "gege",
   "requires": ["m05_vaches_en_goguette"],
   "players": { "min": 1, "max": 4 },
   "summary": "Huit heures, ouverture du Panier de Frouch. Vous avez six articles sur votre liste, un cabas à roulettes et toute la patience du monde. Les autres clients, eux, ont un train à prendre. Vous avancez à 2 à l'heure : la file derrière vous aussi.",

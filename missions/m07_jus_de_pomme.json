@@ -1,6 +1,7 @@
 {
   "id": "m07_jus_de_pomme",
   "title": "Le jus de pomme de Tonton Gégé",
+  "hero": "kevin",
   "requires": [
     "m06_courses_de_8h"
   ],

@@ -1,6 +1,7 @@
 {
   "id": "m08_oies_en_greve",
   "title": "Les oies font grève",
+  "hero": "odette",
   "requires": ["m07_jus_de_pomme"],
   "players": { "min": 1, "max": 4 },
   "summary": "Vendredi, 17 h : le Train des Vacances ramène les Parisiens à 17 h 42. Les oies de Mémé Odette ont décidé de leur réserver un accueil… bloquant. Vous êtes l'oie meneuse : un « HONK ! » rassemble la basse-cour, un autre la rassure, et un troisième fait reculer le garde-barrière. Le train s'arrête toujours : personne n'est blessé, tout le monde finit par prendre des photos.",

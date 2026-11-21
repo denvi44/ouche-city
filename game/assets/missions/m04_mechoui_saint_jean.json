@@ -1,6 +1,7 @@
 {
   "id": "m04_mechoui_saint_jean",
   "title": "Le méchoui de la Saint-Jean",
+  "hero": "ginette",
   "requires": ["m03_battle_sono"],
   "players": { "min": 1, "max": 4 },
   "summary": "Le Comité des fêtes compte sur vous : un agneau à la broche pour huit convives, le feu de la Saint-Jean à allumer, et des chiens du quartier qui ont flairé la bonne affaire.",

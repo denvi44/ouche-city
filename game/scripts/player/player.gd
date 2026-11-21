@@ -25,11 +25,15 @@ const OUTFITS := {
 		"style": {"hair": Color(0.88, 0.88, 0.92), "hair_style": "bun", "glasses": true, "headgear": "none", "apron": Color(0.95, 0.9, 0.7), "scarf": Color(0.85, 0.5, 0.6)}},
 	-3: {"nom": "Kévin Radio (IA)", "shirt": Color(0.3, 0.62, 0.62), "trousers": Color(0.22, 0.24, 0.32), "hat": Color(0.18, 0.2, 0.28), "role": "guetteur",
 		"style": {"hair": Color(0.12, 0.1, 0.1), "headgear": "headphones", "glasses": true, "scarf": Color(0.95, 0.8, 0.3)}},
+	-5: {"nom": "Mémé Odette", "shirt": Color(0.45, 0.55, 0.38), "trousers": Color(0.38, 0.3, 0.3), "hat": Color(0.8, 0.72, 0.5), "role": "",
+		"style": {"hair": Color(0.9, 0.9, 0.92), "hair_style": "bun", "glasses": true, "headgear": "scarf", "apron": Color(0.95, 0.92, 0.8), "scarf": Color(0.8, 0.45, 0.35)}},
 	-4: {"nom": "Kévin (IA)", "shirt": Color(0.9, 0.78, 0.25), "trousers": Color(0.25, 0.25, 0.3), "hat": Color(0.78, 0.2, 0.18), "role": "diversion",
 		"style": {"hair": Color(0.45, 0.28, 0.15), "headgear": "cap_back", "beard": Color(0.3, 0.2, 0.12), "belt": Color(0.1, 0.1, 0.12)}},
 }
 
 var peer_id := 1
+## Héros incarné (identifiant négatif d'un personnage, voir Heroes) ; 0 = joueur ordinaire.
+var hero_id := 0
 ## Plafond de vitesse imposé par la mission (m/s) : « 2 à l'heure » aux courses de la mission 06 ; INF = aucun.
 var speed_cap := INF
 ## Compagnon IA : identifiant négatif, simulé par le serveur via son cerveau.
@@ -113,6 +117,9 @@ func _build_visual() -> void:
 	var color: Color = PALETTE[absi(peer_id) % PALETTE.size()]
 	if avatar == "oie":
 		model = GooseModel.make_goose(2 if peer_id == 1 else absi(peer_id) % 2)
+	elif hero_id != 0 and OUTFITS.has(hero_id):
+		var oh: Dictionary = OUTFITS[hero_id]
+		model = CharacterModel.make(oh.shirt, oh.trousers, oh.hat, oh.get("style", {}))
 	elif OUTFITS.has(peer_id):
 		var o: Dictionary = OUTFITS[peer_id]
 		model = CharacterModel.make(o.shirt, o.trousers, o.hat, o.get("style", {}))

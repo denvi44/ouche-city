@@ -16,12 +16,15 @@ var sun: DirectionalLight3D
 var van: Vehicle
 var mission: MissionBase
 var mission_key := "m01"
+## Héros incarné par le joueur de cette mission (0 : aucun) ; voir Heroes.
+var hero_id := 0
 
 
 func _ready() -> void:
 	_build_environment()
 	builder = CityBuilder.new()
 	mission_key = str(Net.arg("mission", Net.mission_id))
+	hero_id = Heroes.hero_of(mission_key)
 	city = builder.build_city(CITY_DIR, MISSION_IDS.get(mission_key, "m01_calva_gege"))
 	add_child(city)
 	spawn_point = find_spawn(CITY_DIR)
@@ -162,7 +165,7 @@ func _spawn_companions() -> void:
 	var nav := RoadNav.load_default()
 	var k := 0
 	for id in roles:
-		if not (names[id] in allowed):
+		if not (names[id] in allowed) or id == hero_id:       # le héros n'a pas de double IA
 			continue
 		var angle := TAU * k / 4.0
 		var pos := find_free_spawn(spawn_point + Vector3(cos(angle) * 3.0, 0.0, sin(angle) * 3.0))
@@ -288,6 +291,9 @@ func _spawn(id: int, player_name: String, pos: Vector3) -> Player:
 	p.position = pos
 	p.vehicle = van
 	p.avatar = "oie" if mission_key == "m08" else "humain"
+	if id == 1 and hero_id != 0:           # le premier joueur (hôte ou solo) incarne le héros de la mission
+		p.hero_id = hero_id
+		p.display_name = Heroes.name_of(hero_id)
 	players_root.add_child(p)
 	return p
 

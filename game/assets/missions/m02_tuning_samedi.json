@@ -1,6 +1,7 @@
 {
   "id": "m02_tuning_samedi",
   "title": "Tuning du samedi soir",
+  "hero": "kevin",
   "requires": ["m01_calva_gege"],
   "players": { "min": 1, "max": 4 },
   "deadline": "21:00",

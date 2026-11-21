@@ -1,6 +1,7 @@
 {
   "id": "m03_battle_sono",
   "title": "Battle de sono",
+  "hero": "kevin_radio",
   "requires": ["m02_tuning_samedi"],
   "players": { "min": 1, "max": 4 },
   "teams": { "player": "lotissement_pommiers", "rival": "clos_fleuri" },

@@ -14,7 +14,10 @@ Un seul fil rouge pour les huit missions : **l'inspectrice Hautefeuille**, du *L
 | Ven. 17 h | 8 · Les oies font grève | Accueil (campagne) | Devenir l'oie meneuse et bloquer le train des Parisiens. | **Épilogue** : l'inspectrice décerne le Label « à l'unanimité des oies ». |
 
 ## Les personnages
-- **Vous** : la nouvelle recrue du village (le nom est choisi sur l'écran titre) ; c'est le personnage que le joueur dirige. Dans la mission 8, vous êtes l'oie meneuse.
+- **Le héros change selon la mission** (champ `hero` de `missions/*.json`, contrat v2 ; `Heroes`, `game/scripts/core/heroes.gd`). Le joueur prend le nom et la tenue du personnage, et son compagnon IA disparaît (c'est lui) :
+  m01 Tonton Gégé · m02 Kévin · m03 Kévin Radio · m04 Ginette · m05 Mémé Odette · m06 Tonton Gégé · m07 Kévin · m08 Mémé Odette (sous la forme d'une oie).
+  En ligne, le premier joueur (hôte) incarne le héros ; les autres gardent leur nom et un personnage ordinaire (rôles de mission). Absent en headless (tests, serveur dédié). Test : `qa/integration/hero_audit.gd`.
+- Avant : « Vous » était la nouvelle recrue (le nom choisi sur l'écran titre) ; ce nom ne sert plus qu'aux joueurs en ligne autres que l'hôte.
 - **Tonton Gégé** (calva, arrimeur, cuisinier, ferme-file), **Ginette** (négociatrice, chineuse, videuse, guetteuse), **Kévin** (mécano, diversion, rabatteur), **Kévin Radio** (speaker de Radio Pommiers, guetteur) : les quatre « héros » du village. En solo ils tiennent les rôles que les joueurs ne prennent pas (compagnons IA) ; en ligne, les joueurs humains prennent ces rôles à tour de rôle (1 à 4 par mission, `roles` des JSON de mission).
 - **Seconds rôles** : Dylan (rival), Mémé Odette (fermière, les oies), Mme Hubert, Josette (Panier de Frouch), l'adjudant Lemoine (gendarmerie), Marguerite (la vache), **l'inspectrice Hautefeuille** (fil rouge, apparaît dans l'épilogue).
 

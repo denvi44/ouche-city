@@ -205,7 +205,8 @@ func _build_save_block(box: VBoxContainer) -> void:
 	var chap := Label.new()
 	chap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	chap.add_theme_color_override("font_color", ThemeUtil.MD_OUTLINE)
-	chap.text = "Chapitre %d · %s" % [int(key.substr(1)), SOLO_MISSIONS[int(key.substr(1)) - 1][1].replace("Jouer en solo (mission 1 : ", "").replace("Solo : ", "").trim_suffix(")")]
+	var hero_name := Heroes.name_of(Heroes.raw_hero_of(key))
+	chap.text = "Chapitre %d · %s%s" % [int(key.substr(1)), SOLO_MISSIONS[int(key.substr(1)) - 1][1].replace("Jouer en solo (mission 1 : ", "").replace("Solo : ", "").trim_suffix(")"), ("\nVous jouez : " + hero_name) if hero_name != "" else ""]
 	box.add_child(chap)
 	var cont := Button.new()
 	cont.text = "Continuer (mission %d)" % int(key.substr(1)) if done > 0 else "Nouvelle partie (mission 1)"
