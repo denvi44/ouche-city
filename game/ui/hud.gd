@@ -253,6 +253,9 @@ func _build_pause(root: Control) -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(center)
 	_pause = PanelContainer.new()
+	_pause.theme = ThemeUtil.make_material_theme()          # menus en barres (même style que l'écran titre)
+	_pause.theme.default_font_size = int(26 * Settings.text_scale)
+	_pause.theme_type_variation = &"MenuPanel"
 	_pause.visible = false
 	center.add_child(_pause)
 	var box := VBoxContainer.new()
@@ -369,6 +372,7 @@ func _build_pause(root: Control) -> void:
 		get_tree().paused = false
 		get_tree().change_scene_to_file("res://scenes/main.tscn"))
 	box.add_child(quit)
+	ThemeUtil.align_bars(box)
 
 
 func _unhandled_input(event: InputEvent) -> void:

@@ -22,7 +22,10 @@ func _ready() -> void:
 	var center := CenterContainer.new()
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
+	theme = ThemeUtil.make_material_theme()
+	theme.default_font_size = int(26 * Settings.text_scale)
 	var panel := PanelContainer.new()
+	panel.theme_type_variation = &"MenuPanel"
 	center.add_child(panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)

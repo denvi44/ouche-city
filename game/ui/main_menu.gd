@@ -82,25 +82,38 @@ func _build() -> void:
 	margin.add_child(row)
 	var panel := PanelContainer.new()
 	panel.theme_type_variation = &"Card"
-	panel.custom_minimum_size = Vector2(int(620 * Settings.text_scale), 0)
+	panel.custom_minimum_size = Vector2(int(600 * Settings.text_scale), 0)
 	row.add_child(panel)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	panel.add_child(scroll)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
+	box.add_theme_constant_override("separation", 5)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(box)
+	# Titre : grosses capitales condensées, crème cerclé d'encre avec ombre pomme ; slogan sur une étiquette rouge.
 	var title := Label.new()
-	title.text = "Frouch City"
-	title.add_theme_font_size_override("font_size", int(68 * Settings.text_scale))
-	title.add_theme_color_override("font_color", ThemeUtil.MD_PRIMARY)
+	title.text = "FROUCH CITY"
+	title.add_theme_font_size_override("font_size", int(120 * Settings.text_scale))
+	title.add_theme_color_override("font_color", Color(1, 0.98, 0.92))
+	title.add_theme_color_override("font_outline_color", ThemeUtil.INK)
+	title.add_theme_constant_override("outline_size", 18)
+	title.add_theme_color_override("font_shadow_color", ThemeUtil.APPLE)
+	title.add_theme_constant_override("shadow_offset_x", 6)
+	title.add_theme_constant_override("shadow_offset_y", 7)
 	box.add_child(title)
+	var tag := PanelContainer.new()
+	tag.theme_type_variation = &"Tag"
+	tag.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	var sub := Label.new()
-	sub.text = "Conches-en-Frouch, ses colombages, ses embrouilles."
-	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sub.add_theme_color_override("font_color", ThemeUtil.MD_OUTLINE)
-	box.add_child(sub)
+	sub.text = "Conches-en-Frouch, ses colombages, ses embrouilles"
+	sub.add_theme_constant_override("outline_size", 0)
+	sub.add_theme_color_override("font_color", Color(1, 1, 1))
+	tag.add_child(sub)
+	box.add_child(tag)
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0, 14)
+	box.add_child(gap)
 	_name = LineEdit.new()
 	_name.text = Settings.player_name
 	_name.placeholder_text = "Votre nom"
@@ -170,6 +183,7 @@ func _build() -> void:
 	credit.add_theme_font_size_override("font_size", int(16 * Settings.text_scale))
 	credit_chip.add_child(credit)
 	right.add_child(credit_chip)
+	ThemeUtil.align_bars(box)
 	for c in box.get_children():
 		if c is Button and not (c as Button).disabled:
 			(c as Button).grab_focus()
@@ -207,7 +221,7 @@ func _build_save_block(box: VBoxContainer) -> void:
 	var key := next_mission_key()
 	var chap := Label.new()
 	chap.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	chap.add_theme_color_override("font_color", ThemeUtil.MD_OUTLINE)
+	chap.add_theme_color_override("font_color", Color(1, 0.98, 0.92))
 	var hero_name := Heroes.name_of(Heroes.raw_hero_of(key))
 	chap.text = "Chapitre %d · %s%s" % [int(key.substr(1)), SOLO_MISSIONS[int(key.substr(1)) - 1][1].replace("Jouer en solo (mission 1 : ", "").replace("Solo : ", "").trim_suffix(")"), ("\nVous jouez : " + hero_name) if hero_name != "" else ""]
 	box.add_child(chap)

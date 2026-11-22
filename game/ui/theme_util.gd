@@ -62,52 +62,82 @@ static func _md_box(bg: Color, radius: int, margin_v := 10, margin_h := 24, bord
 	return b
 
 
-static func _md_button(t: Theme, variation: String, bg: Color, fg: Color, shadow: int) -> void:
+const BAR_FONT := "res://assets/fonts/BebasNeue-Regular.ttf"      # Bebas Neue, SIL OFL 1.1 (voir LICENSES/ATTRIBUTIONS.md)
+const BAR_BLACK := Color(0.05, 0.045, 0.055, 0.78)             # barre de menu : noir translucide, on devine le village derrière
+const BAR_LIGHT := Color(0.97, 0.94, 0.85, 0.96)               # barre sélectionnée : crème
+
+
+## Une barre de menu : rectangle plein (angles vifs), noir translucide ; crème quand elle est survolée ou sélectionnée.
+static func _bar_box(bg: Color, margin_v := 8, margin_h := 18, border := Color(0, 0, 0, 0), border_w := 0) -> StyleBoxFlat:
+	var b := _md_box(bg, 0, margin_v, margin_h, border, border_w, 0)
+	b.skew = Vector2(-0.06, 0.0)            # léger penché, comme des étiquettes collées à la main
+	return b
+
+
+static func _md_button(t: Theme, variation: String, bg: Color, fg: Color, _shadow: int) -> void:
 	t.set_type_variation(variation, "Button")
-	var hover := bg.lerp(fg, 0.08)
-	var press := bg.lerp(fg, 0.16)
-	t.set_stylebox("normal", variation, _md_box(bg, 28, 12, 28, Color(0, 0, 0, 0), 0, shadow))
-	t.set_stylebox("hover", variation, _md_box(hover, 28, 12, 28, Color(0, 0, 0, 0), 0, shadow + 2 if shadow > 0 else 0))
-	t.set_stylebox("pressed", variation, _md_box(press, 28, 12, 28))
-	# Focus clavier / manette : contour épais bien visible (accessibilité), jamais la seule indication d'état.
-	var focus := _md_box(hover, 28, 12, 28, MD_ON_SURFACE, 3, shadow)
-	t.set_stylebox("focus", variation, focus)
-	t.set_stylebox("disabled", variation, _md_box(Color(MD_ON_SURFACE, 0.10), 28, 12, 28))
-	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
-		t.set_color(c, variation, fg)
-	t.set_color("font_disabled_color", variation, Color(MD_ON_SURFACE, 0.45))
+	t.set_stylebox("normal", variation, _bar_box(bg))
+	# Survol et focus (clavier, manette) : la barre devient crème, texte encre — jamais la seule couleur qui change : la forme aussi (bordure épaisse).
+	t.set_stylebox("hover", variation, _bar_box(BAR_LIGHT))
+	t.set_stylebox("focus", variation, _bar_box(BAR_LIGHT, 8, 18, APPLE, 3))
+	t.set_stylebox("pressed", variation, _bar_box(APPLE))
+	t.set_stylebox("disabled", variation, _bar_box(Color(0.05, 0.045, 0.055, 0.35)))
+	t.set_color("font_color", variation, fg)
+	t.set_color("font_hover_color", variation, INK)
+	t.set_color("font_focus_color", variation, INK)
+	t.set_color("font_pressed_color", variation, Color(1, 1, 1))
+	t.set_color("font_disabled_color", variation, Color(1, 1, 1, 0.4))
 
 
 static func make_material_theme() -> Theme:
 	var t := Theme.new()
 	var s := Settings.text_scale
-	t.default_font_size = int(24 * s)
-	t.set_color("font_color", "Label", MD_ON_SURFACE)
-	# Carte : grande surface arrondie translucide (on devine le drone derrière), ombre portée.
+	if ResourceLoader.exists(BAR_FONT):
+		t.default_font = load(BAR_FONT)
+	t.default_font_size = int(32 * s)          # Bebas Neue est petite à corps égal : on grossit
+	# Textes posés directement sur le village : crème cerclé d'encre (lisible sur ciel clair comme sur briques).
+	t.set_color("font_color", "Label", Color(1, 0.98, 0.92))
+	t.set_color("font_outline_color", "Label", INK)
+	t.set_constant("outline_size", "Label", 8)
+	# Panneaux : « Card » est transparent (le menu principal flotte sur le village), « MenuPanel » un voile sombre (pause, touches).
 	t.set_type_variation("Card", "PanelContainer")
-	t.set_stylebox("panel", "Card", _md_box(Color(MD_SURFACE, 0.86), 32, 28, 32, Color(1, 1, 1, 0.55), 1, 18))
-	# Puce d'information (légende de plan, crédits) : petite pastille sombre translucide.
+	t.set_stylebox("panel", "Card", _md_box(Color(0, 0, 0, 0), 0, 8, 8))
+	t.set_type_variation("MenuPanel", "PanelContainer")
+	t.set_stylebox("panel", "MenuPanel", _md_box(Color(0.04, 0.035, 0.045, 0.62), 0, 22, 26))
+	# Puce d'information (légende de plan, crédits) : petite étiquette sombre translucide.
 	t.set_type_variation("Chip", "PanelContainer")
-	t.set_stylebox("panel", "Chip", _md_box(Color(0.08, 0.07, 0.08, 0.62), 16, 6, 16))
+	t.set_stylebox("panel", "Chip", _md_box(Color(0.08, 0.07, 0.08, 0.62), 0, 6, 16))
 	t.set_type_variation("ChipLabel", "Label")
 	t.set_color("font_color", "ChipLabel", Color(1, 1, 1, 0.95))
-	_md_button(t, "FilledButton", MD_PRIMARY, MD_ON_PRIMARY, 6)
-	_md_button(t, "TonalButton", MD_TONAL, MD_ON_TONAL, 0)
-	_md_button(t, "TextButton", Color(0, 0, 0, 0), MD_PRIMARY, 0)
-	# Bouton par défaut = tonal.
-	t.set_stylebox("normal", "Button", _md_box(MD_TONAL, 28, 12, 28))
-	t.set_stylebox("hover", "Button", _md_box(MD_TONAL.lerp(MD_ON_TONAL, 0.08), 28, 12, 28))
-	t.set_stylebox("pressed", "Button", _md_box(MD_TONAL.lerp(MD_ON_TONAL, 0.16), 28, 12, 28))
-	t.set_stylebox("focus", "Button", _md_box(MD_TONAL.lerp(MD_ON_TONAL, 0.08), 28, 12, 28, MD_ON_SURFACE, 3))
-	t.set_stylebox("disabled", "Button", _md_box(Color(MD_ON_SURFACE, 0.10), 28, 12, 28))
-	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
-		t.set_color(c, "Button", MD_ON_TONAL)
-	t.set_color("font_disabled_color", "Button", Color(MD_ON_SURFACE, 0.45))
-	# Champ de texte « outlined ».
-	var field := _md_box(Color(1, 1, 1, 0.55), 14, 10, 16, MD_OUTLINE, 2)
-	t.set_stylebox("normal", "LineEdit", field)
-	t.set_stylebox("focus", "LineEdit", _md_box(Color(1, 1, 1, 0.8), 14, 10, 16, MD_PRIMARY, 3))
-	t.set_color("font_color", "LineEdit", MD_ON_SURFACE)
-	t.set_color("font_placeholder_color", "LineEdit", Color(MD_ON_SURFACE, 0.55))
-	t.set_color("caret_color", "LineEdit", MD_PRIMARY)
+	t.set_constant("outline_size", "ChipLabel", 0)
+	# Étiquette rouge pomme (slogan) : texte blanc sur fond pomme.
+	t.set_type_variation("Tag", "PanelContainer")
+	t.set_stylebox("panel", "Tag", _bar_box(APPLE, 4, 16))
+	# Boutons : toutes les variantes sont des barres ; « Filled » (action principale) reste crème, les autres noires.
+	_md_button(t, "FilledButton", BAR_LIGHT, INK, 0)
+	t.set_color("font_hover_color", "FilledButton", INK)
+	t.set_stylebox("hover", "FilledButton", _bar_box(Color(1, 1, 1, 1)))
+	_md_button(t, "TonalButton", BAR_BLACK, Color(1, 0.98, 0.92), 0)
+	_md_button(t, "TextButton", Color(0.05, 0.045, 0.055, 0.5), Color(1, 0.98, 0.92), 0)
+	# Bouton par défaut = barre noire.
+	_md_button(t, "Button", BAR_BLACK, Color(1, 0.98, 0.92), 0)
+	for typ in ["CheckButton", "CheckBox"]:
+		for st in ["normal", "hover", "pressed", "focus", "disabled"]:
+			t.set_stylebox(st, typ, t.get_stylebox(st, "Button"))
+		for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color", "font_disabled_color", "font_hover_pressed_color"]:
+			t.set_color(c, typ, Color(1, 0.98, 0.92) if c in ["font_color", "font_pressed_color"] else (INK if c != "font_disabled_color" else Color(1, 1, 1, 0.4)))
+	# Champ de texte : barre sombre, bord crème.
+	t.set_stylebox("normal", "LineEdit", _bar_box(Color(0.05, 0.045, 0.055, 0.7), 8, 16, Color(1, 0.98, 0.92, 0.8), 2))
+	t.set_stylebox("focus", "LineEdit", _bar_box(Color(0.05, 0.045, 0.055, 0.85), 8, 16, APPLE, 3))
+	t.set_color("font_color", "LineEdit", Color(1, 0.98, 0.92))
+	t.set_color("font_placeholder_color", "LineEdit", Color(1, 1, 1, 0.5))
+	t.set_color("caret_color", "LineEdit", Color(1, 0.98, 0.92))
 	return t
+
+
+## Texte des barres aligné à gauche (comme sur les menus à étiquettes) : à appeler une fois l'arbre construit.
+static func align_bars(node: Node) -> void:
+	for c in node.get_children():
+		if c is Button and not (c is CheckButton) and not (c is CheckBox):
+			(c as Button).alignment = HORIZONTAL_ALIGNMENT_LEFT
+		align_bars(c)

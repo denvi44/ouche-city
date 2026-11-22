@@ -25,3 +25,7 @@ La mention « © contributeurs OpenStreetMap » apparaît aussi dans les crédit
 ## Musiques personnalisées
 
 Les mp3 déposés par le joueur dans `user://musique/` ne sont jamais distribués avec le jeu ni envoyés en ligne. Tout fichier placé dans `game/assets/musique_perso/` doit être accompagné de sa licence ici.
+
+## Police des menus
+
+Bebas Neue — © 2019 The Bebas Neue Project Authors (https://github.com/dharmatype/Bebas-Neue), licence SIL Open Font 1.1 (texte : `LICENSES/OFL-BebasNeue.txt`). Fichier : `game/assets/fonts/BebasNeue-Regular.ttf`.
