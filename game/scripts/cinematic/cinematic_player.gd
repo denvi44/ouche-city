@@ -16,6 +16,7 @@ const FADE := 0.7
 
 var def := {}
 var anchors := {}                 # id -> {"pos": Vector3, "facing": float}
+var live_anchors := Callable()   ## facultatif : renvoie des ancres qui bougent (ex. « bretons » en mission 9), fusionnées à chaque image
 var _cam: Camera3D
 var _prev_cam: Camera3D
 var _hidden: Array = []
@@ -212,6 +213,8 @@ func _apply(u: float) -> void:
 	var shots: Array = def.get("shots", [])
 	if _shot >= shots.size():
 		return
+	if live_anchors.is_valid():
+		anchors.merge(live_anchors.call(), true)
 	var st = shot_state(shots[_shot], u, anchors)
 	if st == null:
 		return

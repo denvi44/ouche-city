@@ -147,6 +147,14 @@ static func breton_pos(b: int, t: float, limit: float, landing: Vector3, front_l
 	return start.lerp(front, p) + sway
 
 
+## Centre du groupe de Bretons à l'instant t (avant la fuite) : là où s'écrase le camembert et où naît la fumée.
+static func bretons_center(t: float, limit: float, landing: Vector3, front_list: Array) -> Vector3:
+	var c := Vector3.ZERO
+	for b in BRETON_COUNT:
+		c += breton_pos(b, t, limit, landing, front_list)
+	return c / float(BRETON_COUNT)
+
+
 ## Position d'arrivée du beurre du tir k (façade visée + petit décalage le long du mur).
 static func shot_target(k: int, target_list: Array) -> Vector3:
 	if target_list.is_empty():
@@ -179,6 +187,28 @@ func medal_for(village_left: float) -> String:
 	if pct >= float(thresholds.bronze):
 		return "bronze"
 	return ""
+
+
+## Centre du groupe pendant le tir (il fuit vers ses terres à partir de FLEE_T) ; sert d'ancre vivante aux plans de la cinématique.
+func group_center(view_t: float) -> Vector3:
+	var t_ref: float = elapsed if stop_t < 0.0 else stop_t
+	var c := bretons_center(t_ref, time_limit, zones.get("landing", Vector3.ZERO), _front_points())
+	var away: Vector3 = zones.get("landing", Vector3.ZERO) - zones.get("catapult", Vector3.ZERO)
+	away.y = 0.0
+	away = away.normalized()
+	var flee := maxf(view_t - FLEE_T, 0.0)
+	c += away * (FLEE_SPEED * flee + 4.0)
+	c.y = _ground_y(c)
+	return c
+
+
+## Ancres mobiles de la cinématique du tir : « bretons » (centre du groupe ; +Z = la direction de leur fuite).
+func cinematic_anchors() -> Dictionary:
+	if zones.is_empty() or step == "defend":
+		return {}
+	var vt := _view_launch_t() if step == "launch" else LAUNCH_END
+	var away: Vector3 = zones.landing - zones.catapult
+	return {"bretons": {"pos": group_center(vt), "facing": atan2(away.x, away.z)}}
 
 
 ## Vitesse de lecture des cinématiques (réglage « dialogues lents ») : le tir est chorégraphié pour durer autant que la scène.
@@ -648,17 +678,19 @@ func _update_arm_and_flight() -> void:
 				_world.add_child(_flying)
 			var u := (vt - RELEASE_T) / (IMPACT_T - RELEASE_T)
 			var from := _catapult_node.to_global(Vector3(0, 4.2, 1.0)) if _catapult_node else Vector3.ZERO
-			var to: Vector3 = zones.landing + Vector3(0, 1.5, 0)
+			var to: Vector3 = group_center(IMPACT_T) + Vector3(0, 1.5, 0)
 			_flying.global_position = from.lerp(to, u) + Vector3(0, sin(u * PI) * 30.0, 0)
 			_flying.rotation = Vector3(u * 14.0, u * 9.0, 0)
 		elif _flying != null:
 			_flying.queue_free()
 			_flying = null
+		if _smoke != null and is_instance_valid(_smoke):
+			_smoke.global_position = group_center(vt) + Vector3(0, 1.0, 0)         # la fumée suit les Bretons et les enveloppe
 		if vt >= IMPACT_T and not _impact_done:
 			_impact_done = true
 			_smoke = SiegeSmoke.new()
 			_world.add_child(_smoke)
-			_smoke.global_position = (zones.landing as Vector3) + Vector3(0, 1.0, 0)
+			_smoke.global_position = group_center(IMPACT_T) + Vector3(0, 1.0, 0)
 			Sfx.play_at("firework", zones.landing, 0.0, 0.7)
 
 

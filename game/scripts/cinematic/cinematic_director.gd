@@ -73,6 +73,9 @@ func play(id: String) -> void:
 			continue
 		var p := CinematicPlayer.new()
 		world.add_child(p)
+		var mission = world.get("mission")
+		if mission != null and mission.has_method("cinematic_anchors"):
+			p.live_anchors = Callable(mission, "cinematic_anchors")
 		p.start(d, _anchors())
 		await p.finished
 	_busy = false

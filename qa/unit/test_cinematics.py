@@ -12,6 +12,7 @@ FILES = sorted((ROOT / "narrative/cinematics").glob("*.json"))
 SCHEMA = json.loads((ROOT / "contracts/cinematic.schema.json").read_text(encoding="utf-8"))
 POIS = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
 MISSIONS = {f"m0{i}" for i in range(1, 10)}
+DYNAMIQUES = {"bretons"}       # ancres calculées par la mission au moment de la lecture (mission 9 : le groupe de Bretons)
 
 
 def load(p):
@@ -57,8 +58,10 @@ def test_lieux_existent_et_appartiennent_a_la_mission(path):
     for s in d["shots"]:
         refs = [s["cam"], s["look"]] + [s[k] for k in ("cam_to", "look_to") if k in s]
         for r in refs:
-            assert r["at"] in POIS, f"POI inconnu : {r['at']}"
+            assert r["at"] in POIS or r["at"] in DYNAMIQUES, f"POI inconnu : {r['at']}"
             ok_missions = [d["mission"]] + (["m0%d" % (int(d["mission"][1:]) + 1)] if d["when"] == "bridge" else [])   # la liaison peut montrer les lieux de la suite
+            if r["at"] in DYNAMIQUES:
+                continue
             assert any(m.startswith(k) for m in POIS[r["at"]].get("missions", []) for k in ok_missions), f"{r['at']} n'est pas un lieu de {ok_missions}"
         if "cam_to" in s:
             assert s["cam_to"]["at"] == s["cam"]["at"], "le travelling reste autour d'un même lieu"

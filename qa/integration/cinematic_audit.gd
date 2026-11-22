@@ -38,6 +38,11 @@ func _run() -> void:
 			await physics_frame
 		var poi: Dictionary = CityBuilder.read_json("res://assets/city/poi.json")
 		anchors = CinematicPlayer.anchors_from_pois(poi.pois, world.builder.height_at)
+		if world.mission.has_method("cinematic_anchors"):
+			world.mission.step = "launch"          # ancres vivantes de la mission 9 (groupe de Bretons) : on les vérifie à la fin du tir
+			world.mission.launch_t = 4.0
+			anchors.merge(world.mission.cinematic_anchors(), true)
+			world.mission.step = "defend"
 		space = world.get_world_3d().direct_space_state
 		for w in IDS:
 			var d := CinematicPlayer.load_def("%s_%s" % [m, w])

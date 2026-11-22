@@ -35,15 +35,15 @@
         "at": "catapulte",
         "off": [
           -4,
-          5,
-          10
+          15,
+          6
         ]
       },
       "look": {
-        "at": "debarquement_bretons",
+        "at": "bretons",
         "off": [
           0,
-          10,
+          6,
           0
         ]
       },
@@ -51,37 +51,37 @@
       "cam_to": {
         "at": "catapulte",
         "off": [
-          -5,
-          9,
-          60
+          -6,
+          22,
+          16
         ]
       }
     },
     {
       "dur": 4.0,
       "cam": {
-        "at": "debarquement_bretons",
+        "at": "bretons",
         "off": [
-          22,
-          5,
-          -22
+          -20,
+          30,
+          -24
         ]
       },
       "look": {
-        "at": "debarquement_bretons",
+        "at": "bretons",
         "off": [
           0,
-          4.5,
+          3,
           0
         ]
       },
       "fov": 55,
       "cam_to": {
-        "at": "debarquement_bretons",
+        "at": "bretons",
         "off": [
-          16,
-          6,
-          -14
+          -13,
+          22,
+          -15
         ]
       },
       "caption": {
@@ -93,19 +93,19 @@
     {
       "dur": 3.0,
       "cam": {
-        "at": "debarquement_bretons",
+        "at": "bretons",
         "off": [
-          -34,
-          16,
-          -44
+          -36,
+          34,
+          -40
         ]
       },
       "look": {
-        "at": "debarquement_bretons",
+        "at": "bretons",
         "off": [
           0,
-          3,
-          0
+          4,
+          12
         ]
       },
       "fov": 60,
