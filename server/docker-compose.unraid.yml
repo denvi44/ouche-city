@@ -1,0 +1,26 @@
+# Unraid : runner de build (Gitea / Forgejo Actions) et serveur de jeu dédié Frouch City.
+# Copier ce fichier sur Unraid (plugin « Docker Compose Manager », ou `docker compose -f … up -d`), remplir les valeurs marquées À REMPLIR.
+# Mode d'emploi complet : docs/deploiement-izinum.md
+services:
+  runner:
+    image: gitea/act_runner:latest            # Forgejo : code.forgejo.org/forgejo/runner:latest (mêmes variables, voir sa doc)
+    restart: unless-stopped
+    environment:
+      GITEA_INSTANCE_URL: "https://git.izinum.fr"
+      GITEA_RUNNER_REGISTRATION_TOKEN: "À REMPLIR"        # Gitea : Administration du site → Actions → Runners → « Créer un jeton d'enregistrement »
+      GITEA_RUNNER_NAME: "unraid-frouch"
+      # Le job « ubuntu-latest » du workflow tourne dans cette image Docker (Ubuntu avec les outils usuels).
+      GITEA_RUNNER_LABELS: "ubuntu-latest:docker://catthehacker/ubuntu:act-22.04"
+    volumes:
+      - ./runner-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock         # le runner lance les jobs dans des conteneurs frères
+
+  # Serveur de jeu dédié (jouer en ligne avec des amis). Image construite depuis le dépôt :
+  #   docker build -f server/Dockerfile -t frouch-city-server .
+  jeu:
+    image: frouch-city-server
+    restart: unless-stopped
+    environment:
+      FROUCH_MAX_PLAYERS: "16"
+    ports:
+      - "24680:24680/udp"

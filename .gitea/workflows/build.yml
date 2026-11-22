@@ -1,0 +1,76 @@
+# Build de Frouch City sur un serveur git auto-hébergé (Gitea / Forgejo Actions) avec un runner LINUX (ex. Unraid) :
+# tests, export Windows et export macOS depuis Linux (les presets n'ont pas de signature Apple : on fait « codesign --sign - » sur le Mac).
+# Gitea lit .gitea/workflows en priorité sur .github/workflows (qui exige des runners Windows et macOS). Voir docs/deploiement-izinum.md.
+name: Build
+
+on:
+  push:
+    branches: [main, "agent/**", "claude/**"]
+  workflow_dispatch:
+    inputs:
+      complet:
+        description: "Régression complète (make test-godot, ≈ 40 min)"
+        required: false
+        default: "false"
+
+env:
+  GODOT_VERSION: 4.4.1-stable
+  GODOT_TEMPLATES_DIR_NAME: 4.4.1.stable
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  build:
+    name: Tests + exports Windows et macOS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { lfs: true }
+      - name: Outils (Python, SIG, unzip, rendu logiciel)
+        run: |
+          (apt-get update && apt-get install -y --no-install-recommends python3 python3-pip python3-venv curl unzip ca-certificates libfontconfig1 libgl1 xvfb git-lfs) >/dev/null
+          python3 -m venv .venv && . .venv/bin/activate
+          pip install -q jsonschema pytest shapely pyproj
+      - name: Godot et modèles d'export
+        run: |
+          curl -fsSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q godot.zip && mv Godot_v${GODOT_VERSION}_linux.x86_64 /usr/local/bin/godot && chmod +x /usr/local/bin/godot
+          curl -fsSL -o tpl.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          DEST="$HOME/.local/share/godot/export_templates/${GODOT_TEMPLATES_DIR_NAME}"
+          mkdir -p "$DEST" && unzip -q tpl.tpz -d tpl && mv tpl/templates/* "$DEST/"
+          godot --headless --path game --import >/dev/null 2>&1 || true
+      - name: Tests Python (contrats, SIG)
+        run: . .venv/bin/activate && python -m pytest -q qa/unit
+      - name: Tests GDScript
+        run: godot --headless --path game -s ../qa/unit/run_gdscript_tests.gd
+      - name: Missions de bout en bout (m01 à m09, solo)
+        run: |
+          for m in 01 02 03 04 05 06 07 08 09; do
+            godot --headless --fixed-fps 60 --path game -s ../qa/integration/m${m}_flow.gd -- --mission=m${m} --no-companions
+          done
+      - name: Régression complète (manuelle)
+        if: ${{ github.event.inputs.complet == 'true' }}
+        run: . .venv/bin/activate && make test-godot
+      - name: Export Windows
+        run: |
+          mkdir -p build/windows
+          godot --headless --path game --export-release "Windows Desktop"
+          test -f build/windows/FrouchCity.exe
+      - name: Export macOS (universel, non signé)
+        run: |
+          mkdir -p build/macos
+          godot --headless --path game --export-release "macOS"
+          test -f build/macos/FrouchCity.zip
+      - name: Empaqueter
+        run: |
+          (cd build/windows && zip -qr ../FrouchCity-windows.zip .)
+          cp build/macos/FrouchCity.zip build/FrouchCity-mac.zip
+          ls -la build
+      # upload-artifact v3 : la v4 n'est pas prise en charge par Gitea/Forgejo.
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frouch-city-windows
+          path: build/FrouchCity-windows.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frouch-city-macos
+          path: build/FrouchCity-mac.zip
