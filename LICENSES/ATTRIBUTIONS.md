@@ -31,3 +31,7 @@ Les mp3 déposés par le joueur dans `user://musique/` ne sont jamais distribué
 Bebas Neue — © 2019 The Bebas Neue Project Authors (https://github.com/dharmatype/Bebas-Neue), licence SIL Open Font 1.1 (texte : `LICENSES/OFL-BebasNeue.txt`). Fichier : `game/assets/fonts/BebasNeue-Regular.ttf`.
 
 Blason de l'écran titre (`game/assets/ui/blason.png`) : illustration fournie par le propriétaire du projet (blason de Normandie détourné), détourée à partir de l'illustration fournie ; usage autorisé par lui dans le jeu.
+
+## Musiques des missions (`game/assets/musique_perso/`)
+
+Pulse de Normandie, Fête de la Moisson, Zinzin du Tuning (+ remix « smooth hardtech »), Breton-Norman Clash (extended), Bal des Vaches Mécaniques, Saloon Shuffle (remix) : morceaux fournis par le propriétaire du projet, qui les a créés ou en détient les droits ; usage autorisé par lui dans le jeu.

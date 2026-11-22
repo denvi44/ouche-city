@@ -24,3 +24,18 @@ On peut aussi placer des fichiers dans `game/assets/musique_perso/<sous-dossier>
 ## Technique
 
 `game/scripts/audio/music_library.gd` (recherche, titres, chargement) ; `Sfx.play_mission_music`, `Sfx.set_radio`, `Sfx.radio_next` (`sfx.gd`). Tests : `qa/unit/run_gdscript_tests.gd` (mp3 réel dans `qa/unit/data/test.mp3`).
+
+## Musiques livrées avec le jeu (état actuel)
+
+| Dossier | Morceau |
+| --- | --- |
+| `titre/` | Pulse de Normandie |
+| `m01/` (Le Calva de Tonton Gégé) | Fête de la Moisson |
+| `m02/` (Tuning du samedi soir, la fusée de Dylan) | Zinzin du Tuning |
+| `m03/` (Battle de sono) | Breton-Norman Clash (extended), puis Zinzin du Tuning (smooth hardtech remix) |
+| `m05/` (Les vaches sont de sortie) | Bal des Vaches Mécaniques |
+| `m08/` (Les oies font grève, le train des Parisiens) | Saloon Shuffle (remix) |
+
+Sans musique livrée : m04, m06, m07 (la mission garde ses sons) ; la radio du véhicule garde la valse synthétique.
+Les playlists de rythme de la mission 3 (`m03_*`) restent synthétiques : les flèches sont calées sur 120 BPM, un morceau au tempo différent les désynchroniserait.
+Le dossier utilisateur (`user://musique/`) passe avant les fichiers livrés dans une même catégorie : y déposer un fichier ajoute des titres à la liste.
