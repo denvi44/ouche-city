@@ -12,6 +12,8 @@ var _gauge_box: VBoxContainer
 var _gauges := {}                   # id -> HudWidgets.GaugeBar
 var _status: Label
 var _minimap: HudWidgets.Minimap
+var _bigmap: HudWidgets.BigMap
+var _rhythm: HudWidgets.RhythmTrack
 var _markers: HudWidgets.MarkerLayer
 var _prompt: PanelContainer
 var _key: Label
@@ -115,6 +117,17 @@ func _build_mission(root: Control) -> void:
 	_minimap.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	_minimap.position += Vector2(-18, 18)
 	root.add_child(_minimap)
+	_bigmap = HudWidgets.BigMap.new()
+	var wb = get_parent().get("builder") if get_parent() else null
+	_bigmap.island = (wb as CityBuilder).bounds.grow(CityBuilder.SHORE_GROW) if wb else Rect2()
+	root.add_child(_bigmap)
+	_rhythm = HudWidgets.RhythmTrack.new()
+	_rhythm.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	_rhythm.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_rhythm.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_rhythm.position += Vector2(-380, -250)
+	_rhythm.visible = false
+	root.add_child(_rhythm)
 	_markers = HudWidgets.MarkerLayer.new()
 	root.add_child(_markers)
 	root.move_child(_markers, 0)
@@ -301,6 +314,14 @@ func _build_pause(root: Control) -> void:
 		Settings.cinematics = on
 		Settings.save_settings())
 	box.add_child(cin)
+	var pace := Button.new()
+	var pace_names := {1.0: "rapides", 1.6: "lents", 2.4: "très lents"}
+	pace.text = "Dialogues : %s" % pace_names.get(snappedf(Settings.dialogue_pace, 0.1), "lents")
+	pace.pressed.connect(func():
+		Settings.dialogue_pace = 2.4 if Settings.dialogue_pace < 1.3 else (1.0 if Settings.dialogue_pace > 2.0 else 1.6)
+		pace.text = "Dialogues : %s" % pace_names[Settings.dialogue_pace]
+		Settings.save_settings())
+	box.add_child(pace)
 	var help := CheckButton.new()
 	help.text = "Les compagnons font les tâches à ma place (sinon : ils guident)"
 	help.button_pressed = Settings.companions_help
@@ -340,6 +361,19 @@ func _build_pause(root: Control) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("map_toggle"):
+		_bigmap.visible = not _bigmap.visible
+		_bigmap.zoom = 1.0
+		_bigmap.queue_redraw()
+		get_viewport().set_input_as_handled()
+		return
+	if _bigmap.visible:
+		if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+			_bigmap.zoom_by(1.25 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 0.8)
+			get_viewport().set_input_as_handled()
+		elif event is InputEventKey and event.pressed and event.keycode in [KEY_PLUS, KEY_KP_ADD, KEY_EQUAL, KEY_MINUS, KEY_KP_SUBTRACT]:
+			_bigmap.zoom_by(1.25 if event.keycode in [KEY_PLUS, KEY_KP_ADD, KEY_EQUAL] else 0.8)
+			get_viewport().set_input_as_handled()
 	if event.is_action_pressed("pause"):
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
@@ -377,10 +411,20 @@ func _process(_delta: float) -> void:
 		_markers.text_scale = Settings.text_scale
 		_markers.queue_redraw()
 		_minimap.markers = markers
+		var rv: Dictionary = mission.rhythm_view() if mission.has_method("rhythm_view") else {}
+		_rhythm.view = rv
+		_rhythm.text_scale = Settings.text_scale
+		_rhythm.visible = not rv.is_empty()
+		_rhythm.queue_redraw()
+		_bigmap.markers = markers
 		if me:
 			_minimap.player_pos = Vector2(me.global_position.x, me.global_position.z)
 			_minimap.player_yaw = me.facing
+			_bigmap.player_pos = _minimap.player_pos
+			_bigmap.player_yaw = me.facing
 		_minimap.queue_redraw()
+		if _bigmap.visible:
+			_bigmap.queue_redraw()
 		_prompt.visible = false
 		_speed_box.visible = false
 		if me:

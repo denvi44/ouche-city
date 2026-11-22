@@ -82,6 +82,12 @@ func _start(id: String) -> void:
 	_next_line()
 
 
+## Rythme de lecture choisi par le joueur (réglage « dialogues lents »).
+func pace() -> float:
+	var st := get_node_or_null("/root/Settings")
+	return float(st.dialogue_pace) if st else 1.0
+
+
 func _next_line() -> void:
 	var node: Dictionary = nodes.get(current_node, {})
 	var lines: Array = node.get("lines", [])
@@ -103,10 +109,11 @@ func _next_line() -> void:
 		return
 	current_line = lines[_idx]
 	_idx += 1
-	_timer = YarnLite.duration_of(current_line) + GAP
+	var read := YarnLite.duration_of(current_line) * pace()
+	_timer = read + GAP
 	if current_line.id != "":
 		said_ids.append(current_line.id)
-	line_started.emit(current_line.speaker, current_line.text, current_line.id, _timer - GAP, current_line.tags)
+	line_started.emit(current_line.speaker, current_line.text, current_line.id, read, current_line.tags)
 
 
 func _process(delta: float) -> void:

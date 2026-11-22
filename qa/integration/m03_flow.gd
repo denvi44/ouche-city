@@ -67,7 +67,7 @@ func play_round(on_beat := true, hook := Callable()) -> void:
 			hook.call(k)
 		if mission.round_state == "play" and k < mission.beats_in(mission.round_idx) and mission.play_t >= k * M3.BEAT:
 			if on_beat:
-				mission.interact(1)
+				mission.press_arrow(1, mission.current_arrow())
 			k += 1
 		await physics_frame
 
@@ -95,7 +95,7 @@ func _run() -> void:
 	check(M3.point_value("perfect", 0, 0, "musette_remix", false) == 3.0 * M3.COUNTER_BONUS, "points : parfait, musette contre un rival « jeunes » = ×1,2")
 	check(M3.point_value("perfect", 0, 0, "techno_foraine", false) == 3.0, "points : même public que le rival = ×1")
 	check(is_equal_approx(M3.point_value("perfect", 0, 1, "tube_ete_2003", false), 2.1), "points : tube de l'été = ×0,7")
-	check(M3.point_value("good", 35, 2, "techno_foraine", false) == 2.0 * 1.2, "points : lâcher de basses doublé, techno contre un rival « anciens »")
+	check(M3.point_value("good", 35, 2, "techno_foraine", false) == 2.0 * 2.0 * 1.2, "points : lâcher de basses doublé, techno contre un rival « anciens »")
 	check(M3.point_value("perfect", 0, 0, "musette_remix", true) == 3.0 * M3.COUNTER_BONUS * 0.5, "points : clé USB = ÷2")
 
 	# --- Matériel ----------------------------------------------------------------------------------------
@@ -120,10 +120,10 @@ func _run() -> void:
 	check(sfx.counts.get("track_musette_remix", 0) > sono_before, "la playlist se lance (journal sonore)")
 	await frames(60 * 3 + 10)
 	check(mission.round_state == "play", "la manche démarre")
-	mission.interact(1)      # presque à t=0 : parfait
+	mission.press_arrow(1, mission.current_arrow())      # presque à t=0 : parfait
 	var _miss_before: int = mission.hits.miss
 	await frames(8)
-	mission.interact(1)      # 8 images plus tard (0,13 s) : trop loin du temps et déjà pris -> raté ou bon
+	mission.press_arrow(1, mission.current_arrow())      # 8 images plus tard (0,13 s) : trop loin du temps et déjà pris -> raté ou bon
 	await play_round(true)
 	check(mission.round_state == "result" and mission.results.size() == 1, "manche 1 jouée")
 	var r1: Dictionary = mission.results[0]

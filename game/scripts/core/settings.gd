@@ -26,6 +26,8 @@ var cinematics: bool = true
 var companions_help: bool = false
 ## Vie ambiante : passants et voitures qui circulent (décor, non solides). Désactivable pour les petites configurations.
 var ambient_life: bool = true
+## Multiplicateur de durée des dialogues et des plans de cinématique (1.0 = rapide, 1.6 = confortable, 2.4 = très lent).
+var dialogue_pace: float = 1.6
 
 
 func _ready() -> void:
@@ -52,6 +54,7 @@ func load_settings() -> void:
 	cinematics = cfg.get_value("jeu", "cinematiques", cinematics)
 	companions_help = cfg.get_value("jeu", "compagnons_aident", companions_help)
 	ambient_life = cfg.get_value("jeu", "vie_ambiante", ambient_life)
+	dialogue_pace = clampf(cfg.get_value("jeu", "rythme_dialogues", dialogue_pace), 1.0, 3.0)
 
 
 func save_settings() -> void:
@@ -71,4 +74,5 @@ func save_settings() -> void:
 	cfg.set_value("jeu", "cinematiques", cinematics)
 	cfg.set_value("jeu", "compagnons_aident", companions_help)
 	cfg.set_value("jeu", "vie_ambiante", ambient_life)
+	cfg.set_value("jeu", "rythme_dialogues", dialogue_pace)
 	cfg.save(PATH)
