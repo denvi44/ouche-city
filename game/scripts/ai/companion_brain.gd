@@ -189,14 +189,24 @@ func _post_m03(spot_name: String, going: String, there: String, delta: float) ->
 ## Indice du point de parcours le plus proche (hors point d'arrivée) : on reprend le trajet là où l'on est.
 func _nearest_point(pts: Array) -> int:
 	var here := Vector2(body.global_position.x, body.global_position.z)
-	var best := 0
+	var best := -1
 	var bd := INF
+	# Le point le plus proche DONT la ligne droite est dégagée (un rayon de gondole ne compte pas) : sinon un compagnon
+	# qui sort d'une allée peut viser le point d'à côté, de l'autre côté du rayon, et rester collé contre.
 	for i in maxi(pts.size() - 1, 1):
-		var d := here.distance_to(Vector2(pts[i].x, pts[i].z))
-		if d < bd:
+		var pv := Vector2(pts[i].x, pts[i].z)
+		var d := here.distance_to(pv)
+		if d < bd and _clear(here, pv):
 			bd = d
 			best = i
-	return best
+	if best >= 0:
+		return best
+	for i in maxi(pts.size() - 1, 1):
+		var d2 := here.distance_to(Vector2(pts[i].x, pts[i].z))
+		if d2 < bd or best < 0:
+			bd = d2
+			best = i
+	return maxi(best, 0)
 
 
 ## Suit une liste de points monde en ligne droite (parcours dans les allées du supermarché) ; renvoie true à l'arrivée.

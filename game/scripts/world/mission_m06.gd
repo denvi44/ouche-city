@@ -41,7 +41,7 @@ const ITEM_ROUTES := {
 	"baguette": [Vector2(10.5, 3.5), Vector2(10.5, -6.6)],
 	"camembert": [Vector2(-10.5, 3.5), Vector2(-10.5, -6.6)],
 	"lait": [Vector2(-10.5, 3.5), Vector2(-10.5, -6.6)],
-	"cidre": [Vector2(-10.5, 3.5), Vector2(-10.5, -3.0)],
+	"cidre": [Vector2(-10.5, 3.5), Vector2(-10.5, 0.25), Vector2(-10.5, -3.0)],
 	"palets": [Vector2(-10.5, 3.5), Vector2(-10.5, 0.25)],
 	"litiere": [],
 }
