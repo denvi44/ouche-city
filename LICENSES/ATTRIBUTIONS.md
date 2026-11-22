@@ -29,3 +29,5 @@ Les mp3 déposés par le joueur dans `user://musique/` ne sont jamais distribué
 ## Police des menus
 
 Bebas Neue — © 2019 The Bebas Neue Project Authors (https://github.com/dharmatype/Bebas-Neue), licence SIL Open Font 1.1 (texte : `LICENSES/OFL-BebasNeue.txt`). Fichier : `game/assets/fonts/BebasNeue-Regular.ttf`.
+
+Blason de l'écran titre (`game/assets/ui/blason.png`) : illustration fournie par le propriétaire du projet (blason de Normandie détourné), détourée à partir d'une capture ; usage autorisé par lui dans le jeu.

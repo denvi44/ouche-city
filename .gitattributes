@@ -12,3 +12,5 @@
 *.tres text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+# Exception : blason de l'écran titre (2 Mo), stocké en git normal (le push LFS est impossible depuis l'environnement cloud)
+game/assets/ui/blason.png -filter -diff -merge -text
