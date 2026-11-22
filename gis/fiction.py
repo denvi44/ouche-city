@@ -994,7 +994,7 @@ def lieux_mission09(tuiles: dict, taille: float, normaliser, spawn, utilises: se
                 for dec in (0.0, 0.25, -0.25, 0.5, -0.5):
                     a = base + math.pi + (i - 1) * (TAU_FICTION / 3.0) + dec
                     px, pz = x + math.cos(a) * rayon, z + math.sin(a) * rayon
-                    if libre(px, pz, 3.5) and hors_route(px, pz, 5.0) and all(math.hypot(px - q[0], pz - q[1]) > 20.0 for q in etals):
+                    if libre(px, pz, 6.0) and hors_route(px, pz, 6.0) and all(math.hypot(px - q[0], pz - q[1]) > 20.0 for q in etals):
                         trouve = (px, pz)
                         break
                 if trouve:

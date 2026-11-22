@@ -7,6 +7,7 @@ const CITY := "res://assets/city"
 const ON_ROAD_OK := ["barrier", "strip", "rail", "van", "car", "gare", "pond", "carriere", "pen"]   # décors faits pour la chaussée ou hors village
 var fails := 0
 var rings: Array = []
+var ring_rects: Array = []   # boîte englobante de chaque contour : filtre rapide (is_point_in_polygon donne parfois un faux positif sur un polygone concave lointain)
 var roads: Array = []      # [PackedVector2Array, demi-largeur]
 
 
@@ -23,7 +24,10 @@ func _initialize() -> void:
 
 
 func _in_building(p: Vector2, margin: float) -> bool:
-	for ring: PackedVector2Array in rings:
+	for k in rings.size():
+		if not (ring_rects[k] as Rect2).grow(margin + 0.01).has_point(p):
+			continue
+		var ring: PackedVector2Array = rings[k]
 		if Geometry2D.is_point_in_polygon(p, ring):
 			return true
 		if margin > 0.0:
@@ -71,6 +75,12 @@ func _run() -> void:
 			for q in b.footprint:
 				ring.append(Vector2(float(q[0]), float(q[1])))
 			rings.append(ring)
+			var lo := ring[0]
+			var hi := ring[0]
+			for v in ring:
+				lo = lo.min(v)
+				hi = hi.max(v)
+			ring_rects.append(Rect2(lo, hi - lo))
 		for r in t.roads:
 			if str(r.kind) in ["footway", "track"]:
 				continue
