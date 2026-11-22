@@ -427,6 +427,30 @@ func rung_height(center: Vector2, perp: Vector2, half: float) -> float:
 	return h
 
 
+## Décalage vertical (m) d'une chaussée selon son importance : à un carrefour, la plus grande route passe au-dessus (sinon les deux surfaces, quasi confondues,
+## se disputent les pixels et leurs marquages « clignotent »).
+static func road_rank_offset(kind: String) -> float:
+	return {"primary": 0.05, "secondary": 0.04, "tertiary": 0.03, "residential": 0.02, "unclassified": 0.01, "living_street": 0.01}.get(kind, 0.0)
+
+
+## Altitude de la surface de la chaussée au point `p` (x, z) : celle du ruban dessiné (et non celle du terrain) ; `fallback` hors route.
+func road_surface_y(p: Vector2, fallback: float) -> float:
+	var best := 2.5
+	var res := fallback
+	for r in road_lines:
+		if str(r.kind) in ["footway", "track", "pedestrian", "steps"]:
+			continue
+		var pts: PackedVector2Array = r.pts
+		for i in range(pts.size() - 1):
+			var q := Geometry2D.get_closest_point_to_segment(p, pts[i], pts[i + 1])
+			var d := q.distance_to(p)
+			if d < best and d < float(r.width) * 0.5 + 1.0:
+				best = d
+				var seg := (pts[i + 1] - pts[i]).normalized()
+				res = rung_height(q, Vector2(-seg.y, seg.x), float(r.width) * 0.5 + float(r.get("sw", 0.0))) + Y_ROUTE + road_rank_offset(str(r.kind))
+	return res
+
+
 func add_ribbon(points_in: PackedVector2Array, width: float, y: float, mat: String, cross_width := -1.0) -> void:
 	if points_in.size() < 2:
 		return
@@ -464,10 +488,11 @@ func add_ribbon(points_in: PackedVector2Array, width: float, y: float, mat: Stri
 		_quad(st, l0, r0, r1, l1, Vector3.UP,
 			Vector2(0, v), Vector2(width, v), Vector2(width, v + seg_len), Vector2(0, v + seg_len))
 		v += seg_len
-	_cur_color = Color.WHITE
+	_cur_color = Color(0.0, 0.0, 0.0, 1.0)       # pastilles : largeur 0 = aucun marquage (leurs UV sont des coordonnées du monde)
 	# Pastilles aux extrémités pour masquer les jonctions.
 	for p in [points[0], points[points.size() - 1]]:
 		_add_disc(st, p, half, y)
+	_cur_color = Color.WHITE
 
 
 func _add_disc(st: SurfaceTool, c: Vector2, r: float, y: float, segments: int = 10) -> void:
@@ -520,7 +545,7 @@ func _gap_to_building(edge: Vector2, dir: Vector2, max_gap: float) -> float:
 	return -1.0
 
 
-## Dallage entre le trottoir et la façade quand un bâtiment borde la rue à moins de 4 m : plus de bande d'herbe entre la chaussée et les murs.
+## Dallage entre le trottoir et la façade quand un bâtiment borde la rue à moins de 6,5 m : plus de bande d'herbe entre la chaussée et les murs.
 func _add_verge(pts_in: PackedVector2Array, half_total: float) -> void:
 	if _ring_grid.is_empty() or pts_in.size() < 2:
 		return
@@ -540,7 +565,7 @@ func _add_verge(pts_in: PackedVector2Array, half_total: float) -> void:
 				dir = dir.normalized()
 				var perp := Vector2(-dir.y, dir.x) * float(side)
 				var edge: Vector2 = pts[i] + perp * (half_total - 0.1)
-				var gap := _gap_to_building(edge, perp, 4.0)
+				var gap := _gap_to_building(edge, perp, 6.5)
 				if gap > 0.25:
 					inner.append(edge)
 					outer.append(edge + perp * (gap + 0.05))
@@ -567,7 +592,7 @@ func add_road(r: Dictionary) -> void:
 	var mat: String = SURFACE_MAT.get(r.get("surface", "asphalt"), "route")
 	if r.kind in ["footway", "pedestrian"] and mat == "route":
 		mat = "paves"
-	add_ribbon(pts, w, Y_ROUTE, mat, w + 2.0 * sw)
+	add_ribbon(pts, w, Y_ROUTE + road_rank_offset(str(r.kind)), mat, w + 2.0 * sw)
 
 
 func add_vegetation(v: Dictionary) -> void:
@@ -1368,7 +1393,7 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 				var ln := 0.0
 				for k in range(pl.size() - 1):
 					ln += pl[k].distance_to(pl[k + 1])
-				road_lines.append({"pts": pl, "width": float(rd.get("width", 5.0)), "kind": str(rd.kind), "len": ln})
+				road_lines.append({"pts": pl, "width": float(rd.get("width", 5.0)), "kind": str(rd.kind), "len": ln, "sw": float(rd.get("sidewalk", 0.0))})
 		root.add_child(build_signs(poi.get("pois", []), ring_by_id))
 		root.add_child(build_landmarks(poi.get("pois", [])))
 		root.add_child(StreetFurniture.build_shops(poi.get("pois", []), height_at, all_rings, all_roads))

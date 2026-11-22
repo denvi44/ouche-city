@@ -481,7 +481,7 @@ func _make_pothole(p: Vector2) -> Node3D:
 	var w := get_parent()
 	var n := Node3D.new()
 	n.name = "NidDePoule_%d" % _pothole_nodes.size()
-	n.position = Vector3(p.x, w.builder.height_at(p.x, p.y) + 0.13, p.y)
+	n.position = Vector3(p.x, w.builder.road_surface_y(p, w.builder.height_at(p.x, p.y) + 0.1) + 0.03, p.y)       # sur la surface de la chaussée, pas sous le ruban
 	for spec in [[0.95, Color(0.55, 0.53, 0.5), 0.0], [0.72, Color(0.1, 0.08, 0.08), 0.012]]:
 		var cyl := CylinderMesh.new()
 		cyl.top_radius = spec[0]

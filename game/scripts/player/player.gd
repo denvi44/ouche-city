@@ -66,6 +66,8 @@ func _ready() -> void:
 	# Décor (couche 1) + mobilier de rue (couche 2) pour les humains ; les compagnons IA et les véhicules passent à travers le mobilier
 	# (les trottoirs sont trop étroits pour qu'un compagnon contourne un banc sans se coincer).
 	collision_mask = 1 if is_ai else (1 | 2)
+	if is_ai:
+		collision_layer = 4          # les compagnons ne sont jamais un obstacle (ni pour le joueur, ni pour la camionnette) : ils guident, ils ne bloquent pas la route
 	controller = 0 if is_ai else peer_id
 	_shape = CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()

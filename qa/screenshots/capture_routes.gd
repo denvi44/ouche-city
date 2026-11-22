@@ -2,7 +2,7 @@ extends SceneTree
 ## Vues de dessus des routes (herbe qui coupe la chaussée ?) : quatre points du village, caméra à 70 m de haut.
 ## Usage : godot --path game -s ../qa/screenshots/capture_routes.gd -- --out=DIR   (Vulkan requis)
 const WORLD := "res://scenes/temoin_rue_sainte_foy.tscn"
-const POINTS := [Vector2(1399, 1450)]
+const POINTS := [Vector2(1399, 1450), Vector2(1390, 1330)]
 
 
 func frames(n: int) -> void:
