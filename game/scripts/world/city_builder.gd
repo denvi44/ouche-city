@@ -1196,6 +1196,19 @@ func _add_prop(root: Node3D, prop: String) -> void:
 				_box(hp, Vector3(0.4, 0.4, 0.05), Vector3(0, -0.45, 0.56), Color(0.9, 0.85, 0.7))
 			_box(root, Vector3(1.8, 0.9, 0.8), Vector3(0, 0.85, 0.4), Color(0.85, 0.25, 0.3))
 			_box(root, Vector3(1.4, 0.06, 0.5), Vector3(0, 1.33, 0.4), Color(0.2, 0.9, 0.9)).name = "Pupitre"
+			# Une marche devant l'estrade et de vraies collisions : on monte sur la scène (marches ≤ 35 cm), on ne la traverse plus.
+			_box(root, Vector3(3.2, 0.2, 0.6), Vector3(0, 0.1, 2.1), Color(0.45, 0.32, 0.23))
+			var sbody := StaticBody3D.new()
+			sbody.name = "Collision"
+			for cs in [[Vector3(7.0, 0.4, 3.6), Vector3(0, 0.2, 0)], [Vector3(3.2, 0.2, 0.6), Vector3(0, 0.1, 2.1)],
+					[Vector3(1.2, 2.0, 1.1), Vector3(-2.7, 1.4, -0.4)], [Vector3(1.2, 2.0, 1.1), Vector3(2.7, 1.4, -0.4)], [Vector3(1.8, 0.9, 0.8), Vector3(0, 0.85, 0.4)]]:
+				var shp := CollisionShape3D.new()
+				var bx := BoxShape3D.new()
+				bx.size = cs[0]
+				shp.shape = bx
+				shp.position = cs[1]
+				sbody.add_child(shp)
+			root.add_child(sbody)
 			for i in 7:
 				_box(root, Vector3(0.3, 0.3, 0.3), Vector3(-3.0 + i, 3.2, -0.6), [Color(0.95, 0.75, 0.2), Color(0.85, 0.25, 0.2), Color(0.3, 0.7, 0.9)][i % 3])
 		"junkyard":

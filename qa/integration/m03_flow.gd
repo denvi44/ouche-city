@@ -115,8 +115,13 @@ func _run() -> void:
 
 	# --- Manche 1 : rythme parfait, un temps raté -------------------------------------------------------------
 	var sono_before: int = sfx.counts.get("track_musette_remix", 0)
+	place(mission.zones.camp + Vector3(30.0, 0.8, 30.0))
 	await pick("1")
-	check(mission.round_state == "count" and mission.playlist == "musette_remix", "playlist choisie : compte à rebours")
+	await frames(90)
+	check(mission.round_state == "wait" and mission.playlist == "musette_remix", "playlist choisie, mais le joueur n'est pas sur scène : on attend")
+	place(at_deck())
+	await frames(4)
+	check(mission.round_state == "count", "sur la scène : le compte à rebours démarre")
 	check(sfx.counts.get("track_musette_remix", 0) > sono_before, "la playlist se lance (journal sonore)")
 	await frames(60 * 3 + 10)
 	check(mission.round_state == "play", "la manche démarre")
@@ -185,6 +190,7 @@ func _run() -> void:
 	# --- Fin ratée : sono saisie ------------------------------------------------------------------------------------
 	check(await boot(), "second monde")
 	await take_all_items()
+	place(at_deck())
 	await pick("2")
 	await frames(60 * 3 + 5)
 	mission.nuisance = 1.0
@@ -202,6 +208,7 @@ func _run() -> void:
 	await frames(5)
 	check(await boot(), "quatrième monde")
 	await take_all_items()
+	place(at_deck())
 	for r in 3:
 		await pick("1")
 		await frames(60 * 3 + 5)

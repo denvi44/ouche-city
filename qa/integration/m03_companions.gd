@@ -68,8 +68,11 @@ func _run() -> void:
 	check(is_equal_approx(mission.rival_goal(), max_p * (mission.RIVAL_RATIO[0] - mission.SABOTEUR_CUT)), "Kévin réduit l'objectif du rival (%.1f)" % mission.rival_goal())
 
 	# --- Manche 1 : Gégé rebranche, Ginette gagne des points d'ambiance ------------------------------------------------------
+	var human = world.players_root.get_node("1")
+	human.global_position = mission.zones.camp + Vector3(0.0, 0.8, 2.0)      # le rythme ne démarre que lorsqu'un joueur est sur la scène
+	human.velocity = Vector3.ZERO
 	mission.choose_for(1, "1")
-	await frames(60 * 3 + 10)
+	await frames(60 * 3 + 20)
 	check(mission.round_state == "play", "manche en cours")
 	mission.sab = {"kind": "unplug", "left": mission.SABOTAGE_TIME}
 	await frames(60 * 2)

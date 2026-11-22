@@ -10,6 +10,7 @@ extends MissionBase
 const MISSION_FILE := "res://assets/missions/m03_battle_sono.json"
 const SYNC_PERIOD := 0.25
 const BEAT := 0.5                                 # s : 120 pulsations par minute (Synth.TRACK_BPM)
+const STAGE_RADIUS := 3.8                         # m : « sur la scène » (estrade de 7 × 3,6 m autour du repère)
 const COUNT_TIME := 3.0                           # 6 temps avant le premier : la boucle musicale reste alignée
 const ROUND_BEATS := [32, 40, 40]
 const PERFECT := 0.09                             # s d'écart au temps toléré : « parfait »
@@ -407,9 +408,9 @@ func _choose_playlist(id: String) -> void:
 	menu = ""
 	menu_options = []
 	menu_peer = 0
-	round_state = "count"
+	round_state = "wait"          # le décompte ne part que lorsqu'un joueur est monté sur la scène
 	count_left = COUNT_TIME
-	_log("Playlist : %s." % PLAYLIST_NAMES[id])
+	_log("Playlist : %s. Montez sur la scène (repère « Votre sono ») : le rythme démarre dès que vous y êtes." % PLAYLIST_NAMES[id])
 	if round_idx == 1:
 		var n := int(rival_attempts.coop if humans() > 1 else rival_attempts.solo)
 		for i in n:      # de 10 % à 60 % de la manche : la dernière tentative a le temps d'aboutir
@@ -582,6 +583,12 @@ func _tick_round(delta: float) -> void:
 			if pick_left <= 0.0 and menu == "playlist":
 				_log("Pas de choix : musette remix par défaut.")
 				_choose_playlist("musette_remix")
+		"wait":
+			if on_stage():
+				round_state = "count"
+				count_left = COUNT_TIME
+				_log("Sur scène : le rythme démarre !")
+				_mark()
 		"count":
 			count_left -= delta
 			if count_left <= 0.0:
@@ -607,6 +614,18 @@ func _tick_round(delta: float) -> void:
 					_mark()
 				else:
 					_finish()
+
+
+## Un joueur humain est-il sur l'estrade (à moins de STAGE_RADIUS du repère) ?
+func on_stage() -> bool:
+	if not zones.has("camp") or _players_root == null:
+		return false
+	for p in _players_root.get_children():
+		if p is Player and not (p as Player).is_ai:
+			var d: Vector3 = (p as Player).global_position - (zones.camp as Vector3)
+			if Vector2(d.x, d.z).length() <= STAGE_RADIUS:
+				return true
+	return false
 
 
 func _tick_play(delta: float) -> void:
@@ -905,6 +924,8 @@ func objective() -> String:
 				"pick":
 					var best: String = {"jeunes": "anciens", "tous": "jeunes", "anciens": "jeunes"}[RIVAL_AUDIENCE[round_idx]]
 					return "Manche %d/%d — choisissez la musique avec les touches 1, 2 ou 3 (%d s). Le Clos Fleuri joue pour les %s : visez plutôt les %s pour un bonus !" % [round_idx + 1, rounds_total(), int(ceil(pick_left)), RIVAL_AUDIENCE[round_idx], best]
+				"wait":
+					return "Manche %d — montez sur la scène (marqueur « Votre sono ») : le rythme démarre dès que vous y êtes. Flèches ← ↓ ↑ → pour jouer." % [round_idx + 1]
 				"count":
 					return "Manche %d — allez à la sono (marqueur « Votre sono ») et préparez-vous : appuyez sur la flèche qui arrive (← ↓ ↑ →) quand elle touche la ligne. Début dans %d…" % [round_idx + 1, int(ceil(count_left / BEAT)) if count_left > 0.0 else 0]
 				"play":
@@ -953,7 +974,7 @@ func nuisance_bar() -> String:
 
 func hud_lines() -> PackedStringArray:
 	var lines: PackedStringArray = [title, objective()]
-	if step == "round" and round_idx == 0 and (round_state in ["pick", "count"] or (round_state == "play" and play_t < 40.0)):
+	if step == "round" and round_idx == 0 and (round_state in ["pick", "wait", "count"] or (round_state == "play" and play_t < 40.0)):
 		lines.append("Comment jouer :")
 		lines.append("  1. Choisissez la musique (touches 1, 2, 3) : chacune plaît à un public. Jouez pour celui que le Clos Fleuri vise le moins.")
 		lines.append("  2. Restez à moins de %d m de la sono (marqueur « Votre sono »)." % int(NEAR.deck))
