@@ -8,6 +8,12 @@ const CITY_DIR := "res://assets/city"
 const MAT_DIR := "res://assets/materials/"
 
 const Y_VEGETATION := 0.03
+# Littoral : l'île s'arrête à SHORE_GROW mètres des tuiles (mur invisible, plage), le relief y plonge sous la mer.
+const SHORE_START := 60.0
+const SHORE_END := 260.0
+const SHORE_GROW := 200.0
+const SEA_DEPTH := 6.0
+const SEA_EXTENT := 4000.0
 const Y_TROTTOIR := 0.07
 const Y_ROUTE := 0.1
 ## Pas maximal (m) des rubans de route et de trottoir : le ruban suit le relief tous les 2 m (sans cela, une longue arête reste plane et l'herbe affleure au travers).
@@ -96,8 +102,9 @@ func height_at(x: float, z: float) -> float:
 
 
 ## Maillage de sol en grille régulière (tuile ou « tablier » autour de la ville).
-func add_ground_grid(origin: Vector2, size: Vector2, step: float, mat: String, skip: Rect2 = Rect2()) -> void:
+func add_ground_grid(origin: Vector2, size: Vector2, step: float, mat: String, skip: Rect2 = Rect2(), hfun := Callable()) -> void:
 	var st := _tool(mat)
+	var hf: Callable = hfun if hfun.is_valid() else height_at
 	var nx := int(ceil(size.x / step))
 	var nz := int(ceil(size.y / step))
 	for j in nz:
@@ -106,10 +113,10 @@ func add_ground_grid(origin: Vector2, size: Vector2, step: float, mat: String, s
 			var c := a + Vector2(step, step)
 			if skip.size != Vector2.ZERO and skip.encloses(Rect2(a, Vector2(step, step))):
 				continue
-			var p00 := Vector3(a.x, height_at(a.x, a.y), a.y)
-			var p10 := Vector3(c.x, height_at(c.x, a.y), a.y)
-			var p11 := Vector3(c.x, height_at(c.x, c.y), c.y)
-			var p01 := Vector3(a.x, height_at(a.x, c.y), c.y)
+			var p00 := Vector3(a.x, hf.call(a.x, a.y), a.y)
+			var p10 := Vector3(c.x, hf.call(c.x, a.y), a.y)
+			var p11 := Vector3(c.x, hf.call(c.x, c.y), c.y)
+			var p01 := Vector3(a.x, hf.call(a.x, c.y), c.y)
 			for tri in [[p00, p10, p11], [p00, p11, p01]]:
 				var n: Vector3 = (tri[1] - tri[0]).cross(tri[2] - tri[0]).normalized()
 				if n.y < 0.0:
@@ -678,12 +685,45 @@ func _add_collision(body: StaticBody3D, mesh: ArrayMesh) -> void:
 	body.add_child(shape)
 
 
-## Tablier de terrain autour de la ville (relief du bord prolongé), avec collisions.
+## Niveau de la mer : juste sous le point le plus bas du pourtour des tuiles (aucune terre du bord n'est noyée).
+var _sea_y := NAN
+
+
+func sea_level() -> float:
+	if not is_nan(_sea_y):
+		return _sea_y
+	var low := INF
+	var step := 50.0
+	for t in range(0, int(bounds.size.x / step) + 1):
+		var x := bounds.position.x + t * step
+		low = minf(low, minf(height_at(x, bounds.position.y), height_at(x, bounds.end.y)))
+	for t in range(0, int(bounds.size.y / step) + 1):
+		var z := bounds.position.y + t * step
+		low = minf(low, minf(height_at(bounds.position.x, z), height_at(bounds.end.x, z)))
+	_sea_y = low - 0.5
+	return _sea_y
+
+
+## Distance (m) à l'emprise des tuiles ; 0 à l'intérieur.
+func outside_distance(x: float, z: float) -> float:
+	var dx := maxf(maxf(bounds.position.x - x, x - bounds.end.x), 0.0)
+	var dz := maxf(maxf(bounds.position.y - z, z - bounds.end.y), 0.0)
+	return sqrt(dx * dx + dz * dz)
+
+
+## Relief du tablier : celui du bord prolongé, qui plonge en plage puis sous la mer entre SHORE_START et SHORE_END.
+func apron_height(x: float, z: float) -> float:
+	var t := smoothstep(SHORE_START, SHORE_END, outside_distance(x, z))
+	return lerpf(height_at(x, z), sea_level() - SEA_DEPTH, t)
+
+
+## Tablier de terrain autour de la ville, avec collisions : le village est une île (plage, mer, murs invisibles, routes barrées).
 func build_apron(margin: float = 400.0, step: float = 25.0) -> Node3D:
 	var root := Node3D.new()
 	root.name = "Tablier"
+	_sea_y = NAN
 	var origin := bounds.position - Vector2(margin, margin)
-	add_ground_grid(origin, bounds.size + Vector2(margin, margin) * 2.0, step, "sol", bounds)
+	add_ground_grid(origin, bounds.size + Vector2(margin, margin) * 2.0, step, "sol", bounds, apron_height)
 	var mesh := _commit()
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
@@ -692,7 +732,121 @@ func build_apron(margin: float = 400.0, step: float = 25.0) -> Node3D:
 	var body := StaticBody3D.new()
 	_add_collision(body, mesh)
 	root.add_child(body)
+	root.add_child(_build_sea())
+	root.add_child(_build_shore_walls())
 	return root
+
+
+## Mer : quatre grands rectangles autour des tuiles, au niveau de la mer (le relief de l'île les recouvre).
+func _build_sea() -> Node3D:
+	var sea := Node3D.new()
+	sea.name = "Mer"
+	var y := sea_level()
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.2, 0.5, 0.72)
+	mat.roughness = 0.3
+	mat.emission_enabled = true
+	mat.emission = Color(0.05, 0.15, 0.25)
+	var e := SEA_EXTENT
+	var rects := [
+		Rect2(bounds.position.x - e, bounds.position.y - e, bounds.size.x + 2.0 * e, e),
+		Rect2(bounds.position.x - e, bounds.end.y, bounds.size.x + 2.0 * e, e),
+		Rect2(bounds.position.x - e, bounds.position.y, e, bounds.size.y),
+		Rect2(bounds.end.x, bounds.position.y, e, bounds.size.y),
+	]
+	for r in rects:
+		var q := MeshInstance3D.new()
+		var pm := PlaneMesh.new()
+		pm.size = r.size
+		q.mesh = pm
+		q.material_override = mat
+		q.position = Vector3(r.get_center().x, y, r.get_center().y)
+		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		sea.add_child(q)
+	return sea
+
+
+## Murs invisibles à SHORE_GROW mètres des tuiles : on ne marche ni ne roule jusqu'à la mer, on ne tombe plus dans le vide.
+func _build_shore_walls() -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.name = "MursDuLittoral"
+	var g := SHORE_GROW
+	var r := bounds.grow(g)
+	var y := sea_level()
+	var t := 6.0
+	var h := 400.0
+	var specs := [
+		[Vector3(r.get_center().x, y, r.position.y - t * 0.5), Vector3(r.size.x + 2.0 * t, h, t)],
+		[Vector3(r.get_center().x, y, r.end.y + t * 0.5), Vector3(r.size.x + 2.0 * t, h, t)],
+		[Vector3(r.position.x - t * 0.5, y, r.get_center().y), Vector3(t, h, r.size.y)],
+		[Vector3(r.end.x + t * 0.5, y, r.get_center().y), Vector3(t, h, r.size.y)],
+	]
+	for sp in specs:
+		var cs := CollisionShape3D.new()
+		var bs := BoxShape3D.new()
+		bs.size = sp[1]
+		cs.shape = bs
+		cs.position = sp[0]
+		body.add_child(cs)
+	return body
+
+
+## Une barrière rouge et blanche en travers de chaque route qui sort des tuiles : « fin de route », on ne roule pas vers le vide.
+func _build_road_barriers() -> Node3D:
+	var root := Node3D.new()
+	root.name = "BarrieresDeFinDeRoute"
+	var red := StandardMaterial3D.new()
+	red.albedo_color = Color(0.85, 0.15, 0.12)
+	var white := StandardMaterial3D.new()
+	white.albedo_color = Color(0.95, 0.95, 0.92)
+	for rl in road_lines:
+		var pts: PackedVector2Array = rl.pts
+		if pts.size() < 2:
+			continue
+		for end_i in [0, pts.size() - 1]:
+			var p: Vector2 = pts[end_i]
+			if outside_distance(p.x, p.y) > 0.0 or _edge_gap(p) > 14.0:
+				continue
+			var q: Vector2 = pts[1] if end_i == 0 else pts[pts.size() - 2]
+			var dir := (p - q).normalized()
+			var wd := maxf(float(rl.get("width", 6.0)), 4.0) + 1.0
+			var yaw := atan2(dir.x, dir.y)
+			var at := Vector3(p.x, height_at(p.x, p.y), p.y)
+			var holder := Node3D.new()
+			holder.position = at
+			holder.rotation.y = yaw
+			var n := 6
+			for i in n:
+				var m := MeshInstance3D.new()
+				var bm := BoxMesh.new()
+				bm.size = Vector3(wd / n, 0.3, 0.12)
+				m.mesh = bm
+				m.material_override = red if i % 2 == 0 else white
+				m.position = Vector3(-wd * 0.5 + (i + 0.5) * wd / n, 1.0, 0.0)
+				holder.add_child(m)
+			for sx in [-wd * 0.5, wd * 0.5]:
+				var post := MeshInstance3D.new()
+				var pmz := BoxMesh.new()
+				pmz.size = Vector3(0.12, 1.2, 0.12)
+				post.mesh = pmz
+				post.material_override = white
+				post.position = Vector3(sx, 0.6, 0.0)
+				holder.add_child(post)
+			var sb := StaticBody3D.new()
+			var cs := CollisionShape3D.new()
+			var bs := BoxShape3D.new()
+			bs.size = Vector3(wd, 1.6, 0.4)
+			cs.shape = bs
+			cs.position = Vector3(0, 0.8, 0)
+			sb.add_child(cs)
+			holder.add_child(sb)
+			root.add_child(holder)
+	return root
+
+
+## Distance d'un point à l'intérieur des tuiles jusqu'au bord de l'emprise.
+func _edge_gap(p: Vector2) -> float:
+	return minf(minf(p.x - bounds.position.x, bounds.end.x - p.x), minf(p.y - bounds.position.y, bounds.end.y - p.y))
 
 
 func _commit() -> ArrayMesh:
@@ -1394,6 +1548,7 @@ func build_city(dir: String = CITY_DIR, mission_id := "") -> Node3D:
 				for k in range(pl.size() - 1):
 					ln += pl[k].distance_to(pl[k + 1])
 				road_lines.append({"pts": pl, "width": float(rd.get("width", 5.0)), "kind": str(rd.kind), "len": ln, "sw": float(rd.get("sidewalk", 0.0))})
+		root.add_child(_build_road_barriers())
 		root.add_child(build_signs(poi.get("pois", []), ring_by_id))
 		root.add_child(build_landmarks(poi.get("pois", [])))
 		root.add_child(StreetFurniture.build_shops(poi.get("pois", []), height_at, all_rings, all_roads))

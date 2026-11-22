@@ -10,7 +10,7 @@ static var path := DEFAULT_PATH
 const ACTIONS := [
 	["move_forward", "Avancer", false], ["move_back", "Reculer", false], ["move_left", "Aller à gauche", false],
 	["move_right", "Aller à droite", false], ["jump", "Sauter", true], ["sprint", "Courir", true],
-	["interact", "Interagir / ramasser", true], ["horn", "Klaxon", true], ["radio_toggle", "Radio : marche / arrêt", true],
+	["interact", "Interagir / ramasser", true], ["horn", "Klaxon", true], ["radio_toggle", "Radio : marche / arrêt", true], ["map_toggle", "Grande carte", true],
 	["dialogue_skip", "Passer le dialogue", true], ["pause", "Pause / menu", true],
 	["choose_1", "Choix 1", true], ["choose_2", "Choix 2", true], ["choose_3", "Choix 3", true],
 ]

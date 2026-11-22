@@ -12,6 +12,7 @@ var _gauge_box: VBoxContainer
 var _gauges := {}                   # id -> HudWidgets.GaugeBar
 var _status: Label
 var _minimap: HudWidgets.Minimap
+var _bigmap: HudWidgets.BigMap
 var _markers: HudWidgets.MarkerLayer
 var _prompt: PanelContainer
 var _key: Label
@@ -115,6 +116,10 @@ func _build_mission(root: Control) -> void:
 	_minimap.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	_minimap.position += Vector2(-18, 18)
 	root.add_child(_minimap)
+	_bigmap = HudWidgets.BigMap.new()
+	var wb = get_parent().get("builder") if get_parent() else null
+	_bigmap.island = (wb as CityBuilder).bounds.grow(CityBuilder.SHORE_GROW) if wb else Rect2()
+	root.add_child(_bigmap)
 	_markers = HudWidgets.MarkerLayer.new()
 	root.add_child(_markers)
 	root.move_child(_markers, 0)
@@ -340,6 +345,19 @@ func _build_pause(root: Control) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("map_toggle"):
+		_bigmap.visible = not _bigmap.visible
+		_bigmap.zoom = 1.0
+		_bigmap.queue_redraw()
+		get_viewport().set_input_as_handled()
+		return
+	if _bigmap.visible:
+		if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+			_bigmap.zoom_by(1.25 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 0.8)
+			get_viewport().set_input_as_handled()
+		elif event is InputEventKey and event.pressed and event.keycode in [KEY_PLUS, KEY_KP_ADD, KEY_EQUAL, KEY_MINUS, KEY_KP_SUBTRACT]:
+			_bigmap.zoom_by(1.25 if event.keycode in [KEY_PLUS, KEY_KP_ADD, KEY_EQUAL] else 0.8)
+			get_viewport().set_input_as_handled()
 	if event.is_action_pressed("pause"):
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
@@ -377,10 +395,15 @@ func _process(_delta: float) -> void:
 		_markers.text_scale = Settings.text_scale
 		_markers.queue_redraw()
 		_minimap.markers = markers
+		_bigmap.markers = markers
 		if me:
 			_minimap.player_pos = Vector2(me.global_position.x, me.global_position.z)
 			_minimap.player_yaw = me.facing
+			_bigmap.player_pos = _minimap.player_pos
+			_bigmap.player_yaw = me.facing
 		_minimap.queue_redraw()
+		if _bigmap.visible:
+			_bigmap.queue_redraw()
 		_prompt.visible = false
 		_speed_box.visible = false
 		if me:
