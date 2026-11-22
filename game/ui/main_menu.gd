@@ -72,6 +72,9 @@ func _build() -> void:
 		_backdrop = TitleBackdrop.new()
 		add_child(_backdrop)
 		_backdrop.start.call_deferred()
+	var blason := _make_blason()
+	if blason:
+		add_child(blason)          # entre les images aériennes et le menu
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
@@ -246,6 +249,44 @@ func _build_save_block(box: VBoxContainer) -> void:
 		wipe.theme_type_variation = &"TextButton"
 		wipe.pressed.connect(func(): dlg.popup_centered())
 		box.add_child(wipe)
+
+
+const BLASON_USER := "user://blason.png"             # remplace le blason livré (essai sans reconstruire)
+const BLASON_RES := "res://assets/ui/blason.png"
+const BLASON_ALPHA := 0.32
+
+
+## Blason détourné : image posée en transparence entre le village (drone) et le menu ; absente = rien n'est ajouté.
+static func blason_texture() -> Texture2D:
+	if FileAccess.file_exists(BLASON_USER):
+		var img := Image.load_from_file(BLASON_USER)
+		if img != null and not img.is_empty():
+			return ImageTexture.create_from_image(img)
+	if ResourceLoader.exists(BLASON_RES):
+		var t = load(BLASON_RES)
+		if t is Texture2D:
+			return t
+	return null
+
+
+func _make_blason() -> Control:
+	var tex := blason_texture()
+	if tex == null:
+		return null
+	var r := TextureRect.new()
+	r.name = "Blason"
+	r.texture = tex
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Centré dans la zone libre à droite du menu, haut de 70 % de l'écran.
+	r.anchor_left = 0.36
+	r.anchor_right = 1.0
+	r.anchor_top = 0.12
+	r.anchor_bottom = 0.88
+	r.modulate = Color(1, 1, 1, 0.0)
+	create_tween().tween_property(r, "modulate:a", BLASON_ALPHA, 1.6)
+	return r
 
 
 func _button(parent: Node, text: String, cb: Callable, variation := &"") -> void:
