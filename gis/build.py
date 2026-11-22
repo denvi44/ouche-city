@@ -85,6 +85,11 @@ def _hash01(*parts) -> float:
     return int(h[:8], 16) / 0x100000000
 
 
+def nom_fictif(nom: str | None) -> str | None:
+    """Noms de rues : la ville s'appelle simplement « Frouch » (« Guillaume de Conches » -> « Guillaume de Frouch »)."""
+    return nom.replace("Conches-en-Frouch", "Frouch").replace("Conches", "Frouch") if nom else nom
+
+
 def normaliser_nom(nom: str | None) -> str:
     """« Rue Sainte-Foy » == « Rue Sainte Foy » == « rue sainte foy » (noms BAN sans tirets ni accents)."""
     import unicodedata
@@ -362,7 +367,7 @@ def construire(src: Sources, rep: Repere, relief: Relief, emp: Emprise, toutes: 
                         continue
                     g = g.segmentize(4.0)  # densifié pour épouser le relief
                     tuiles[(tx, ty)]["roads"].append({
-                        "id": f"r_{abs(w['id'])}_{i}", "name": tags.get("name"), "kind": kind,
+                        "id": f"r_{abs(w['id'])}_{i}", "name": nom_fictif(tags.get("name")), "kind": kind,
                         "points": [[_r(x), _r(z)] for x, z in g.coords], "width": _r(width),
                         "sidewalk": SIDEWALK.get(kind, 0.0), "oneway": tags.get("oneway") == "yes",
                         "surface": surface,
@@ -427,7 +432,7 @@ def graphe_routier(ways, nodes, attribution) -> dict:
                     graph_nodes[g] = [_r(nodes[g][0]), _r(nodes[g][1])]
                 length = sum(math.dist(poly[i], poly[i + 1]) for i in range(len(poly) - 1))
                 edges.append({"id": f"e_{w['id']}_{len(edges)}", "from": f"n_{start}", "to": f"n_{nid}",
-                              "kind": kind, "name": tags.get("name"), "oneway": tags.get("oneway") == "yes",
+                              "kind": kind, "name": nom_fictif(tags.get("name")), "oneway": tags.get("oneway") == "yes",
                               "lengthM": _r(length), "speedKmh": speed, "width": ROAD_WIDTH[kind],
                               "points": [[_r(x), _r(z)] for x, z in poly]})
                 start, poly = nid, [nodes[nid]]
