@@ -20,6 +20,8 @@ sleep 1
 "$GODOT" --headless --path game -- --join=127.0.0.1:"$PORT" --name=Passant --qa-report=1 --quit-after=37 >"$LOG/watcher.log" 2>&1 &
 wait $SERVER
 sleep 1
+# Les clients se coupent seuls (--quit-after) ; on s'assure qu'aucun ne survit à un serveur absent.
+pkill -f -- "--join=127.0.0.1:$PORT" 2>/dev/null || true
 
 grep -l "SCRIPT ERROR" "$LOG"/*.log >/dev/null 2>&1 && { echo "ÉCHEC : erreur de script dans les journaux"; grep -h "SCRIPT ERROR" -A2 "$LOG"/*.log | head; exit 1; }
 python3 - "$LOG" <<'PY'

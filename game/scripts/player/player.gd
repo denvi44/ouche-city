@@ -146,6 +146,7 @@ func _build_visual() -> void:
 # --- Entrées ------------------------------------------------------------------------
 
 var _bot_interacted := false
+var _bot_last_ask := -10000
 
 
 ## Bot « conducteur » (QA) : va jusqu'à la camionnette, monte, puis Vehicle conduit tout droit.
@@ -153,8 +154,10 @@ func _bot_drive_input() -> Dictionary:
 	var d := vehicle.global_position - global_position
 	d.y = 0.0
 	if d.length() < 3.2:
-		if not _bot_interacted:
-			_bot_interacted = true
+		# On redemande toutes les 1,5 s tant qu'on n'est pas au volant (la première demande peut arriver avant que le serveur ait créé le joueur).
+		var now := Time.get_ticks_msec()
+		if vehicle.driver != peer_id and now - _bot_last_ask > 1500:
+			_bot_last_ask = now
 			get_tree().current_scene.mission.request_interact()
 		return neutral_input()
 	d = d.normalized()
