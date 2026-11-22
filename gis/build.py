@@ -511,6 +511,8 @@ def main(argv=None) -> int:
     deja_pris |= {p["building"] for p in fictifs if p.get("building")}
     fictifs += fiction.lieux_mission07(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
     fictifs += fiction.lieux_mission08(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
+    deja_pris |= {p["building"] for p in fictifs if p.get("building")}
+    fictifs += fiction.lieux_mission09(tuiles, emp.taille_tuile_m, normaliser_nom, (poc_centre.x, poc_centre.y), deja_pris)
     if CARRIERE:
         fictifs.append(fiction.poi_carriere(CARRIERE, emp.taille_tuile_m))
     fictifs += fiction.lieux_publics(tuiles, emp.taille_tuile_m, (poc_centre.x, poc_centre.y), poi["pois"] + fictifs)

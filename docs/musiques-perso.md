@@ -32,12 +32,12 @@ On peut aussi placer des fichiers dans `game/assets/musique_perso/<sous-dossier>
 | --- | --- |
 | `titre/` | Pulse de Normandie |
 | `m01/` (Le Calva de Tonton Gégé) | Fête de la Moisson |
-| `m02/` (Tuning du samedi soir, la fusée de Dylan) | Zinzin du Tuning |
-| `m03/` (Battle de sono, hors manches) | Breton-Norman Clash (extended), puis Zinzin du Tuning (smooth hardtech remix) |
+| `m02/` (Tuning du samedi soir, la fusée de Dylan) | Zinzin du Tuning, puis son remix « smooth hardtech » |
+| `m09/` (Le siège des Bretons) | Breton-Norman Clash (extended), tout du long |
 | `m03_rythme/` (manches de rythme) | Under A Thousand Suns |
 | `m05/` (Les vaches sont de sortie) | Bal des Vaches Mécaniques |
 | `m08/` (Les oies font grève, le train des Parisiens) | Saloon Shuffle (remix) |
 
-Sans musique livrée : m04, m06, m07 (la mission garde ses sons) ; la radio du véhicule garde la valse synthétique.
+Mission 3 : aucune autre musique que celle des manches de rythme. Sans musique livrée : m04, m06, m07 (la mission garde ses sons) ; la radio du véhicule garde la valse synthétique.
 Rythme de la mission 3 : les flèches sont calées sur **128 BPM** (le jeu et les boucles synthétiques). Un morceau d'un autre tempo les désynchroniserait. « Under A Thousand Suns » (`m03_rythme/`) est à 128 BPM, sa grosse caisse tombe à 0,054 s (`Sfx.RHYTHM_TRACK_OFFSET`) ; la musique démarre avec le décompte de 6 temps.
 Le dossier utilisateur (`user://musique/`) passe avant les fichiers livrés dans une même catégorie : y déposer un fichier ajoute des titres à la liste.

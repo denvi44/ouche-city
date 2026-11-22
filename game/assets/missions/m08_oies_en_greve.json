@@ -18,5 +18,5 @@
     { "id": "outro", "type": "cutscene", "variants": ["gold", "silver", "bronze", "lose"] }
   ],
   "medals": { "gold": { "avgGeese": 10 }, "silver": { "avgGeese": 8 }, "bronze": { "avgGeese": 5 } },
-  "rewards": { "reputation": { "campagne": 2 }, "unlocks": [] }
+  "rewards": { "reputation": { "campagne": 2 }, "unlocks": ["m09_siege_des_bretons"] }
 }

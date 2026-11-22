@@ -9,7 +9,7 @@ Ce dossier est le **point d'entrée** pour continuer le projet sans l'historique
 | `02-architecture.md` | Dossiers, autoloads, patrons de code (mission, réseau, rendu), où mettre quoi |
 | `03-commandes-et-tests.md` | Toutes les commandes, la pyramide de tests, pièges d'exécution (à lire avant de lancer quoi que ce soit) |
 | `04-pipeline-donnees.md` | Données ouvertes → tuiles : nivelage, fiction, végétation, contrats et versions |
-| `05-missions.md` | Les 8 missions : étapes, fichiers, constantes de réglage, tests, limites |
+| `05-missions.md` | Les 9 missions : étapes, fichiers, constantes de réglage, tests, limites |
 | `06-art-audio-narration.md` | PropKit, Landmarks, modèles de personnages, sons synthétisés, dialogues, cinématiques |
 | `07-reseau-ia-qa-ci.md` | Réseau autoritaire, compagnons IA, audits, CI, exports Windows/macOS |
 | `08-backlog.md` | **Ce qu'il reste à faire**, priorisé, avec critères d'acceptation |

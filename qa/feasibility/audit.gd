@@ -456,6 +456,29 @@ func scenario_m08(companions: bool) -> void:
 	await shutdown()
 
 
+func scenario_m09(companions: bool) -> void:
+	await boot("m09", companions)
+	var real_limit: float = mission.time_limit
+	mission.time_left = 1500.0           # le test mesure le temps réel de la tâche ; la limite est celle du JSON
+	await react()
+	var t_start: float = mission.elapsed
+	var guard := 0
+	while mission.step == "defend" and guard < 40:
+		guard += 1
+		var i: int = mission.nearest_stock(player.global_position)
+		await go(mission.stocks[i], 1.8, 90.0)
+		await react()
+		mission.interact(1, ["take"])
+		await react()
+		await go(mission.spot("catapult"), 0.9, 90.0)
+		await react()
+		mission.interact(1, ["load"])
+	var t: float = mission.elapsed - t_start
+	var ok: bool = mission.loaded >= mission.needed and t <= real_limit
+	record("m09", "joueur %s : dix camemberts, tir, village sauvé" % ["avec compagnons" if companions else "seul"], ok, "%d camemberts, %d aller-retour" % [mission.loaded, guard], t, real_limit, "flaques de beurre comprises")
+	await shutdown()
+
+
 func want(id: String) -> bool:
 	return only == "" or id in only.split(",")
 
@@ -495,6 +518,8 @@ func _run() -> void:
 		await scenario_m08(false)
 		if with_companions:
 			await scenario_m08(true)
+	if want("m09"):
+		await scenario_m09(false)
 	print("--- faisabilité : ", "OK" if fails == 0 else "%d scénario(s) infaisable(s)" % fails)
 	quit(1 if fails > 0 else 0)
 

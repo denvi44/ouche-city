@@ -47,6 +47,8 @@ func _on_changed() -> void:
 	if s == _last_step:
 		return
 	_last_step = s
+	if s == "launch":
+		play("%s_launch" % world.mission_key)         # mission 9 : le tir, les dégâts, la fuite des Bretons
 	if s == "done" or s == "failed":
 		await get_tree().create_timer(0.9).timeout
 		play("%s_%s" % [world.mission_key, s])

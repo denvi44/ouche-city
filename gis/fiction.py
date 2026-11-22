@@ -925,6 +925,94 @@ def lieux_mission08(tuiles: dict, taille: float, normaliser, spawn, utilises: se
     return out
 
 
+# --- Mission 09 « Le siège des Bretons » : la catapulte, trois étals de camembert et le débarquement -----------------------
+M09 = "m09_siege_des_bretons"
+LABELS_M09 = {
+    "catapulte": "La catapulte de la Saint-Camembert",
+    "stock_fromage_1": "Étal de camembert n° 1",
+    "stock_fromage_2": "Étal de camembert n° 2",
+    "stock_fromage_3": "Étal de camembert n° 3",
+    "debarquement_bretons": "Le débarquement des Bretons",
+}
+CATAPULT_RADIUS = 7.0
+
+
+def _poi9(pid, label, x, z, facing, taille, step, prop=None, radius=5.0):
+    p = _poi2(pid, "mission_target", label, x, z, facing, taille, step, prop=prop, radius=radius)
+    p["missions"] = [M09]
+    return p
+
+
+def lieux_mission09(tuiles: dict, taille: float, normaliser, spawn, utilises: set) -> list[dict]:
+    """Catapulte en terrain dégagé (rayon 9 m sans bâtiment ni route) à 60-220 m de l'apparition ; trois étals de camembert sur
+    un cercle de 24 à 40 m autour d'elle (écartés de plus de 20 m les uns des autres, hors route, hors bâtiment) ; débarquement des
+    Bretons en terrain dégagé (disque de 18 m) à 130-210 m de la catapulte. Balayage déterministe d'une grille de 15 m ; la catapulte
+    regarde le débarquement."""
+    from shapely.strtree import STRtree
+    routes = [LineString(r["points"]) for t in tuiles.values() for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    obstacles = [Polygon(b["footprint"]) for t in tuiles.values() for b in t["buildings"]]
+    obstacles += [Polygon(v["polygon"]) for t in tuiles.values() for v in t["vegetation"] if v["kind"] == "water"]
+    arbre = STRtree(obstacles)
+    en_zone = {(t["tile"]["x"], t["tile"]["y"]) for t in tuiles.values()}
+
+    def libre(x, z, r):
+        d = Point(x, z).buffer(r)
+        return (int(x // taille), int(z // taille)) in en_zone and not any(obstacles[i].intersects(d) for i in arbre.query(d))
+
+    def hors_route(x, z, r):
+        return not any(rt.distance(Point(x, z)) < r for rt in routes)
+
+    sx, sz = spawn
+    sites = []
+    for x in range(int(sx) - 220, int(sx) + 220, 15):
+        for z in range(int(sz) - 220, int(sz) + 220, 15):
+            if 60 < math.hypot(x - sx, z - sz) < 220:
+                sites.append((_h("m09", f"{x}_{z}"), x, z))
+    sites.sort()
+    for _, x, z in sites:
+        if not libre(x, z, 9.0) or not hors_route(x, z, 9.0):
+            continue
+        # Débarquement : disque dégagé loin de la catapulte, du côté qui laisse la place aux étals.
+        land = None
+        for rayon in (150.0, 170.0, 190.0, 140.0, 160.0, 130.0, 180.0, 200.0, 210.0):
+            for k in range(24):
+                a = TAU_FICTION * k / 24.0
+                px, pz = x + math.cos(a) * rayon, z + math.sin(a) * rayon
+                if libre(px, pz, 18.0):
+                    land = (px, pz)
+                    break
+            if land:
+                break
+        if not land:
+            continue
+        # Trois étals à 120° les uns des autres (rayons 24 à 40 m), dégagés et hors route.
+        base = math.atan2(land[1] - z, land[0] - x)
+        etals = []
+        for i in range(3):
+            trouve = None
+            for rayon in (28.0, 32.0, 36.0, 24.0, 40.0):
+                for dec in (0.0, 0.25, -0.25, 0.5, -0.5):
+                    a = base + math.pi + (i - 1) * (TAU_FICTION / 3.0) + dec
+                    px, pz = x + math.cos(a) * rayon, z + math.sin(a) * rayon
+                    if libre(px, pz, 3.5) and hors_route(px, pz, 5.0) and all(math.hypot(px - q[0], pz - q[1]) > 20.0 for q in etals):
+                        trouve = (px, pz)
+                        break
+                if trouve:
+                    break
+            if not trouve:
+                break
+            etals.append(trouve)
+        if len(etals) < 3:
+            continue
+        f = math.atan2(land[0] - x, land[1] - z)           # la catapulte regarde le débarquement
+        out = [_poi9("catapulte", LABELS_M09["catapulte"], x, z, f, taille, "defend", prop="catapult", radius=CATAPULT_RADIUS)]
+        for i, (px, pz) in enumerate(etals):
+            out.append(_poi9("stock_fromage_%d" % (i + 1), LABELS_M09["stock_fromage_%d" % (i + 1)], px, pz, math.atan2(x - px, z - pz), taille, "defend", prop="stand", radius=3.0))
+        out.append(_poi9("debarquement_bretons", LABELS_M09["debarquement_bretons"], land[0], land[1], math.atan2(x - land[0], z - land[1]), taille, "defend", radius=18.0))
+        return out
+    return []
+
+
 # --- Édifices publics et industriels : mairie, écoles, hôpital, usine de calva (modèles détaillés côté Godot) -------------------
 LABELS_PUBLICS = {
     "mairie": "Mairie de Frouch City",

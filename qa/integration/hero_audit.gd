@@ -2,7 +2,7 @@ extends SceneTree
 ## Le héros change selon la mission : le joueur prend le nom et la tenue du personnage prévu (missions/*.json, champ `hero`), son compagnon IA
 ## disparaît, les autres restent ; mission 8 : l'oie. Usage : godot --headless --fixed-fps 60 --path game -s ../qa/integration/hero_audit.gd
 const WORLD := "res://scenes/temoin_rue_sainte_foy.tscn"
-const EXPECT := {"m01": -1, "m02": -4, "m03": -3, "m04": -2, "m05": -5, "m06": -1, "m07": -4, "m08": -5}
+const EXPECT := {"m01": -1, "m02": -4, "m03": -3, "m04": -2, "m05": -5, "m06": -1, "m07": -4, "m08": -5, "m09": -4}
 var fails := 0
 
 

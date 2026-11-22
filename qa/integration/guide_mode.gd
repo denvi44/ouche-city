@@ -28,7 +28,7 @@ func _run() -> void:
 	create_timer(900.0).timeout.connect(func(): printerr("ÉCHEC délai"); quit(2))
 	root.get_node("Settings").companions_help = false
 	var world = null
-	for m in ["m01", "m03", "m04", "m05"]:
+	for m in ["m01", "m03", "m04", "m05", "m09"]:
 		if world:
 			world.queue_free()
 			await frames(5)
@@ -72,6 +72,8 @@ func _snapshot(m: String, mission) -> Dictionary:
 			return {"objets": mission.items_taken.size(), "cuisson": int(mission.cook * 100.0)}
 		"m05":
 			return {"enclos": mission.penned(), "sifflets": mission.whistles}
+		"m09":
+			return {"charges": mission.loaded, "portes": mission.carriers.size()}
 	return {}
 
 

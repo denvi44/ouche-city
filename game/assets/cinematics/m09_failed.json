@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m09_failed",
+  "mission": "m09",
+  "when": "failed",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "catapulte",
+        "off": [
+          10,
+          4.6,
+          12
+        ]
+      },
+      "look": {
+        "at": "catapulte",
+        "off": [
+          0,
+          3.2,
+          0
+        ]
+      },
+      "fov": 55,
+      "cam_to": {
+        "at": "catapulte",
+        "off": [
+          7,
+          4.2,
+          9
+        ]
+      },
+      "caption": {
+        "who": "Tonton Gégé",
+        "text": "Tout est beurré. On nettoiera demain. Au savon noir."
+      }
+    }
+  ]
+}

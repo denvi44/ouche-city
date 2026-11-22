@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "m09_epilogue",
+  "mission": "m09",
+  "when": "epilogue",
+  "title": "Frouch City",
+  "subtitle": "Le village tient bon · à suivre",
+  "shots": [
+    {
+      "dur": 5.5,
+      "cam": {
+        "at": "debarquement_bretons",
+        "off": [
+          -30,
+          14,
+          -38
+        ]
+      },
+      "look": {
+        "at": "debarquement_bretons",
+        "off": [
+          0,
+          3,
+          0
+        ]
+      },
+      "fov": 58,
+      "caption": {
+        "who": "Inspectrice Hautefeuille",
+        "text": "Des cirés jaunes qui fuient dans la brume verte… Je note : Frouch défend son patrimoine."
+      }
+    },
+    {
+      "dur": 4.5,
+      "cam": {
+        "at": "catapulte",
+        "off": [
+          12,
+          5,
+          14
+        ]
+      },
+      "look": {
+        "at": "catapulte",
+        "off": [
+          0,
+          2.0,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Merci à tous. Saison 2 : on a gardé quelques camemberts pour la suite."
+      }
+    }
+  ]
+}

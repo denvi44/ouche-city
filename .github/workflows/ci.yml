@@ -83,7 +83,13 @@ jobs:
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m08_companions.gd -- --mission=m08
       - name: Mission 08 en ligne (le serveur impose la mission)
         run: bash qa/integration/m08_online.sh
-      - name: HUD des huit missions (jauges et balises valides)
+      - name: Mission 09 de bout en bout (étals, catapulte, flaques de beurre, tir, défaite)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m09_flow.gd -- --mission=m09 --no-companions
+      - name: Mission 09 avec compagnons (Gégé et Kévin font la navette, Ginette guette)
+        run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/m09_companions.gd -- --mission=m09
+      - name: Mission 09 en ligne (le serveur impose la mission)
+        run: bash qa/integration/m09_online.sh
+      - name: HUD des neuf missions (jauges et balises valides)
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
       - name: Mouvements et collisions (saut, murs, bordures, rampes)
         run: godot --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd

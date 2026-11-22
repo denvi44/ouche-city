@@ -20,7 +20,7 @@ godot --path game -- --solo --mission=m04   # mission 4 directement
 godot --path game -- --solo --mission=m05   # mission 5 directement
 godot --path game -- --solo --mission=m06   # mission 6 directement
 godot --path game -- --solo --mission=m07   # mission 7 directement
-godot --path game -- --solo --mission=m08   # mission 8 directement
+godot --path game -- --solo --mission=m08   # mission 8 directement (m09 : le siège des Bretons)
 godot --path game -- --host                 # héberger (port 24680/UDP)
 godot --path game -- --join=192.168.1.20    # rejoindre
 godot --headless --path game -- --server    # serveur dédié (ou : make server)

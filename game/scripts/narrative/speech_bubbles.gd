@@ -6,7 +6,7 @@ extends Node3D
 
 const SPEAKER_NODES := {
 	"Gégé": "-1", "Tonton Gégé": "-1", "Ginette": "-2", "Kévin Radio": "-3", "Kévin": "-4",
-	"Mme Hubert": "MmeHubert", "Gégé du stand": "GegeStand", "Josette": "Josette", "Dylan": "Dylan", "Gendarme": "Gardien", "Marguerite": "Vache_0",
+	"Mme Hubert": "MmeHubert", "Gégé du stand": "GegeStand", "Josette": "Josette", "Dylan": "Dylan", "Gendarme": "Gardien", "Marguerite": "Vache_0", "Breton": "Breton_0",
 }
 const PIXEL := 0.0055
 const MAX_WIDTH_PX := 460

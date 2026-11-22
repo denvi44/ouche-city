@@ -8,7 +8,7 @@ Godot 4.4.1 doit être dans le PATH (`godot`). Python 3 avec `pytest jsonschema 
 | `make gis` | Régénère `gis/out` depuis les caches (`gis/cache/*.json`, sans réseau) puis copie dans `game/assets` (`make city`). **Déterministe.** |
 | `make city` | Copie `gis/out`, `missions/`, `narrative/dialogues`, `narrative/cinematics` vers `game/assets/` (obligatoire après toute modification de ces sources) |
 | `make test-py` | pytest `qa/unit` (≈ 30 s) |
-| `make test-godot` | Tout le reste (≈ 40 min) : tests unitaires GDScript, réseau, flows de m01 à m08 (solo, compagnons, en ligne), audits HUD / mouvements / véhicule / repères / touches / menu / cinématiques, faisabilité |
+| `make test-godot` | Tout le reste (≈ 40 min) : tests unitaires GDScript, réseau, flows de m01 à m09 (solo, compagnons, en ligne), audits HUD / mouvements / véhicule / repères / touches / menu / cinématiques, faisabilité |
 | `make test` | les deux |
 | `make screenshots` | captures 1920×1080 de la scène témoin (GPU conseillé) |
 | `make server` | image Docker du serveur dédié |

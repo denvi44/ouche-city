@@ -68,7 +68,7 @@ func idle() -> Dictionary:
 func think(delta: float) -> Dictionary:
 	_act_cooldown = maxf(_act_cooldown - delta, 0.0)
 	_clock += delta
-	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06 or mission is MissionM07 or mission is MissionM08)):
+	if mission == null or mission.step in ["done", "failed"] or (mission.van == null and not (mission is MissionM03 or mission is MissionM04 or mission is MissionM05 or mission is MissionM06 or mission is MissionM07 or mission is MissionM08 or mission is MissionM09)):
 		status = "attend"
 		return idle()
 	if not mission.companions_help():
@@ -78,6 +78,8 @@ func think(delta: float) -> Dictionary:
 			return _hold("ginette", "se poste au barrage", "négocie avec le gendarme", delta)
 		"diversion" when not (mission is MissionM07):
 			return _hold("kevin", "se planque près du barrage", "est prêt à faire diversion", delta)
+		"guetteur" when mission is MissionM09:
+			return _watch_m09(delta)
 		"guetteur":
 			return _hold("radio", "gagne son poste de guet", "guette depuis la place Carnot", delta)
 		"mecano":
@@ -119,6 +121,8 @@ func think(delta: float) -> Dictionary:
 		"chauffeur":
 			status = "attend au volant, moteur au ralenti"
 			return idle()
+		"porteur", "chargeur":
+			return _siege_m09(delta)
 		"guetteur" when mission is MissionM05:
 			return _hold("watch", "gagne son poste de guet", "guette le troupeau", delta)
 		"barriere":
@@ -224,6 +228,47 @@ func _follow_points(pts: Array, delta: float) -> Dictionary:
 	return {"move": Vector2(0, -1), "yaw": yaw, "jump": false, "sprint": false}
 
 
+## Mission 09, guetteuse : rejoint en ligne droite son poste près de la catapulte (terrain nu, hors du graphe routier), puis regarde les Bretons.
+func _watch_m09(delta: float) -> Dictionary:
+	var target: Vector3 = mission.spot("watch")
+	if target == Vector3.ZERO:
+		status = "attend"
+		return idle()
+	var pos := body.global_position
+	if _horizontal(pos, target) > 1.5:
+		status = "gagne son poste de guet"
+		var inp := _follow_points([target], delta)
+		return inp if not inp.is_empty() else idle()
+	status = "guette les Bretons"
+	var d: Vector3 = mission.look_target() - pos
+	_last_yaw = atan2(-d.x, -d.z)
+	return {"move": Vector2.ZERO, "yaw": _last_yaw, "jump": false, "sprint": false}
+
+
+## Mission 09, porteur / chargeur : navette entre l'étal le plus proche et la catapulte (mode « coéquipiers »).
+func _siege_m09(delta: float) -> Dictionary:
+	var m = mission
+	var me := body.peer_id
+	var pos := body.global_position
+	if m.carriers.has(me):
+		var cat: Vector3 = m.zones.catapult
+		status = "porte un camembert à la catapulte"
+		if _horizontal(pos, cat) < m.NEAR_CATAPULT - 1.0:
+			_try_interact(["load"])
+			return idle()
+		return _walk_to(cat, delta)
+	var i: int = m.nearest_stock(pos)
+	if i < 0:
+		status = "attend"
+		return idle()
+	var st: Vector3 = m.stocks[(i + (1 if body.peer_id == ID_KEVIN_BRAIN else 0)) % m.stocks.size()]
+	status = "file chercher un camembert à l'étal"
+	if _horizontal(pos, st) < m.NEAR_STOCK - 1.0:
+		_try_interact(["take"])
+		return idle()
+	return _walk_to(st, delta)
+
+
 ## Mission 06, caddie : va chercher ses articles (à 2 à l'heure) en suivant les allées.
 func _shop_m06(delta: float) -> Dictionary:
 	var m = mission
@@ -321,6 +366,7 @@ const GUIDE_WAIT := 20.0          # m : au-delà, le guide s'arrête et attend
 const GUIDE_NEAR := 6.5           # m : les accompagnateurs ne bougent pas tant que le joueur est plus près
 const GUIDE_TELEPORT := 90.0      # m : très loin (le joueur a pris le volant) : le compagnon se retrouve près de lui
 var _hint_t := 0.0
+const ID_KEVIN_BRAIN := -4
 
 
 func _human_node() -> Node3D:

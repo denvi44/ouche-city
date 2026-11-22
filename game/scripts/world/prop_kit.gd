@@ -1122,3 +1122,48 @@ static func traffic_car(color: Color, kind := 0) -> PropKit:
 			k.add_cyl(0.34, 0.34, 0.24, Vector3(sx * 0.88, 0.34, sz * long * 0.32), Color(0.12, 0.11, 0.1), Vector3(0, 0, PI / 2.0), 10)
 			k.add_cyl(0.18, 0.18, 0.06, Vector3(sx * 1.0, 0.34, sz * long * 0.32), Color(0.88, 0.88, 0.9), Vector3(0, 0, PI / 2.0), 8)   # enjoliveur
 	return k
+
+
+# --- Mission 09 : catapulte de la Saint-Camembert (le bras est un second PropKit : il pivote) ---------------------------------------
+
+const CATAPULT_PIVOT := Vector3(0, 2.2, 0)       # axe du bras, dans le repère du châssis (+Z : vers les Bretons)
+
+
+static func catapult() -> PropKit:
+	var k := PropKit.new()
+	var wood := Color(0.52, 0.36, 0.22)
+	var dark := Color(0.32, 0.22, 0.14)
+	for sx in [-1.0, 1.0]:
+		k.add_box(Vector3(0.3, 0.3, 4.4), Vector3(sx * 1.0, 0.55, 0), wood)
+		k.add_box(Vector3(0.28, 1.7, 0.28), Vector3(sx * 1.0, 1.4, 0), dark)
+		for sz in [-1.0, 1.0]:
+			k.add_box(Vector3(0.2, 0.2, 1.7), Vector3(sx * 1.0, 1.1, sz * 0.95), wood, Vector3(-sz * 0.75, 0, 0))
+			k.add_cyl(0.62, 0.62, 0.2, Vector3(sx * 1.3, 0.62, sz * 1.5), Color(0.14, 0.12, 0.12), Vector3(0, 0, PI / 2.0), 10)
+	for sz in [-1.0, 1.0]:
+		k.add_box(Vector3(2.5, 0.26, 0.26), Vector3(0, 0.6, sz * 2.1), dark)
+	k.add_cyl(0.11, 0.11, 2.5, CATAPULT_PIVOT, dark, Vector3(0, 0, PI / 2.0), 8)
+	# Fanion rouge et blanc : la Saint-Camembert.
+	k.add_box(Vector3(0.06, 1.2, 0.06), Vector3(1.0, 2.8, 0), dark)
+	k.add_box(Vector3(0.7, 0.28, 0.03), Vector3(1.38, 3.15, 0), Color(0.85, 0.2, 0.18))
+	k.add_box(Vector3(0.7, 0.14, 0.032), Vector3(1.38, 3.15, 0), Color(0.97, 0.95, 0.88))
+	return k
+
+
+## Le bras : origine = pivot ; le godet est du côté -Z (repos : bas), le contrepoids du côté +Z.
+static func catapult_arm() -> PropKit:
+	var k := PropKit.new()
+	var wood := Color(0.55, 0.38, 0.24)
+	k.add_box(Vector3(0.28, 0.28, 3.4), Vector3(0, 0, -1.5), wood)
+	k.add_box(Vector3(0.28, 0.28, 1.0), Vector3(0, 0, 0.6), wood)
+	k.add_box(Vector3(0.9, 0.8, 0.9), Vector3(0, -0.1, 1.4), Color(0.3, 0.3, 0.34))
+	k.add_cyl(0.52, 0.36, 0.3, Vector3(0, 0.12, -3.2), Color(0.32, 0.22, 0.14), Vector3.ZERO, 10)
+	return k
+
+
+## Un camembert (boîte ronde, croûte claire) : rayon 17 cm.
+static func camembert() -> PropKit:
+	var k := PropKit.new()
+	k.add_cyl(0.17, 0.17, 0.07, Vector3(0, 0.035, 0), Color(0.93, 0.9, 0.78), Vector3.ZERO, 10)
+	k.add_cyl(0.18, 0.18, 0.02, Vector3(0, 0.01, 0), Color(0.78, 0.62, 0.35), Vector3.ZERO, 10)
+	k.add_cyl(0.11, 0.11, 0.01, Vector3(0, 0.074, 0), Color(0.88, 0.2, 0.18), Vector3.ZERO, 8)
+	return k

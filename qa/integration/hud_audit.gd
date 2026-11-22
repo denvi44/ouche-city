@@ -184,5 +184,17 @@ func _run() -> void:
 		if ph == 3:
 			m.train.st = "stopped"
 			m.train.hold = 28.0)
+	await audit("m09", "m09", func(m, w, ph):
+		if ph == 1:
+			m.loaded = 4
+			m.carriers = {1: true}
+			m.time_left = 200.0
+		if ph == 2:
+			m.loaded = 9
+			m.carriers = {}
+			m.time_left = 40.0
+		if ph == 3:
+			m.step = "launch"
+			m.launch_t = 2.0)
 	print("--- hud_audit : ", "OK" if fails == 0 else "%d échec(s)" % fails)
 	quit(1 if fails > 0 else 0)

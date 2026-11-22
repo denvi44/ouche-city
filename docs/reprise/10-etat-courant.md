@@ -14,6 +14,7 @@ les runs 56 à 59 sont rouges pour des raisons connues et corrigées (voir « Hi
 
 ## Ce qui est fait (chronologie utile)
 - Rues nivelées (grille 5 m, dévers supprimé, pentes bornées), véhicules à inclinaison bornée, une balise d'objectif à la fois (décisions 0015, 0016).
+- **Mission 9 « Le siège des Bretons »** (bonus) : catapulte, dix camemberts, Bretons en ciré jaune, beurre salé, flaques, pluie, fumée verte ; ADR 0020 ; POI v15, cinématique v3 (`launch`). Menus en barres (Bebas Neue), blason de l'écran titre, musiques perso (`docs/musiques-perso.md`), grande carte (M), île (mer, murs invisibles), rythme à flèches en mission 3 (128 BPM), dialogues lents réglables.
 - Mission 8 « Les oies font grève » (joueur = oie, train, garde-barrière), gare, voie ferrée, mare (POI v12).
 - Renommage Ouche → Frouch (Frouch City, Frouch, variables `FROUCH_*`, exports, Docker).
 - Édifices publics détaillés (`landmarks.gd`), forêts/vergers/arbres d'alignement, carrière creusée (décision 0017).

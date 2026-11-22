@@ -57,6 +57,7 @@ const SOLO_MISSIONS := [
 	["m06", "Solo : Les courses de 8 h (mission 6)", "Mission 6 : terminez d'abord les vaches"],
 	["m07", "Solo : Le jus de pomme de Tonton Gégé (mission 7)", "Mission 7 : terminez d'abord les courses de 8 h"],
 	["m08", "Solo : Les oies font grève (mission 8)", "Mission 8 : terminez d'abord le jus de pomme"],
+	["m09", "Solo : Le siège des Bretons (mission 9)", "Mission 9 : terminez d'abord les oies en grève"],
 ]
 var _backdrop: TitleBackdrop
 
@@ -193,7 +194,7 @@ func _build() -> void:
 			break
 
 
-const CHAIN := ["m01_calva_gege", "m02_tuning_samedi", "m03_battle_sono", "m04_mechoui_saint_jean", "m05_vaches_en_goguette", "m06_courses_de_8h", "m07_jus_de_pomme", "m08_oies_en_greve"]
+const CHAIN := ["m01_calva_gege", "m02_tuning_samedi", "m03_battle_sono", "m04_mechoui_saint_jean", "m05_vaches_en_goguette", "m06_courses_de_8h", "m07_jus_de_pomme", "m08_oies_en_greve", "m09_siege_des_bretons"]
 const MEDAL_TXT := {"": "–", "bronze": "bronze", "silver": "argent", "gold": "or"}
 
 

@@ -3,7 +3,7 @@ extends SceneTree
 ## le sujet, le lecteur joue réellement une scène complète (travelling, légendes, fondus, passage, rétablissement de la caméra
 ## et du jeu). Usage : godot --headless --fixed-fps 60 --path game -s ../qa/integration/cinematic_audit.gd
 const WORLD := "res://scenes/temoin_rue_sainte_foy.tscn"
-const IDS := ["intro", "done", "failed", "bridge", "epilogue"]
+const IDS := ["intro", "launch", "done", "failed", "bridge", "epilogue"]
 var fails := 0
 
 
@@ -26,7 +26,7 @@ func _run() -> void:
 	var anchors := {}
 	var space: PhysicsDirectSpaceState3D
 	var count := 0
-	for m in ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08"]:
+	for m in ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09"]:
 		# Un monde par mission : les décors de mission (supermarché, scène, enclos…) ne sont construits que pour la mission active.
 		if world:
 			world.queue_free()
@@ -42,7 +42,7 @@ func _run() -> void:
 		for w in IDS:
 			var d := CinematicPlayer.load_def("%s_%s" % [m, w])
 			if d.is_empty():
-				var facultative: bool = w == "failed" or (w == "bridge" and m == "m08") or (w == "epilogue" and m != "m08")
+				var facultative: bool = w == "failed" or w == "launch" and m != "m09" or (w == "bridge" and m in ["m08", "m09"]) or (w == "epilogue" and not (m in ["m08", "m09"]))
 				check(facultative, "%s_%s : absente (facultatives : failed, bridge de la dernière mission, epilogue des autres)" % [m, w])
 				continue
 			count += 1
@@ -73,7 +73,7 @@ func _run() -> void:
 				if not ok:
 					break
 			check(ok, "%s_%s : %d plans, %.0f s%s" % [m, w, shots.size(), CinematicPlayer.total_duration(d), "" if ok else " — " + why])
-	check(count >= 22, "au moins 22 cinématiques, liaisons et épilogue compris (%d)" % count)
+	check(count >= 27, "au moins 27 cinématiques, liaisons et épilogue compris (%d)" % count)
 	# --- Lecture complète dans le monde (tolérante : les murs ont déjà été vérifiés) ---
 	var cam0 := root.get_viewport().get_camera_3d()
 	var d1 := CinematicPlayer.load_def("m01_done")

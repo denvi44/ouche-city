@@ -69,6 +69,12 @@ Tonton Gégé (calva, rôle d'arrimeur), Kévin (mécano, diversion), Kévin Rad
 - **M1** : centre médiéval complet, conduite, PNJ, mission 01 jouable de bout en bout en solo et à 4.
 - **M2–M5** : missions 02–03, radios, extension 3 × 3 km, optimisation, bêta.
 
+## Mission 9 — Le siège des Bretons (chapitre bonus)
+Sous la pluie, des Bretons en ciré jaune débarquent loin du village et lancent du beurre salé sur les façades. Vous êtes Kévin : portez **dix camemberts**,
+des étals (à prendre avec E) à la catapulte de la Saint-Camembert (à charger avec E), dans le temps imparti (240 s : le village « tient » tant que la jauge n'est pas vide).
+Les flaques de beurre au sol ralentissent. Au dixième camembert, la catapulte tire (cinématique : épaisse fumée verte et jaunâtre, les Bretons fuient vers leurs terres
+sous la pluie). Médaille d'après la part de village restante au moment du tir (or ≥ 50 %, argent ≥ 25 %). Musique : Breton-Norman Clash, tout du long. Tout est fictif.
+
 ## Mission 8 — Les oies font grève
 Vous êtes l'oie meneuse de Mémé Odette. Un « HONK ! » rassemble la basse-cour, un autre la rassure, un troisième fait reculer le garde-barrière :
 barrez la voie et arrêtez le Train des Vacances de 17 h 42 (il freine toujours) le temps que les Parisiens descendent et s'attendrissent.

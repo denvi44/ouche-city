@@ -3,15 +3,15 @@
   "$id": "https://frouch-city/contracts/cinematic.schema.json",
   "title": "Cinématique Frouch City",
   "description": "Scène d'introduction, de fin ou de liaison entre missions (bridge : « à suivre », jouée après la réussite ; epilogue : fin de l'histoire, mission 8) : suite de plans de caméra ancrés sur des points d'intérêt (poi.json). Repère local d'un lieu : +Z vers la rue, +X à droite, +Y en haut, origine au sol du point. Narration uniquement (agent 08) ; lecture par game/scripts/cinematic/. v2.",
-  "version": 2,
+  "version": 3,
   "type": "object",
   "required": ["schemaVersion", "id", "mission", "when", "shots"],
   "additionalProperties": false,
   "properties": {
     "schemaVersion": { "const": 1 },
-    "id": { "type": "string", "pattern": "^m0[1-9]_(intro|done|failed|bridge|epilogue)$" },
+    "id": { "type": "string", "pattern": "^m0[1-9]_(intro|launch|done|failed|bridge|epilogue)$" },
     "mission": { "type": "string", "pattern": "^m0[1-9]$" },
-    "when": { "type": "string", "enum": ["intro", "done", "failed", "bridge", "epilogue"], "description": "intro : au démarrage ; done / failed : quand l'étape de la mission passe à cet état ; bridge : enchaînée après done, annonce la mission suivante (peut ancrer sur les lieux de la suivante) ; epilogue : après done de la dernière mission." },
+    "when": { "type": "string", "enum": ["intro", "launch", "done", "failed", "bridge", "epilogue"], "description": "intro : au démarrage ; launch : quand l\u0027étape passe à « launch » (mission 9 : la catapulte part) ; done / failed : quand l'étape de la mission passe à cet état ; bridge : enchaînée après done, annonce la mission suivante (peut ancrer sur les lieux de la suivante) ; epilogue : après done de la dernière mission." },
     "title": { "type": "string", "maxLength": 60 },
     "subtitle": { "type": "string", "maxLength": 80 },
     "shots": {

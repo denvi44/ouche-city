@@ -55,6 +55,9 @@ test-godot:
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m08_flow.gd -- --mission=m08 --no-companions
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m08_companions.gd -- --mission=m08
 	bash qa/integration/m08_online.sh
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m09_flow.gd -- --mission=m09 --no-companions
+	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/m09_companions.gd -- --mission=m09
+	bash qa/integration/m09_online.sh
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/hud_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/movement_audit.gd
 	$(GODOT) --headless --fixed-fps 60 --path game -s ../qa/integration/vehicle_slope_audit.gd

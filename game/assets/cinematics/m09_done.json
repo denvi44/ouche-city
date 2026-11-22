@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "m09_done",
+  "mission": "m09",
+  "when": "done",
+  "shots": [
+    {
+      "dur": 5.0,
+      "cam": {
+        "at": "catapulte",
+        "off": [
+          10,
+          4.6,
+          12
+        ]
+      },
+      "look": {
+        "at": "catapulte",
+        "off": [
+          0,
+          3.2,
+          0
+        ]
+      },
+      "fov": 55,
+      "cam_to": {
+        "at": "catapulte",
+        "off": [
+          7,
+          4.2,
+          9
+        ]
+      },
+      "caption": {
+        "who": "Ginette",
+        "text": "Le village est sauvé. Il sent fort, mais il est sauvé."
+      }
+    }
+  ]
+}

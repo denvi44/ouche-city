@@ -75,7 +75,8 @@ static func _bar_box(bg: Color, margin_v := 8, margin_h := 18, border := Color(0
 
 
 static func _md_button(t: Theme, variation: String, bg: Color, fg: Color, _shadow: int) -> void:
-	t.set_type_variation(variation, "Button")
+	if variation != "Button":
+		t.set_type_variation(variation, "Button")
 	t.set_stylebox("normal", variation, _bar_box(bg))
 	# Survol et focus (clavier, manette) : la barre devient crème, texte encre — jamais la seule couleur qui change : la forme aussi (bordure épaisse).
 	t.set_stylebox("hover", variation, _bar_box(BAR_LIGHT))

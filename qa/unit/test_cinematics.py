@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FILES = sorted((ROOT / "narrative/cinematics").glob("*.json"))
 SCHEMA = json.loads((ROOT / "contracts/cinematic.schema.json").read_text(encoding="utf-8"))
 POIS = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
-MISSIONS = {f"m0{i}" for i in range(1, 9)}
+MISSIONS = {f"m0{i}" for i in range(1, 10)}
 
 
 def load(p):

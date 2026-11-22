@@ -2011,6 +2011,95 @@
    ]
   },
   {
+   "id": "catapulte",
+   "kind": "mission_target",
+   "label": "La catapulte de la Saint-Camembert",
+   "position": [
+    1479.0,
+    1287.0
+   ],
+   "tile": "5_5",
+   "radius": 7.0,
+   "source": "design",
+   "missions": [
+    "m09_siege_des_bretons"
+   ],
+   "step": "defend",
+   "facing": 1.57,
+   "prop": "catapult"
+  },
+  {
+   "id": "stock_fromage_1",
+   "kind": "mission_target",
+   "label": "Étal de camembert n° 1",
+   "position": [
+    1493.0,
+    1311.25
+   ],
+   "tile": "5_5",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m09_siege_des_bretons"
+   ],
+   "step": "defend",
+   "facing": -2.62,
+   "prop": "stand"
+  },
+  {
+   "id": "stock_fromage_2",
+   "kind": "mission_target",
+   "label": "Étal de camembert n° 2",
+   "position": [
+    1451.0,
+    1287.0
+   ],
+   "tile": "5_5",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m09_siege_des_bretons"
+   ],
+   "step": "defend",
+   "facing": 1.57,
+   "prop": "stand"
+  },
+  {
+   "id": "stock_fromage_3",
+   "kind": "mission_target",
+   "label": "Étal de camembert n° 3",
+   "position": [
+    1493.0,
+    1262.75
+   ],
+   "tile": "5_5",
+   "radius": 3.0,
+   "source": "design",
+   "missions": [
+    "m09_siege_des_bretons"
+   ],
+   "step": "defend",
+   "facing": -0.52,
+   "prop": "stand"
+  },
+  {
+   "id": "debarquement_bretons",
+   "kind": "mission_target",
+   "label": "Le débarquement des Bretons",
+   "position": [
+    1629.0,
+    1287.0
+   ],
+   "tile": "6_5",
+   "radius": 18.0,
+   "source": "design",
+   "missions": [
+    "m09_siege_des_bretons"
+   ],
+   "step": "defend",
+   "facing": -1.57
+  },
+  {
    "id": "carriere_pierres",
    "kind": "landmark",
    "label": "Carrière de pierres du Bocage",

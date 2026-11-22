@@ -8,7 +8,7 @@ gis/              pipeline Python : build.py (orchestration), nivelage.py (route
 game/             projet Godot 4.4.1 (GDScript seul)
   scripts/core      settings, progress (sauvegarde solo), input_bindings (remappage)
   scripts/net       network_manager (autoload Net), net_body (prédiction/réconciliation)
-  scripts/world     city_builder, mission_base + mission_m01…m08, prop_kit, landmarks, street_furniture, building_details, smoke_puff, day_night…
+  scripts/world     city_builder, mission_base + mission_m01…m09, prop_kit, landmarks, street_furniture, building_details, smoke_puff, day_night…
   scripts/player    player, character_model, goose_model, vehicle, car, camera_rig
   scripts/ai        companion_brain (rôles des compagnons), road_nav (A* sur le graphe routier)
   scripts/audio     synth (sons générés), sfx (catalogue, légendes, onomatopées), ambiance

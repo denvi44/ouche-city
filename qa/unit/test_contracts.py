@@ -82,7 +82,7 @@ def test_noms_de_lieux_fictifs():
     sys.path.insert(0, str(ROOT))
     from gis import fiction
     autorises = {n for noms in fiction.ENSEIGNES.values() for n in noms}
-    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | set(fiction.LABELS_M06.values()) | set(fiction.LABELS_M07.values()) | set(fiction.LABELS_M08.values()) | set(fiction.LABELS_PUBLICS.values()) | {"Donjon"}
+    autorises |= {l for _, _, l, _ in fiction.LIEUX_MISSION} | set(fiction.MONUMENTS.values()) | set(fiction.LABELS_M01.values()) | set(fiction.LABELS_M02.values()) | set(fiction.LABELS_M03.values()) | set(fiction.LABELS_M04.values()) | set(fiction.LABELS_M05.values()) | set(fiction.LABELS_M06.values()) | set(fiction.LABELS_M07.values()) | set(fiction.LABELS_M08.values()) | set(fiction.LABELS_M09.values()) | set(fiction.LABELS_PUBLICS.values()) | {"Donjon"}
     pois = json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]
     for p in pois:
         if p["kind"] in ("spawn", "viewpoint"):
@@ -229,7 +229,7 @@ def test_dialogues_valides():
     """Chaque réplique : « Locuteur: texte #line:identifiant », identifiants uniques et stables, nœuds préfixés par la mission."""
     import re
     locuteurs = {"Gégé", "Ginette", "Kévin", "Kévin Radio", "Dylan", "Gendarme", "Père Bernard", "Marguerite", "Josette", "Mme Hubert",
-                 "Lemoine", "Lebrun", "Client pressé", "Client", "Vous", "Mémé Odette", "Garde-barrière", "Parisien", "Parisienne"}
+                 "Lemoine", "Lebrun", "Client pressé", "Client", "Vous", "Mémé Odette", "Garde-barrière", "Parisien", "Parisienne", "Breton"}
     ids, titres = set(), set()
     n_lignes = 0
     for f in _yarn_files():
@@ -362,3 +362,35 @@ def test_gare_du_pays_d_frouch():
     chemin = LineString(g["path"])
     assert 20 < chemin.length < 110 and not any(b.intersects(chemin.buffer(1.0)) for b in batis), "chemin d'accès"
     assert any(r.distance(Point(g["path"][-1])) < 3.0 for r in routes), "le chemin rejoint une route"
+
+
+def test_lieux_de_mission09():
+    """Catapulte en terrain dégagé, trois étals de camembert autour d'elle (hors bâtiment et route, écartés), débarquement des Bretons loin
+    en terrain dégagé ; la catapulte regarde le débarquement ; la mission 8 débloque la mission 9."""
+    import math
+    from shapely.geometry import LineString, Point, Polygon
+    pois = {p["id"]: p for p in json.loads((ROOT / "gis/out/poi.json").read_text(encoding="utf-8"))["pois"]}
+    for pid in ("catapulte", "stock_fromage_1", "stock_fromage_2", "stock_fromage_3", "debarquement_bretons"):
+        assert pid in pois and pois[pid]["missions"] == ["m09_siege_des_bretons"], pid
+    cat, land = pois["catapulte"], pois["debarquement_bretons"]
+    assert cat["prop"] == "catapult" and all(pois[f"stock_fromage_{i}"]["prop"] == "stand" for i in (1, 2, 3))
+    assert 130 <= math.dist(cat["position"], land["position"]) <= 215
+    f = (math.sin(cat["facing"]), math.cos(cat["facing"]))
+    v = (land["position"][0] - cat["position"][0], land["position"][1] - cat["position"][1])
+    assert (f[0] * v[0] + f[1] * v[1]) / math.hypot(*v) > 0.99, "la catapulte regarde le débarquement"
+    stocks = [pois[f"stock_fromage_{i}"]["position"] for i in (1, 2, 3)]
+    assert all(20 <= math.dist(cat["position"], s) <= 42 for s in stocks)
+    assert all(math.dist(a, b) > 20 for i, a in enumerate(stocks) for b in stocks[i + 1:]), "les étals sont écartés"
+    obstacles, routes = [], []
+    for fch in (ROOT / "gis/out/tiles").glob("*.json"):
+        t = json.loads(fch.read_text(encoding="utf-8"))
+        obstacles += [Polygon(b["footprint"]) for b in t["buildings"]]
+        routes += [LineString(r["points"]).buffer(r["width"] / 2) for r in t["roads"] if r["kind"] not in ("footway", "track")]
+    for pos, rayon in [(cat["position"], 7.0)] + [(s, 2.5) for s in stocks] + [(land["position"], 15.0)]:
+        zone = Point(pos).buffer(rayon)
+        assert not any(o.intersects(zone) for o in obstacles), f"un bâtiment dans la zone de {pos}"
+    assert not any(r.intersects(Point(cat["position"]).buffer(7.0)) for r in routes), "route sous la catapulte"
+    m = json.loads((ROOT / "missions/m09_siege_des_bretons.json").read_text(encoding="utf-8"))
+    assert m["requires"] == ["m08_oies_en_greve"] and m["siege"]["camemberts"] == 10 and set(m["companions"]) == {"porteur", "chargeur", "guetteur"}
+    m8 = json.loads((ROOT / "missions/m08_oies_en_greve.json").read_text(encoding="utf-8"))
+    assert "m09_siege_des_bretons" in m8["rewards"]["unlocks"], "la mission 8 débloque la mission 9"

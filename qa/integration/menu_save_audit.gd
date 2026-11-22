@@ -33,7 +33,9 @@ func _run() -> void:
 	prog.complete("m07_jus_de_pomme", "bronze")
 	check(Menu.next_mission_key() == "m08", "après la mission 7 : mission 8")
 	prog.complete("m08_oies_en_greve", "silver")
-	check(Menu.next_mission_key() == "m08", "tout terminé : on peut rejouer la dernière")
+	check(Menu.next_mission_key() == "m09", "après la mission 8 : mission 9 (le siège des Bretons)")
+	prog.complete("m09_siege_des_bretons", "gold")
+	check(Menu.next_mission_key() == "m09", "tout terminé : on peut rejouer la dernière")
 	# Aller-retour disque
 	var money: int = prog.money()
 	prog.load_save()

@@ -10,7 +10,7 @@ SCHEMA = json.loads((ROOT / "contracts/mission.schema.json").read_text(encoding=
 
 
 def test_chaque_mission_a_un_heros_valide():
-    assert len(MISSIONS) == 8
+    assert len(MISSIONS) == 9
     for k, m in MISSIONS.items():
         assert m.get("hero") in ("gege", "ginette", "kevin", "kevin_radio", "odette"), k
         jsonschema.validate(m, SCHEMA)

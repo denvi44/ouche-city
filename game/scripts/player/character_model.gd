@@ -66,7 +66,7 @@ var airborne := false
 
 
 ## `style` (tous les champs sont facultatifs) : hair (Color), hair_style ("short", "bun", "long", "bald"), moustache / beard (Color),
-## glasses (bool), headgear ("beret", "cap", "cap_back", "headphones", "scarf", "straw", "kepi", "none"), apron / vest / scarf (Color),
+## glasses (bool), headgear ("beret", "cap", "cap_back", "headphones", "scarf", "straw", "kepi", "souwester", "none"), apron / vest / scarf (Color),
 ## belt (Color), skin (Color).
 static func make(shirt: Color, trousers: Color = Color(0.2, 0.22, 0.3), hat: Color = Color(0.15, 0.17, 0.25), style: Dictionary = {}) -> CharacterModel:
 	var m := CharacterModel.new()
@@ -327,6 +327,12 @@ func _headgear(kind: String, color: Color) -> void:
 			_d(_head, "cyl", Vector3(0.36, 0.025, 0.36), Color(0.88, 0.76, 0.4), Vector3(0, 0.15, 0.0), Vector3.ZERO, true)
 			_d(_head, "cyl", Vector3(0.18, 0.13, 0.2), Color(0.9, 0.78, 0.42), Vector3(0, 0.22, 0.0), Vector3.ZERO, true)
 			_d(_head, "cyl", Vector3(0.205, 0.03, 0.205), color, Vector3(0, 0.18, 0.0))
+		"souwester":
+			# Suroît de marin : calotte ronde, large rebord qui retombe derrière la nuque, jugulaire.
+			_d(_head, "sphere", Vector3(0.23, 0.17, 0.235), color, Vector3(0, 0.1, 0.0), Vector3.ZERO, true)
+			_d(_head, "box", Vector3(0.34, 0.025, 0.12), color.darkened(0.06), Vector3(0, 0.07, -0.2), Vector3(0.18, 0, 0), true)
+			_d(_head, "box", Vector3(0.38, 0.12, 0.03), color.darkened(0.08), Vector3(0, 0.0, 0.2), Vector3(-0.25, 0, 0), true)
+			_d(_head, "box", Vector3(0.02, 0.2, 0.02), color.darkened(0.3), Vector3(0.17, -0.1, -0.04))
 		"kepi":
 			_d(_head, "cyl", Vector3(0.2, 0.12, 0.21), color, Vector3(0, 0.2, 0.0), Vector3.ZERO, true)
 			_d(_head, "cyl", Vector3(0.25, 0.03, 0.25), color.darkened(0.1), Vector3(0, 0.27, 0.0), Vector3.ZERO, true)

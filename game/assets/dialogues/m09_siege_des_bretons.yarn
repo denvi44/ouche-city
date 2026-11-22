@@ -1,0 +1,49 @@
+// Le siège des Bretons — dialogues de la mission 09.
+title: m09_intro
+---
+Kévin Radio: Alerte météo : averse de Bretons, avec risque de beurre salé. #line:m09_intro_01
+Gégé: Ils visent les façades ! Ginette, le camembert ! Kévin, la catapulte ! #line:m09_intro_02
+Ginette: Dix camemberts, et ça ne plaisante plus. Attention aux flaques de beurre, ça glisse. #line:m09_intro_03
+===
+title: m09_defend
+---
+Kévin: Un camembert à l'étal, un camembert dans la catapulte. Pas de réclamation ! #line:m09_defend_01
+Breton: Kénavo, les Normands ! Voilà du demi-sel pour vos volets ! #line:m09_defend_02 #onoma:SPLATCH !
+===
+title: m09_take
+---
+Ginette: Un bon camembert, coulant à cœur. Ne le serrez pas trop ! #line:m09_take_01
+===
+title: m09_load
+---
+Kévin: Dans le godet ! Il en reste, il en reste. #line:m09_load_01
+===
+title: m09_butter
+---
+Gégé: Encore une façade au beurre salé ! Ils n'ont pas honte. #line:m09_butter_01 #onoma:SPLATCH !
+===
+title: m09_slick
+---
+Kévin Radio: Flaque de beurre à gauche, flaque de beurre à droite : le sol patine ! #line:m09_slick_01 #onoma:GLISSE !
+===
+title: m09_half
+---
+Gégé: La moitié ! Les Bretons commencent à sentir le gruyère… enfin, le camembert. #line:m09_half_01
+===
+title: m09_launch
+---
+Kévin: Tout le monde derrière moi. Visez les cirés jaunes ! #line:m09_launch_01 #onoma:CLAC !
+Breton: Aaah ! Ça sent le pied de géant ! Repli, repli ! #line:m09_launch_02 #onoma:POUF !
+===
+title: m09_done
+---
+Ginette: Fumée verte, fumée jaune, et plus un Breton en vue. Frouch est sauvée ! #line:m09_done_01
+===
+title: m09_failed
+---
+Gégé: Tout est beurré ! Les volets collent, les poules aussi. On nettoiera demain. #line:m09_failed_01
+===
+title: m09_guide
+---
+Ginette: Les étals de camembert sont de ce côté ! Puis la catapulte, là-bas. #line:m09_guide_01
+===

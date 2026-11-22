@@ -1,0 +1,76 @@
+{
+  "id": "m09_siege_des_bretons",
+  "title": "Le siège des Bretons",
+  "hero": "kevin",
+  "requires": [
+    "m08_oies_en_greve"
+  ],
+  "players": {
+    "min": 1,
+    "max": 4
+  },
+  "summary": "Sous la pluie, des Bretons en ciré jaune débarquent et lancent du beurre salé sur les façades du village. Il faut remplir la catapulte de la Saint-Camembert avec dix camemberts avant que le village ne soit englouti, puis tirer : la fumée verte fera le reste.",
+  "roles": [
+    "porteur",
+    "chargeur",
+    "guetteur"
+  ],
+  "companions": {
+    "porteur": "gege",
+    "chargeur": "kevin",
+    "guetteur": "ginette"
+  },
+  "siege": {
+    "camemberts": 10,
+    "timeLimitSec": 240,
+    "slick": {
+      "radiusM": 2.6,
+      "lifeSec": 11,
+      "speedFactor": 0.35
+    },
+    "butterEverySec": 2.4,
+    "bretons": 12
+  },
+  "steps": [
+    {
+      "id": "intro",
+      "type": "cutscene",
+      "skip": "majority_vote"
+    },
+    {
+      "id": "defend",
+      "type": "collect",
+      "events": [
+        "camembert_pris",
+        "camembert_charge"
+      ]
+    },
+    {
+      "id": "launch",
+      "type": "cutscene",
+      "skip": "majority_vote"
+    },
+    {
+      "id": "outro",
+      "type": "cutscene"
+    }
+  ],
+  "medals": {
+    "gold": {
+      "villageLeftPct": 50
+    },
+    "silver": {
+      "villageLeftPct": 25
+    },
+    "bronze": {
+      "villageLeftPct": 1
+    }
+  },
+  "rewards": {
+    "reputation": {
+      "campagne": 1,
+      "comite_des_fetes": 1
+    },
+    "unlocks": []
+  }
+}

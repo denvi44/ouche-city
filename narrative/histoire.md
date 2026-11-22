@@ -12,10 +12,11 @@ Un seul fil rouge pour les huit missions : **l'inspectrice Hautefeuille**, du *L
 | Mar. 8 h | 6 · Les courses de 8 h | Troisième âge | Faire les courses à 2 km/h au Panier de Frouch. | Pour fêter ça, la cuvée spéciale de Gégé. |
 | Mer. 16 h | 7 · Le jus de pomme de Tonton Gégé | Convivialité (Comité des fêtes) | Rentrer aux toilettes à temps (humour hors champ). | Radio Pommiers : le train arrive, les oies ont un projet. |
 | Ven. 17 h | 8 · Les oies font grève | Accueil (campagne) | Devenir l'oie meneuse et bloquer le train des Parisiens. | **Épilogue** : l'inspectrice décerne le Label « à l'unanimité des oies ». |
+| Bonus (saison 2) | 9 · Le siège des Bretons | Défense du patrimoine | Charger dix camemberts dans la catapulte avant que le village ne soit englouti de beurre salé. | **Épilogue** `m09_epilogue` : « Frouch défend son patrimoine ». |
 
 ## Les personnages
 - **Le héros change selon la mission** (champ `hero` de `missions/*.json`, contrat v2 ; `Heroes`, `game/scripts/core/heroes.gd`). Le joueur prend le nom et la tenue du personnage, et son compagnon IA disparaît (c'est lui) :
-  m01 Tonton Gégé · m02 Kévin · m03 Kévin Radio · m04 Ginette · m05 Mémé Odette · m06 Tonton Gégé · m07 Kévin · m08 Mémé Odette (sous la forme d'une oie).
+  m01 Tonton Gégé · m02 Kévin · m03 Kévin Radio · m04 Ginette · m05 Mémé Odette · m06 Tonton Gégé · m07 Kévin · m08 Mémé Odette (sous la forme d'une oie) · m09 Kévin.
   En ligne, le premier joueur (hôte) incarne le héros ; les autres gardent leur nom et un personnage ordinaire (rôles de mission). Absent en headless (tests, serveur dédié). Test : `qa/integration/hero_audit.gd`.
 - Avant : « Vous » était la nouvelle recrue (le nom choisi sur l'écran titre) ; ce nom ne sert plus qu'aux joueurs en ligne autres que l'hôte.
 - **Tonton Gégé** (calva, arrimeur, cuisinier, ferme-file), **Ginette** (négociatrice, chineuse, videuse, guetteuse), **Kévin** (mécano, diversion, rabatteur), **Kévin Radio** (speaker de Radio Pommiers, guetteur) : les quatre « héros » du village. En solo ils tiennent les rôles que les joueurs ne prennent pas (compagnons IA) ; en ligne, les joueurs humains prennent ces rôles à tour de rôle (1 à 4 par mission, `roles` des JSON de mission).

@@ -1239,6 +1239,23 @@ func _add_prop(root: Node3D, prop: String) -> void:
 				ti.position = Vector3(2.4, 0.14 + k * 0.3, 1.0)
 				root.add_child(ti)
 			_box(root, Vector3(0.9, 0.6, 0.5), Vector3(3.5, 0.3, 1.4), Color(0.75, 0.2, 0.18))
+		"catapult":
+			# Catapulte de la Saint-Camembert : châssis fixe + bras mobile (« Bras », piloté par la mission 9) ; collision pleine.
+			root.add_child(PropKit.catapult().build())
+			var arm := PropKit.catapult_arm().build()
+			arm.name = "Bras"
+			arm.position = PropKit.CATAPULT_PIVOT
+			arm.rotation.x = deg_to_rad(-30.0)
+			root.add_child(arm)
+			var kbody := StaticBody3D.new()
+			kbody.name = "Collision"
+			var kshape := CollisionShape3D.new()
+			var kbox := BoxShape3D.new()
+			kbox.size = Vector3(2.8, 1.4, 4.6)
+			kshape.shape = kbox
+			kshape.position.y = 0.7
+			kbody.add_child(kshape)
+			root.add_child(kbody)
 		"coop":
 			var coop := PropKit.coop().build()
 			coop.position = Vector3(2.8, 0, 0.3)   # sur le côté de la façade : le point d'enlèvement des caisses reste dégagé
@@ -1426,7 +1443,7 @@ func _add_strip(root: Node3D) -> void:
 
 
 ## Décors posés au sol d'un seul point : rayon de leur emprise (m). Sur une pente l'amont serait enterré : on les soulève (voir `_seat_on_slope`).
-const LIFT_PROPS := {"fete": 5.5, "stage": 4.5, "pyre": 3.0, "pressoir": 2.5, "wc": 1.8, "stand": 3.0}
+const LIFT_PROPS := {"fete": 5.5, "stage": 4.5, "catapult": 4.0, "pyre": 3.0, "pressoir": 2.5, "wc": 1.8, "stand": 3.0}
 
 
 ## Soulève `n` à la plus haute altitude du terrain sous son emprise (rayon `radius`) et lui donne un socle de terre pour combler le vide en aval.

@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "id": "m09_launch",
+  "mission": "m09",
+  "when": "launch",
+  "shots": [
+    {
+      "dur": 3.5,
+      "cam": {
+        "at": "catapulte",
+        "off": [
+          8,
+          5.2,
+          -9
+        ]
+      },
+      "look": {
+        "at": "catapulte",
+        "off": [
+          0,
+          3.4,
+          0
+        ]
+      },
+      "fov": 58,
+      "caption": {
+        "who": "Kévin",
+        "text": "Dix sur dix. Tout le monde derrière moi… feu !"
+      },
+      "onoma": "CLAC !"
+    },
+    {
+      "dur": 3.5,
+      "cam": {
+        "at": "catapulte",
+        "off": [
+          -4,
+          5,
+          10
+        ]
+      },
+      "look": {
+        "at": "debarquement_bretons",
+        "off": [
+          0,
+          10,
+          0
+        ]
+      },
+      "fov": 62,
+      "cam_to": {
+        "at": "catapulte",
+        "off": [
+          -5,
+          9,
+          60
+        ]
+      }
+    },
+    {
+      "dur": 4.0,
+      "cam": {
+        "at": "debarquement_bretons",
+        "off": [
+          22,
+          5,
+          -22
+        ]
+      },
+      "look": {
+        "at": "debarquement_bretons",
+        "off": [
+          0,
+          4.5,
+          0
+        ]
+      },
+      "fov": 55,
+      "cam_to": {
+        "at": "debarquement_bretons",
+        "off": [
+          16,
+          6,
+          -14
+        ]
+      },
+      "caption": {
+        "who": "Breton",
+        "text": "Mille sabords ! C'est du camembert d'avant-guerre, ça pique les yeux !"
+      },
+      "onoma": "POUF !"
+    },
+    {
+      "dur": 3.0,
+      "cam": {
+        "at": "debarquement_bretons",
+        "off": [
+          -34,
+          16,
+          -44
+        ]
+      },
+      "look": {
+        "at": "debarquement_bretons",
+        "off": [
+          0,
+          3,
+          0
+        ]
+      },
+      "fov": 60,
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Les Bretons rentrent chez eux sous la pluie, en toussant jaune."
+      }
+    }
+  ]
+}

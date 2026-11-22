@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "id": "m09_intro",
+  "mission": "m09",
+  "when": "intro",
+  "title": "Le siège des Bretons",
+  "subtitle": "Pluie · beurre salé · camembert",
+  "shots": [
+    {
+      "dur": 6.5,
+      "cam": {
+        "at": "debarquement_bretons",
+        "off": [
+          26,
+          6,
+          -24
+        ]
+      },
+      "look": {
+        "at": "debarquement_bretons",
+        "off": [
+          0,
+          2.2,
+          0
+        ]
+      },
+      "fov": 55,
+      "cam_to": {
+        "at": "debarquement_bretons",
+        "off": [
+          18,
+          5,
+          -16
+        ]
+      },
+      "caption": {
+        "who": "Kévin Radio",
+        "text": "Ici Kévin Radio : des cirés jaunes sur la plage ! Les Bretons débarquent, et ils ont apporté du beurre salé."
+      }
+    },
+    {
+      "dur": 5.5,
+      "cam": {
+        "at": "catapulte",
+        "off": [
+          9,
+          5.2,
+          -8
+        ]
+      },
+      "look": {
+        "at": "catapulte",
+        "off": [
+          0,
+          3.3,
+          0
+        ]
+      },
+      "fov": 55,
+      "cam_to": {
+        "at": "catapulte",
+        "off": [
+          6,
+          5.0,
+          -11
+        ]
+      },
+      "caption": {
+        "who": "Tonton Gégé",
+        "text": "La catapulte de la Saint-Camembert. Elle n'a pas servi depuis le méchoui de 87."
+      }
+    },
+    {
+      "dur": 5.5,
+      "cam": {
+        "at": "stock_fromage_1",
+        "off": [
+          6,
+          3,
+          8
+        ]
+      },
+      "look": {
+        "at": "stock_fromage_1",
+        "off": [
+          0,
+          1.4,
+          0
+        ]
+      },
+      "fov": 55,
+      "caption": {
+        "who": "Ginette",
+        "text": "Dix camemberts bien faits dans le panier, et on les renvoie chez eux. Courez, ça glisse !"
+      }
+    }
+  ]
+}
