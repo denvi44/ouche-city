@@ -253,7 +253,7 @@ func _build_save_block(box: VBoxContainer) -> void:
 
 const BLASON_USER := "user://blason.png"             # remplace le blason livré (essai sans reconstruire)
 const BLASON_RES := "res://assets/ui/blason.png"
-const BLASON_ALPHA := 0.4
+const BLASON_ALPHA := 0.9
 
 
 ## Blason détourné : image posée en transparence entre le village (drone) et le menu ; absente = rien n'est ajouté.
