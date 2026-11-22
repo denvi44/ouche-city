@@ -20,6 +20,7 @@ func _ready() -> void:
 	if _handle_cmdline():
 		return
 	_build()
+	Sfx.play_mission_music("titre")
 
 
 func _handle_cmdline() -> bool:
@@ -131,6 +132,8 @@ func _build() -> void:
 	_button(box, "Touches et souris", func():
 		var cm = preload("res://ui/controls_menu.gd").new()
 		add_child(cm))
+	_button(box, "Mes musiques (ouvrir le dossier)", func():
+		OS.shell_open(MusicLibrary.ensure_dirs()))
 	_button(box, "Héberger une partie", _host)
 	_address = LineEdit.new()
 	_address.placeholder_text = "Adresse de l'hôte (ex. 192.168.1.20)"

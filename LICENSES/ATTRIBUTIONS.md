@@ -21,3 +21,7 @@ La mention « © contributeurs OpenStreetMap » apparaît aussi dans les crédit
 | Effets sonores (klaxon, moteurs, chocs, verre, meuglement, cloches, vent, oiseaux…) | Synthèse par le code, `game/scripts/audio/synth.gd` | Œuvre originale du projet, aucune ressource tierce |
 | « Valse du Pommier » (Radio Pommiers) | Composition originale du projet, générée par `Synth.music_pommier` | Œuvre originale du projet |
 | Polices | Police par défaut du moteur Godot (Open Sans, licence OFL) | SIL Open Font License 1.1 |
+
+## Musiques personnalisées
+
+Les mp3 déposés par le joueur dans `user://musique/` ne sont jamais distribués avec le jeu ni envoyés en ligne. Tout fichier placé dans `game/assets/musique_perso/` doit être accompagné de sa licence ici.

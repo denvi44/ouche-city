@@ -72,6 +72,11 @@ var _music_player: AudioStreamPlayer
 var _music_stream: AudioStreamWAV
 var _music_thread: Thread
 var _music_pending := false
+var _radio_player: AudioStreamPlayer
+var _radio_track := ""                 ## fichier en cours sur la radio personnalisée
+var _mission_player: AudioStreamPlayer
+var mission_category := ""            ## catégorie de musique d'ambiance en cours (tests)
+var _mission_track := ""
 
 
 func _ready() -> void:
@@ -226,16 +231,25 @@ func make_loop(kind: String, volume_db := -8.0) -> AudioStreamPlayer3D:
 
 # --- Radio Pommiers ---------------------------------------------------------------------------------
 
-## Allume ou éteint la radio de la camionnette (« Valse du Pommier »).
+## Allume ou éteint la radio de la camionnette (« Valse du Pommier », ou vos mp3 du dossier « radio »).
 func set_radio(on: bool) -> void:
 	radio_on = on
 	var tag := "radio_on" if on else "radio_off"
 	counts[tag] = counts.get(tag, 0) + 1
 	played.append(tag)
-	if on and Settings.subtitles:
+	var custom := _custom_radio_list()
+	if on and Settings.subtitles and custom.is_empty():
 		caption.emit("[Radio Pommiers : valse musette]", 3.0)
+	_apply_mission_pause()
+	if on and not custom.is_empty():
+		counts["radio_perso"] = counts.get("radio_perso", 0) + 1
+		_radio_track = _radio_track if _radio_track in custom else custom[0]
+		_play_radio_track()
+		return
 	if not enabled:
 		return
+	if _radio_player:
+		_radio_player.stop()
 	if on:
 		if _music_stream == null:
 			if not _music_pending:
@@ -284,6 +298,15 @@ func play_track(id: String) -> void:
 		_track_player.bus = "Musique"
 		_track_player.volume_db = -4.0
 		add_child(_track_player)
+	_apply_mission_pause()
+	var perso: Array = MusicLibrary.tracks("m03_" + id) if Settings.custom_music else []
+	if not perso.is_empty():
+		counts["track_perso"] = counts.get("track_perso", 0) + 1
+		var st := MusicLibrary.load_stream(perso[0], true)
+		if st != null:
+			_track_player.stream = st
+			_track_player.play()
+			return
 	if not _track_cache.has(id):
 		_track_cache[id] = Synth.to_stream(Synth.track(id), true)
 	_track_player.stream = _track_cache[id]
@@ -292,9 +315,98 @@ func play_track(id: String) -> void:
 
 func stop_track() -> void:
 	current_track = ""
+	_apply_mission_pause()
 	if _track_player:
 		_track_player.stop()
 
 
 func toggle_radio() -> void:
 	set_radio(not radio_on)
+
+
+# --- Musiques personnalisées (dossier « musique » du joueur) ------------------------------------------------------------------
+
+func _custom_radio_list() -> Array:
+	return MusicLibrary.tracks("radio") if Settings.custom_music else []
+
+
+## Titre suivant de la radio personnalisée (sans effet si la radio est éteinte ou n'a pas de fichiers).
+func radio_next() -> void:
+	var list := _custom_radio_list()
+	if not radio_on or list.is_empty():
+		return
+	_radio_track = MusicLibrary.next_after(list, _radio_track)
+	counts["radio_suivant"] = counts.get("radio_suivant", 0) + 1
+	_play_radio_track()
+
+
+func _play_radio_track() -> void:
+	if Settings.subtitles and _radio_track != "":
+		caption.emit("[Radio : %s]" % MusicLibrary.title_of(_radio_track), 3.0)
+	if not enabled:
+		return
+	var st := MusicLibrary.load_stream(_radio_track)
+	if st == null:
+		# Fichier illisible : on l'écarte et on passe au suivant, sinon on retombe sur la valse d'origine.
+		counts["radio_illisible"] = counts.get("radio_illisible", 0) + 1
+		return
+	if _radio_player == null:
+		_radio_player = AudioStreamPlayer.new()
+		_radio_player.bus = "Musique"
+		_radio_player.volume_db = -4.0
+		_radio_player.finished.connect(func(): if radio_on: radio_next())
+		add_child(_radio_player)
+	_music_player.stop()
+	_radio_player.stream = st
+	_radio_player.play()
+
+
+## Musique d'ambiance d'une mission (ou « titre ») : les fichiers du dossier de la catégorie, en boucle sur la liste.
+func play_mission_music(category: String) -> void:
+	stop_mission_music()
+	var list: Array = MusicLibrary.tracks(category) if Settings.custom_music else []
+	if list.is_empty():
+		return
+	mission_category = category
+	_mission_track = list[0]
+	counts["musique_" + category] = counts.get("musique_" + category, 0) + 1
+	played.append("musique_" + category)
+	_play_mission_track()
+
+
+func _play_mission_track() -> void:
+	if Settings.subtitles and _mission_track != "":
+		caption.emit("[Musique : %s]" % MusicLibrary.title_of(_mission_track), 3.0)
+	if not enabled or _mission_track == "":
+		return
+	var st := MusicLibrary.load_stream(_mission_track)
+	if st == null:
+		counts["musique_illisible"] = counts.get("musique_illisible", 0) + 1
+		return
+	if _mission_player == null:
+		_mission_player = AudioStreamPlayer.new()
+		_mission_player.bus = "Musique"
+		_mission_player.volume_db = -9.0
+		_mission_player.finished.connect(func():
+			var list: Array = MusicLibrary.tracks(mission_category)
+			if mission_category != "" and not list.is_empty():
+				_mission_track = MusicLibrary.next_after(list, _mission_track)
+				_play_mission_track())
+		add_child(_mission_player)
+	_mission_player.stream = st
+	_mission_player.stream_paused = false
+	_mission_player.play()
+	_apply_mission_pause()
+
+
+func stop_mission_music() -> void:
+	mission_category = ""
+	_mission_track = ""
+	if _mission_player:
+		_mission_player.stop()
+
+
+## La musique d'ambiance se tait pendant la radio du véhicule ou la battle de sono.
+func _apply_mission_pause() -> void:
+	if _mission_player:
+		_mission_player.stream_paused = radio_on or current_track != ""

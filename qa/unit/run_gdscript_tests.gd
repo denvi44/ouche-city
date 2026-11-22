@@ -209,6 +209,71 @@ func _run() -> void:
 	var M3 = load("res://scripts/world/mission_m03.gd")
 	check(is_equal_approx(M3.BEAT, 60.0 / Synth.TRACK_BPM), "rythme de la mission 3 = rythme des playlists (%.2f s)" % M3.BEAT)
 	check(LabelDeclutter.near_scale(2.0) == LabelDeclutter.MIN_SCALE and LabelDeclutter.near_scale(100.0) == 1.0 and LabelDeclutter.near_scale(4.5) == 0.5, "étiquettes : réduites de près, taille normale de loin")
+	# Musiques personnalisées : dossier de catégories, tri, titres, enchaînement, chargement (mp3 réel, wav, fichier abîmé).
+	var mus_mroot := "user://test_musique_%d" % Time.get_ticks_usec()
+	DirAccess.make_dir_recursive_absolute(mus_mroot + "/radio")
+	DirAccess.make_dir_recursive_absolute(mus_mroot + "/m01")
+	var mus_old_roots: Array = MusicLibrary.roots
+	MusicLibrary.roots = [mus_mroot]
+	var mus_mp3 := FileAccess.get_file_as_bytes("res://../qa/unit/data/test.mp3")
+	for n in ["02_valse_du_pommier.mp3", "01_premier.mp3"]:
+		var mus_fm := FileAccess.open("%s/radio/%s" % [mus_mroot, n], FileAccess.WRITE)
+		mus_fm.store_buffer(mus_mp3)
+		mus_fm.close()
+	var mus_fbad := FileAccess.open(mus_mroot + "/radio/03_abime.mp3", FileAccess.WRITE)
+	mus_fbad.store_string("ceci n'est pas un mp3")
+	mus_fbad.close()
+	var mus_fnote := FileAccess.open(mus_mroot + "/radio/notes.txt", FileAccess.WRITE)
+	mus_fnote.store_string("x")
+	mus_fnote.close()
+	var mus_rl: Array = MusicLibrary.tracks("radio")
+	check(mus_rl.size() == 3 and str(mus_rl[0]).ends_with("01_premier.mp3") and MusicLibrary.tracks("m01").is_empty() and MusicLibrary.tracks("inconnue").is_empty(), "musiques perso : fichiers audio triés, le reste ignoré")
+	check(MusicLibrary.title_of(mus_rl[1]) == "valse du pommier" and MusicLibrary.title_of("/a/b/ma-chanson.ogg") == "ma-chanson", "musiques perso : titre lisible (numéro de tri retiré)")
+	check(MusicLibrary.next_after(mus_rl, mus_rl[0]) == mus_rl[1] and MusicLibrary.next_after(mus_rl, mus_rl[2]) == mus_rl[0] and MusicLibrary.next_after([], "x") == "", "musiques perso : enchaînement en boucle")
+	var mp3_stream := MusicLibrary.load_stream(mus_rl[0], true)
+	check(mp3_stream is AudioStreamMP3 and mp3_stream.get_length() > 0.5 and mp3_stream.loop, "musiques perso : un vrai mp3 se charge (%.1f s, en boucle)" % (mp3_stream.get_length() if mp3_stream else 0.0))
+	check(MusicLibrary.load_stream(mus_rl[2]) == null and MusicLibrary.load_stream(mus_mroot + "/absent.mp3") == null, "musiques perso : fichier abîmé ou absent -> null, sans plantage")
+	var mus_wav := PackedByteArray()
+	mus_wav.append_array("RIFF".to_ascii_buffer())
+	mus_wav.resize(44)
+	mus_wav.encode_u32(4, 36 + 8)
+	mus_wav.encode_u32(16, 16)
+	mus_wav.encode_u16(20, 1)
+	mus_wav.encode_u16(22, 1)
+	mus_wav.encode_u32(24, 22050)
+	mus_wav.encode_u16(34, 16)
+	for i in 8:
+		mus_wav.append(0)
+	for i in 4:
+		mus_wav[8 + i] = "WAVE".to_ascii_buffer()[i]
+	var mus_fw := FileAccess.open(mus_mroot + "/m01/ambiance.wav", FileAccess.WRITE)
+	mus_fw.store_buffer(mus_wav)
+	mus_fw.close()
+	check(MusicLibrary.load_stream(mus_mroot + "/m01/ambiance.wav") is AudioStreamWAV, "musiques perso : un wav 16 bits se charge")
+	var sfx3 = root.get_node("Sfx")
+	var set3 = root.get_node("Settings")
+	set3.custom_music = true
+	sfx3.play_mission_music("m01")
+	check(sfx3.mission_category == "m01" and sfx3.counts.get("musique_m01", 0) == 1, "musiques perso : la musique de la mission se lance")
+	sfx3.play_mission_music("m02")
+	check(sfx3.mission_category == "" and sfx3.counts.get("musique_m02", 0) == 0, "musiques perso : pas de fichier, pas de musique (la mission garde ses sons)")
+	sfx3.set_radio(true)
+	check(sfx3.counts.get("radio_perso", 0) == 1, "musiques perso : la radio joue vos fichiers")
+	sfx3.radio_next()
+	check(sfx3.counts.get("radio_suivant", 0) == 1, "musiques perso : titre suivant")
+	sfx3.set_radio(false)
+	set3.custom_music = false
+	sfx3.set_radio(true)
+	check(sfx3.counts.get("radio_perso", 0) == 1, "musiques perso : désactivées dans les réglages, la valse d'origine reste")
+	sfx3.set_radio(false)
+	set3.custom_music = true
+	sfx3.stop_mission_music()
+	MusicLibrary.roots = mus_old_roots
+	for sub in ["radio", "m01"]:
+		for f in DirAccess.get_files_at("%s/%s" % [mus_mroot, sub]):
+			DirAccess.remove_absolute("%s/%s/%s" % [mus_mroot, sub, f])
+		DirAccess.remove_absolute("%s/%s" % [mus_mroot, sub])
+	DirAccess.remove_absolute(mus_mroot)
 	check(M3.PERFECT < M3.GOOD and M3.GOOD < M3.BEAT / 2.0, "fenêtres de timing : parfait < bon < demi-temps")
 	var seq0: Array = M3.arrow_sequence(0, 32)
 	var seq2: Array = M3.arrow_sequence(2, 40)

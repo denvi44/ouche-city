@@ -340,6 +340,17 @@ func _build_pause(root: Control) -> void:
 		if al:
 			al.set_enabled(on))
 	box.add_child(amb)
+	var cm := CheckButton.new()
+	cm.text = "Musiques personnalisées (radio, missions)"
+	cm.button_pressed = Settings.custom_music
+	cm.toggled.connect(func(on: bool):
+		Settings.custom_music = on
+		Settings.save_settings())
+	box.add_child(cm)
+	var mdir := Button.new()
+	mdir.text = "Mes musiques : ouvrir le dossier"
+	mdir.pressed.connect(func(): OS.shell_open(MusicLibrary.ensure_dirs()))
+	box.add_child(mdir)
 	var keys := Button.new()
 	keys.text = "Touches et souris"
 	keys.pressed.connect(func(): root.add_child(preload("res://ui/controls_menu.gd").new()))
@@ -436,7 +447,7 @@ func _process(_delta: float) -> void:
 				_prompt_text.text = str(r.label)
 			if me.is_driving() and me.vehicle:
 				_speed_box.visible = true
-				_speed.text = "%d km/h   ·   [R] Radio %s" % [int(me.vehicle.speed_kmh()), "♪" if Sfx.radio_on else "(éteinte)"]
+				_speed.text = "%d km/h   ·   [R] Radio %s%s" % [int(me.vehicle.speed_kmh()), "♪" if Sfx.radio_on else "(éteinte)", "   [T] titre suivant" if Sfx.radio_on and Settings.custom_music and not MusicLibrary.tracks("radio").is_empty() else ""]
 		_result.text = mission.result_text()
 	_captions.text = caption_text(_caption_lines, Time.get_ticks_msec() / 1000.0) if Settings.subtitles else ""
 	if _dialogue and Time.get_ticks_msec() / 1000.0 > _dialogue_until:

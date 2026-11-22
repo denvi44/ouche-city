@@ -28,6 +28,8 @@ var companions_help: bool = false
 var ambient_life: bool = true
 ## Multiplicateur de durée des dialogues et des plans de cinématique (1.0 = rapide, 1.6 = confortable, 2.4 = très lent).
 var dialogue_pace: float = 1.6
+## Musiques personnalisées (dossier « musique » du joueur) : radio, missions, écran titre.
+var custom_music: bool = true
 
 
 func _ready() -> void:
@@ -55,6 +57,7 @@ func load_settings() -> void:
 	companions_help = cfg.get_value("jeu", "compagnons_aident", companions_help)
 	ambient_life = cfg.get_value("jeu", "vie_ambiante", ambient_life)
 	dialogue_pace = clampf(cfg.get_value("jeu", "rythme_dialogues", dialogue_pace), 1.0, 3.0)
+	custom_music = cfg.get_value("audio", "musiques_perso", custom_music)
 
 
 func save_settings() -> void:
@@ -75,4 +78,5 @@ func save_settings() -> void:
 	cfg.set_value("jeu", "compagnons_aident", companions_help)
 	cfg.set_value("jeu", "vie_ambiante", ambient_life)
 	cfg.set_value("jeu", "rythme_dialogues", dialogue_pace)
+	cfg.set_value("audio", "musiques_perso", custom_music)
 	cfg.save(PATH)

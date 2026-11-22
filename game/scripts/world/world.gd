@@ -20,10 +20,15 @@ var mission_key := "m01"
 var hero_id := 0
 
 
+func _exit_tree() -> void:
+	Sfx.stop_mission_music()
+
+
 func _ready() -> void:
 	_build_environment()
 	builder = CityBuilder.new()
 	mission_key = str(Net.arg("mission", Net.mission_id))
+	Sfx.play_mission_music(mission_key)          # vos mp3 du dossier de la mission, s'il y en a
 	hero_id = Heroes.hero_of(mission_key)
 	city = builder.build_city(CITY_DIR, MISSION_IDS.get(mission_key, "m01_calva_gege"))
 	add_child(city)
@@ -229,6 +234,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		mission.request_skip()
 	if event.is_action_pressed("radio_toggle") and van and van.driver == multiplayer.get_unique_id():
 		Sfx.toggle_radio()
+	if event.is_action_pressed("radio_next") and van and van.driver == multiplayer.get_unique_id():
+		Sfx.radio_next()
 	if event.is_action_pressed("horn") and mission and van and van.driver == multiplayer.get_unique_id():
 		mission.request_horn()
 	if event.is_action_pressed("interact") and mission and Net.has_local_player() and DisplayServer.get_name() != "headless":
