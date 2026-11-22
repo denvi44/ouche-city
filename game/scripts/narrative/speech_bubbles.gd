@@ -73,6 +73,7 @@ func show_bubble(speaker: String, text: String, target: Node3D, seconds: float) 
 		(_bubbles[speaker] as Node3D).queue_free()
 	var root := Node3D.new()
 	root.name = "Bulle_" + speaker
+	root.add_to_group("bulles")
 	var label := Label3D.new()
 	label.text = text
 	label.font_size = 36

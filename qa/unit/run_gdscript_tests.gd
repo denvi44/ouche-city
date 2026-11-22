@@ -208,6 +208,7 @@ func _run() -> void:
 	check(tracks.musette_remix != tracks.techno_foraine and tracks.techno_foraine != tracks.tube_ete_2003, "les trois playlists sont différentes")
 	var M3 = load("res://scripts/world/mission_m03.gd")
 	check(is_equal_approx(M3.BEAT, 60.0 / Synth.TRACK_BPM), "rythme de la mission 3 = rythme des playlists (%.2f s)" % M3.BEAT)
+	check(LabelDeclutter.near_scale(2.0) == LabelDeclutter.MIN_SCALE and LabelDeclutter.near_scale(100.0) == 1.0 and LabelDeclutter.near_scale(4.5) == 0.5, "étiquettes : réduites de près, taille normale de loin")
 	check(M3.PERFECT < M3.GOOD and M3.GOOD < M3.BEAT / 2.0, "fenêtres de timing : parfait < bon < demi-temps")
 	var seq0: Array = M3.arrow_sequence(0, 32)
 	var seq2: Array = M3.arrow_sequence(2, 40)

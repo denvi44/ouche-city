@@ -29,7 +29,31 @@ static func select(rects: Array, pad := PAD) -> Array:
 	return out
 
 
+## Étiquettes et bulles posées dans le monde : de près elles deviendraient géantes ; on les rétrécit pour que leur taille
+## à l'écran ne dépasse jamais celle qu'elles ont à REF_DIST mètres.
+const REF_DIST := 9.0
+const MIN_SCALE := 0.3
+
+
+static func near_scale(dist: float) -> float:
+	return clampf(dist / REF_DIST, MIN_SCALE, 1.0)
+
+
+func _cap_sizes() -> void:
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return
+	for g in [GROUP, "bulles"]:
+		for n in get_tree().get_nodes_in_group(g):
+			var l := n as Node3D
+			if l == null or (l is Label3D and (l as Label3D).fixed_size):
+				continue
+			var k := near_scale(cam.global_position.distance_to(l.global_position))
+			l.scale = Vector3(k, k, k)
+
+
 func _process(delta: float) -> void:
+	_cap_sizes()
 	_t += delta
 	if _t < PERIOD:
 		return
