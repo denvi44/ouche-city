@@ -9,9 +9,9 @@ extends MissionBase
 
 const MISSION_FILE := "res://assets/missions/m03_battle_sono.json"
 const SYNC_PERIOD := 0.25
-const BEAT := 0.5                                 # s : 120 pulsations par minute (Synth.TRACK_BPM)
+const BEAT := 60.0 / 128.0                        # s : 128 pulsations par minute (Synth.TRACK_BPM ; « Under A Thousand Suns » est à 128)
 const STAGE_RADIUS := 3.8                         # m : « sur la scène » (estrade de 7 × 3,6 m autour du repère)
-const COUNT_TIME := 3.0                           # 6 temps avant le premier : la boucle musicale reste alignée
+const COUNT_TIME := 6.0 * BEAT                           # 6 temps avant le premier : la boucle musicale reste alignée
 const ROUND_BEATS := [32, 40, 40]
 const PERFECT := 0.09                             # s d'écart au temps toléré : « parfait »
 const GOOD := 0.22

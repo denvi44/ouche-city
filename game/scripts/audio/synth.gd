@@ -404,10 +404,10 @@ static func music_pommier() -> PackedFloat32Array:
 
 
 # --- Playlists de la battle de sono (mission 03) ------------------------------------------------------
-# Trois boucles originales à 120 pulsations par minute (1 temps = 0,5 s), 16 temps (8 s). Les coups de
+# Trois boucles originales à 128 pulsations par minute (1 temps = 0,469 s), 16 temps (7,5 s). Les coups de
 # grosse caisse tombent exactement sur les temps : le beat que le joueur doit suivre s'entend.
 
-const TRACK_BPM := 120.0
+const TRACK_BPM := 128.0
 const TRACK_BEATS := 16
 const TRACK_IDS := ["musette_remix", "techno_foraine", "tube_ete_2003"]
 

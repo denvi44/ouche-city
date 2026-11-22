@@ -279,6 +279,8 @@ func _music_ready(samples: PackedFloat32Array) -> void:
 
 ## Playlist de la battle de sono (mission 03) : boucle de 8 s, générée une fois puis gardée.
 const TRACK_CAPTIONS := {"musette_remix": "[Sono : musette remixée]", "techno_foraine": "[Sono : techno foraine]", "tube_ete_2003": "[Sono : tube de l'été 2003]"}
+## Décalage (s) du 1er temps de « Under A Thousand Suns » : on démarre la lecture un peu plus loin pour que les temps tombent sur la grille du jeu.
+const RHYTHM_TRACK_OFFSET := 0.054
 var current_track := ""
 var _track_cache := {}
 var _track_player: AudioStreamPlayer
@@ -299,13 +301,17 @@ func play_track(id: String) -> void:
 		_track_player.volume_db = -4.0
 		add_child(_track_player)
 	_apply_mission_pause()
-	var perso: Array = MusicLibrary.tracks("m03_" + id) if Settings.custom_music else []
+	# Musique des manches : « m03_rythme » (la même pour toutes les playlists) ou, à défaut, celle de la playlist choisie.
+	var perso: Array = MusicLibrary.tracks("m03_rythme") if Settings.custom_music else []
+	var shared := not perso.is_empty()
+	if not shared and Settings.custom_music:
+		perso = MusicLibrary.tracks("m03_" + id)
 	if not perso.is_empty():
 		counts["track_perso"] = counts.get("track_perso", 0) + 1
 		var st := MusicLibrary.load_stream(perso[0], true)
 		if st != null:
 			_track_player.stream = st
-			_track_player.play()
+			_track_player.play(RHYTHM_TRACK_OFFSET if shared else 0.0)
 			return
 	if not _track_cache.has(id):
 		_track_cache[id] = Synth.to_stream(Synth.track(id), true)

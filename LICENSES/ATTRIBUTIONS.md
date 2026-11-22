@@ -35,3 +35,5 @@ Blason de l'écran titre (`game/assets/ui/blason.png`) : illustration fournie pa
 ## Musiques des missions (`game/assets/musique_perso/`)
 
 Pulse de Normandie, Fête de la Moisson, Zinzin du Tuning (+ remix « smooth hardtech »), Breton-Norman Clash (extended), Bal des Vaches Mécaniques, Saloon Shuffle (remix) : morceaux fournis par le propriétaire du projet, qui les a créés ou en détient les droits ; usage autorisé par lui dans le jeu.
+
+Under A Thousand Suns (musique des manches de rythme de la mission 3) : morceau fourni par le propriétaire du projet, qui l'a créé ou en détient les droits ; usage autorisé par lui dans le jeu.

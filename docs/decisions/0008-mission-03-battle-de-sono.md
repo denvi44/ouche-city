@@ -10,7 +10,7 @@
 ## Décisions
 
 - **Lieux** (`gis/fiction.py`, POI v5, prop `stage`) : sono des Pommiers (maison à 70-220 m de l'apparition), sono du Clos Fleuri (à plus de 220 m), trois objets (caisson, rallonge, groupe) chez des voisins à 80-300 m. Noms fictifs, posés sur la vraie carte.
-- **Rythme** : 120 pulsations par minute (une grosse caisse toutes les 0,5 s, `Synth.track`). Un appui sur « interagir » à moins de 14 m de la sono est jugé **côté serveur** : parfait à ±0,07 s (3 points), bon à ±0,15 s (1 point), sinon raté ; un temps ne compte qu'une fois. Manches de 32, 40 et 40 temps ; la dernière double les 8 derniers temps (« lâcher de basses »).
+- **Rythme** : 128 pulsations par minute (une grosse caisse toutes les 0,469 s, `Synth.track` ; était 120 avant l'arrivée du morceau « Under A Thousand Suns »). Un appui sur « interagir » à moins de 14 m de la sono est jugé **côté serveur** : parfait à ±0,07 s (3 points), bon à ±0,15 s (1 point), sinon raté ; un temps ne compte qu'une fois. Manches de 32, 40 et 40 temps ; la dernière double les 8 derniers temps (« lâcher de basses »).
 - **Public** : le rival vise un public par manche (jeunes, tous, anciens). Jouer pour un autre public que le sien vaut ×1,2 ; le tube de l'été (« tous ») ×0,7 ; la techno augmente la nuisance de 30 %.
 - **Rival** : sa progression suit le temps, vers un objectif de 55 / 62 / 68 % du maximum de la manche. Manche gagnée = points du joueur ≥ objectif.
 - **Sabotages** (2 en solo, 4 en coop, manche 2 seulement) : câble débranché (son coupé 4 s), clé USB d'accordéon (points ÷2 pendant 6 s), poules (−6 points). Chacun se déjoue en 6 s en allant à son emplacement (« interagir »). Il faut quitter le pupitre : c'est le dilemme de la manche.

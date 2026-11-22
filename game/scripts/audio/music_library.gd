@@ -4,13 +4,14 @@ extends RefCounted
 ## Dossier : `user://musique/<catégorie>/` (sur Mac : ~/Library/Application Support/Godot/app_userdata/<jeu>/musique/ ;
 ## sous Windows : %APPDATA%\Godot\app_userdata\<jeu>\musique\), ou `res://assets/musique_perso/<catégorie>/` pour des fichiers livrés avec le jeu.
 ## Catégories : radio (radio du véhicule), titre (écran titre), m01 … m08 (musique d'ambiance de la mission),
-## m03_musette_remix / m03_techno_foraine / m03_tube_ete_2003 (les trois playlists de la battle de sono).
+## m03_rythme (musique de TOUTES les manches de rythme de la battle de sono, calée sur 128 BPM) ;
+## m03_musette_remix / m03_techno_foraine / m03_tube_ete_2003 (une musique par playlist, si m03_rythme est vide).
 
 const EXTENSIONS := ["mp3", "ogg", "wav"]
 const USER_DIR := "user://musique"
 const BUNDLED_DIR := "res://assets/musique_perso"
 const CATEGORIES := ["radio", "titre", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08",
-	"m03_musette_remix", "m03_techno_foraine", "m03_tube_ete_2003"]
+	"m03_rythme", "m03_musette_remix", "m03_techno_foraine", "m03_tube_ete_2003"]
 
 ## Dossiers racines (modifiable par les tests).
 static var roots: Array = [USER_DIR, BUNDLED_DIR]
@@ -118,6 +119,6 @@ static func readme() -> String:
 		+ "  radio/   la radio du véhicule (touche R ; T pour passer au titre suivant)\n" \
 		+ "  titre/   l'écran titre\n" \
 		+ "  m01/ … m08/   la musique d'ambiance de chaque mission\n" \
-		+ "  m03_musette_remix/, m03_techno_foraine/, m03_tube_ete_2003/   les trois playlists de la battle de sono\n\n" \
+		+ "  m03_rythme/   la musique des manches de rythme de la battle de sono (elle doit être à 128 BPM, premier temps au début)\n  m03_musette_remix/, m03_techno_foraine/, m03_tube_ete_2003/   une musique par playlist (si m03_rythme est vide)\n\n" \
 		+ "Les titres s'enchaînent dans l'ordre alphabétique (préfixez par 01_, 02_…). Redémarrez la mission pour les prendre en compte.\n" \
 		+ "N'utilisez que de la musique dont vous avez les droits : elle reste sur votre ordinateur et n'est jamais envoyée en ligne.\n"

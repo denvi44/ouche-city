@@ -12,7 +12,8 @@ Chemin réel : `~/Library/Application Support/Godot/app_userdata/<nom du jeu>/mu
 | `radio/` | radio du véhicule : **R** marche/arrêt, **T** (RB sur manette) titre suivant ; les titres s'enchaînent |
 | `titre/` | écran titre |
 | `m01/` … `m08/` | musique d'ambiance de la mission (se tait pendant la radio et la battle de sono) |
-| `m03_musette_remix/`, `m03_techno_foraine/`, `m03_tube_ete_2003/` | remplace la boucle synthétique de chaque playlist de la battle de sono (le 1er fichier tourne en boucle ; le rythme des flèches reste calé sur 120 BPM) |
+| `m03_rythme/` | musique des manches de rythme de la battle de sono, **la même pour toute la mission 3** (elle doit être à 128 BPM, grosse caisse sur le premier temps) |
+| `m03_musette_remix/`, `m03_techno_foraine/`, `m03_tube_ete_2003/` | une musique par playlist, utilisée seulement si `m03_rythme/` est vide |
 
 Les titres passent dans l'ordre alphabétique (préfixez `01_`, `02_`…). Un fichier illisible est ignoré. Pas de fichier = musique d'origine du jeu.
 Réglage : « Musiques personnalisées » dans le menu pause (désactive tout d'un coup).
@@ -32,10 +33,11 @@ On peut aussi placer des fichiers dans `game/assets/musique_perso/<sous-dossier>
 | `titre/` | Pulse de Normandie |
 | `m01/` (Le Calva de Tonton Gégé) | Fête de la Moisson |
 | `m02/` (Tuning du samedi soir, la fusée de Dylan) | Zinzin du Tuning |
-| `m03/` (Battle de sono) | Breton-Norman Clash (extended), puis Zinzin du Tuning (smooth hardtech remix) |
+| `m03/` (Battle de sono, hors manches) | Breton-Norman Clash (extended), puis Zinzin du Tuning (smooth hardtech remix) |
+| `m03_rythme/` (manches de rythme) | Under A Thousand Suns |
 | `m05/` (Les vaches sont de sortie) | Bal des Vaches Mécaniques |
 | `m08/` (Les oies font grève, le train des Parisiens) | Saloon Shuffle (remix) |
 
 Sans musique livrée : m04, m06, m07 (la mission garde ses sons) ; la radio du véhicule garde la valse synthétique.
-Les playlists de rythme de la mission 3 (`m03_*`) restent synthétiques : les flèches sont calées sur 120 BPM, un morceau au tempo différent les désynchroniserait.
+Rythme de la mission 3 : les flèches sont calées sur **128 BPM** (le jeu et les boucles synthétiques). Un morceau d'un autre tempo les désynchroniserait. « Under A Thousand Suns » (`m03_rythme/`) est à 128 BPM, sa grosse caisse tombe à 0,054 s (`Sfx.RHYTHM_TRACK_OFFSET`) ; la musique démarre avec le décompte de 6 temps.
 Le dossier utilisateur (`user://musique/`) passe avant les fichiers livrés dans une même catégorie : y déposer un fichier ajoute des titres à la liste.
