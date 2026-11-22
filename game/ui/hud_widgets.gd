@@ -275,7 +275,7 @@ class BigMap:
 		draw_colored_polygon(PackedVector2Array([pp + f * 11.0, pp - f * 7.0 + sd * 7.0, pp - f * 3.0, pp - f * 7.0 - sd * 7.0]), Color(0.3, 0.55, 0.95))
 		draw_rect(frame, HudWidgets.INK, false, 4.0)
 		var font := ThemeDB.fallback_font
-		draw_string(font, frame.position + Vector2(14, 28), "Conches-en-Frouch — l'île", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, HudWidgets.CREAM)
+		draw_string(font, frame.position + Vector2(14, 28), "Frouch — l'île", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, HudWidgets.CREAM)
 		draw_string(font, Vector2(frame.position.x + 14, frame.end.y - 12), "M : fermer   ·   molette ou + / − : zoom   ·   N en haut", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, HudWidgets.CREAM)
 
 

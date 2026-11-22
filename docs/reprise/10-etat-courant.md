@@ -15,7 +15,7 @@ les runs 56 à 59 sont rouges pour des raisons connues et corrigées (voir « Hi
 ## Ce qui est fait (chronologie utile)
 - Rues nivelées (grille 5 m, dévers supprimé, pentes bornées), véhicules à inclinaison bornée, une balise d'objectif à la fois (décisions 0015, 0016).
 - Mission 8 « Les oies font grève » (joueur = oie, train, garde-barrière), gare, voie ferrée, mare (POI v12).
-- Renommage Ouche → Frouch (Frouch City, Conches-en-Frouch, variables `FROUCH_*`, exports, Docker).
+- Renommage Ouche → Frouch (Frouch City, Frouch, variables `FROUCH_*`, exports, Docker).
 - Édifices publics détaillés (`landmarks.gd`), forêts/vergers/arbres d'alignement, carrière creusée (décision 0017).
 - Écran titre **Material Design 3** + fond **drone** (7 plans, `drone_shots.gd`, `title_backdrop.gd`, décision 0018).
 - **Enseignes plaquées aux murs** : `gis/fiction.py::emplacement_enseigne` donne le cap exact de la normale du mur, pose l'enseigne à 7 cm, évite les ruelles

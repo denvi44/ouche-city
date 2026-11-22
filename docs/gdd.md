@@ -4,7 +4,7 @@ Version M0. Plan de production de référence : « Frouch City — Plan de produ
 
 ## Pitch
 
-Un open-world d'action-aventure en cel-shading à Conches-en-Frouch, dans l'Eure. On y fait des embrouilles de village plutôt que des braquages : livrer en douce le calva de Tonton Gégé à la foire, tuner la voiture de Kévin pour le samedi soir, gagner la battle de sono contre le Clos Fleuri. L'humour est « Normandie profonde » : tendre, jamais méprisant.
+Un open-world d'action-aventure en cel-shading à Frouch, dans l'Eure. On y fait des embrouilles de village plutôt que des braquages : livrer en douce le calva de Tonton Gégé à la foire, tuner la voiture de Kévin pour le samedi soir, gagner la battle de sono contre le Clos Fleuri. L'humour est « Normandie profonde » : tendre, jamais méprisant.
 
 ## Piliers
 

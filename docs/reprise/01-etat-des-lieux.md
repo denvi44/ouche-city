@@ -1,7 +1,7 @@
 # 01 — État des lieux
 
 ## Ce qui est fait (vérifié par tests automatiques sauf mention)
-- **Ville** : 26 tuiles de 250 m autour de Conches-en-Frouch (relief IGN, 1 359 bâtiments, 327 tronçons de route), rendue en cel-shading (toon + contours « inverted hull »),
+- **Ville** : 26 tuiles de 250 m autour de Frouch (relief IGN, 1 359 bâtiments, 327 tronçons de route), rendue en cel-shading (toon + contours « inverted hull »),
   jour/nuit, ambiance sonore. Relief sur grille de 5 m avec **routes nivelées** (dévers ≈ 0).
 - **8 missions jouables** en solo (compagnons IA) et en ligne (serveur dédié autoritaire) : m01 Calva, m02 Tuning, m03 Battle de sono, m04 Méchoui, m05 Vaches,
   m06 Courses de 8 h, m07 Jus de pomme, m08 Oies en grève. Chacune a : JSON de mission, dialogues Yarn, 2-3 cinématiques, HUD, test de bout en bout, test avec

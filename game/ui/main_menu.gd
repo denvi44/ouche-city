@@ -109,7 +109,7 @@ func _build() -> void:
 	tag.theme_type_variation = &"Tag"
 	tag.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	var sub := Label.new()
-	sub.text = "Conches-en-Frouch, ses colombages, ses embrouilles"
+	sub.text = "Frouch, ses colombages, ses embrouilles"
 	sub.add_theme_constant_override("outline_size", 0)
 	sub.add_theme_color_override("font_color", Color(1, 1, 1))
 	tag.add_child(sub)

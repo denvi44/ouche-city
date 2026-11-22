@@ -1,6 +1,6 @@
 # L'histoire de Frouch City — saison 1 : « Le Label »
 
-Un seul fil rouge pour les huit missions : **l'inspectrice Hautefeuille**, du *Label Village Enchanté*, visite Conches-en-Frouch **vendredi à 17 h 42**, en descendant du Train des Vacances. Le village a **six jours** pour lui prouver qu'il est vivant. Chaque mission est une « épreuve » involontaire du Label, et chaque réussite fait gagner la réputation d'un quartier (`rewards.reputation`).
+Un seul fil rouge pour les huit missions : **l'inspectrice Hautefeuille**, du *Label Village Enchanté*, visite Frouch **vendredi à 17 h 42**, en descendant du Train des Vacances. Le village a **six jours** pour lui prouver qu'il est vivant. Chaque mission est une « épreuve » involontaire du Label, et chaque réussite fait gagner la réputation d'un quartier (`rewards.reputation`).
 
 | Jour | Mission | Épreuve (réputation) | Ce qui se passe | Ce qui relance la suite (scène « à suivre ») |
 | --- | --- | --- | --- | --- |

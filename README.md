@@ -1,6 +1,6 @@
 # Frouch City
 
-GTA-like en cel-shading, made in Normandie : une reproduction de Conches-en-Frouch (Eure), jouable seul ou à plusieurs en ligne, avec des missions « Normandie profonde ».
+GTA-like en cel-shading, made in Normandie : une reproduction de Frouch (Eure), jouable seul ou à plusieurs en ligne, avec des missions « Normandie profonde ».
 
 - **Plateformes (phase 1)** : Windows 10/11 et macOS 12+ (Apple Silicon + Intel), cross-play.
 - **Moteur** : Godot 4.4.1, GDScript.
