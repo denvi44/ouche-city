@@ -209,6 +209,16 @@ func _run() -> void:
 	var M3 = load("res://scripts/world/mission_m03.gd")
 	check(is_equal_approx(M3.BEAT, 60.0 / Synth.TRACK_BPM), "rythme de la mission 3 = rythme des playlists (%.2f s)" % M3.BEAT)
 	check(M3.PERFECT < M3.GOOD and M3.GOOD < M3.BEAT / 2.0, "fenêtres de timing : parfait < bon < demi-temps")
+	var seq0: Array = M3.arrow_sequence(0, 32)
+	var seq2: Array = M3.arrow_sequence(2, 40)
+	check(seq0 == M3.arrow_sequence(0, 32) and seq0.size() == 32, "flèches : suite déterministe (même pour tous les pairs)")
+	check(seq0.all(func(d): return d in [0, 3]) and seq2.has(1) and seq2.has(2), "flèches : manche 1 en gauche/droite, dernière manche avec les 4 directions")
+	var runs_ok := true
+	for i in range(2, seq2.size()):
+		if seq2[i] == seq2[i - 1] and seq2[i] == seq2[i - 2]:
+			runs_ok = false
+	check(runs_ok, "flèches : jamais trois fois la même d'affilée")
+	check(HudWidgets.RhythmTrack.x_of(4, 0.5, 2.0, 100.0) == 100.0 and HudWidgets.RhythmTrack.x_of(5, 0.5, 2.0, 100.0) > 100.0, "piste de rythme : la flèche du temps courant est sur la ligne")
 	check(is_equal_approx(M3.COUNT_TIME / M3.BEAT, round(M3.COUNT_TIME / M3.BEAT)), "le compte à rebours est un nombre entier de temps (boucle alignée)")
 	# Atelier d'accessoires : chaque accessoire est détaillé (nombreuses parties), borné et sous le budget de triangles.
 	var PK = load("res://scripts/world/prop_kit.gd")

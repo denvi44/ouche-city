@@ -12,11 +12,14 @@ const SYNC_PERIOD := 0.25
 const BEAT := 0.5                                 # s : 120 pulsations par minute (Synth.TRACK_BPM)
 const COUNT_TIME := 3.0                           # 6 temps avant le premier : la boucle musicale reste alignée
 const ROUND_BEATS := [32, 40, 40]
-const PERFECT := 0.07                             # s d'écart au temps toléré : « parfait »
-const GOOD := 0.15
-const POINTS := {"perfect": 3, "good": 1}
+const PERFECT := 0.09                             # s d'écart au temps toléré : « parfait »
+const GOOD := 0.22
+const POINTS := {"perfect": 3, "good": 2}
+## Flèches du rythme : 0 gauche, 1 bas, 2 haut, 3 droite. La 1re manche n'en utilise que 2, la 2e 3, la dernière les 4.
+const ARROW_SETS := [[0, 3], [0, 2, 3], [0, 1, 2, 3]]
+const ARROW_NAMES := ["←", "↓", "↑", "→"]
 const DROP_BEATS := 8                             # dernier « lâcher de basses » : points doublés
-const RIVAL_RATIO := [0.55, 0.62, 0.68]           # part du maximum que le Clos Fleuri atteint à la fin de la manche
+const RIVAL_RATIO := [0.38, 0.45, 0.52]           # part du maximum que le Clos Fleuri atteint à la fin de la manche
 const RIVAL_AUDIENCE := ["jeunes", "tous", "anciens"]
 const PLAYLISTS := ["musette_remix", "techno_foraine", "tube_ete_2003"]
 const PLAYLIST_NAMES := {"musette_remix": "Musette remix", "techno_foraine": "Techno foraine", "tube_ete_2003": "Tube de l'été 2003"}
@@ -99,6 +102,7 @@ var item_pos := {}                          # item -> Vector3
 var day_night: DayNight
 var _sab_queue: Array = []                  # temps (en battements) des tentatives restantes
 var _hit_set := {}
+var _arrow_cache := {}
 var _lemoine_t := 0.0
 var _spots := {}
 var _item_nodes := {}
@@ -266,7 +270,7 @@ func resolve(peer: int, pos: Vector3) -> Dictionary:
 			if sp != Vector3.ZERO and _dist(pos, sp) < float(NEAR.spot):
 				return {"kind": "defend", "label": "%s !" % SAB_DEFEND[sab.kind]}
 		if _dist(pos, zones.camp) < float(NEAR.deck):
-			return {"kind": "beat", "label": "Lancer le beat : E en rythme avec la grosse caisse"}
+			return {"kind": "none", "label": "Flèches ← ↓ ↑ → : appuyez sur celle qui arrive, quand elle touche la ligne"}
 		return {"kind": "none", "label": "Retournez à la sono (à moins de %d m)" % int(NEAR.deck)}
 	return {}
 
@@ -286,8 +290,6 @@ func interact(peer: int, allowed: Array = []) -> void:
 			_take_item(r.item, player)
 		"defend":
 			_defend(player.display_name)
-		"beat":
-			_press(peer)
 	_mark()
 
 
@@ -438,7 +440,7 @@ func _choose_police(idx: int) -> void:
 	round_state = "play"
 
 
-func _press(peer: int) -> void:
+func _press(_peer: int, dir: int) -> void:
 	if round_state != "play":
 		return
 	if mute_left > 0.0:
@@ -448,7 +450,7 @@ func _press(peer: int) -> void:
 		return
 	var k := int(round(play_t / BEAT))
 	var err := absf(play_t - float(k) * BEAT)
-	if k < 0 or k >= beats_in(round_idx) or err > GOOD or _hit_set.has(k):
+	if k < 0 or k >= beats_in(round_idx) or err > GOOD or _hit_set.has(k) or dir != int(arrows()[k]):
 		hits.miss += 1
 		last_hit = {"q": "miss", "k": k}
 		return
@@ -458,6 +460,65 @@ func _press(peer: int) -> void:
 	last_hit = {"q": q, "k": k}
 	score_p += point_value(q, k, round_idx, playlist, usb_left > 0.0)
 	nuisance += NUISANCE_HIT * _nuis_factor()
+
+
+## Suite de flèches d'une manche (fonction pure, identique chez tous les pairs) : jamais plus de deux fois la même d'affilée.
+static func arrow_sequence(r: int, n: int) -> Array:
+	var g := RandomNumberGenerator.new()
+	g.seed = 31000 + r * 97
+	var set: Array = ARROW_SETS[clampi(r, 0, ARROW_SETS.size() - 1)]
+	var out: Array = []
+	for i in n:
+		var d: int = set[g.randi() % set.size()]
+		if out.size() >= 2 and out[-1] == d and out[-2] == d:
+			d = set[(set.find(d) + 1) % set.size()]
+		out.append(d)
+	return out
+
+
+func arrows(r: int = -1) -> Array:
+	var rr := round_idx if r < 0 else r
+	if not _arrow_cache.has(rr):
+		_arrow_cache[rr] = arrow_sequence(rr, beats_in(rr))
+	return _arrow_cache[rr]
+
+
+## Flèche attendue au temps le plus proche (utile aux tests et au bot).
+func current_arrow() -> int:
+	var k := clampi(int(round(play_t / BEAT)), 0, beats_in(round_idx) - 1)
+	return int(arrows()[k])
+
+
+## Ce que l'écran doit tracer : null hors manche jouée.
+func rhythm_view() -> Dictionary:
+	if step != "round" or not (round_state in ["count", "play"]):
+		return {}
+	return {"t": play_t if round_state == "play" else -count_left, "arrows": arrows(), "last": last_hit, "beat": BEAT}
+
+
+## Appelé par le joueur local (flèches du clavier ou croix directionnelle).
+func request_arrow(dir: int) -> void:
+	if is_server():
+		press_arrow(multiplayer.get_unique_id(), dir)
+	else:
+		_request_arrow.rpc_id(1, dir)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _request_arrow(dir: int) -> void:
+	if is_server():
+		press_arrow(multiplayer.get_remote_sender_id(), dir)
+
+
+## Un appui de flèche, côté serveur : seulement près de la sono.
+func press_arrow(peer: int, dir: int) -> void:
+	if not is_server() or step != "round" or round_state != "play" or not zones.has("camp"):
+		return
+	var player := actor(peer) as Player
+	if player == null or _dist(player.global_position, zones.camp) >= float(NEAR.deck):
+		return
+	_press(peer, dir)
+	_mark()
 
 
 ## Valeur d'un temps réussi (fonction pure, testée) : qualité, rang du temps, manche, playlist, clé USB active.
@@ -845,12 +906,12 @@ func objective() -> String:
 					var best: String = {"jeunes": "anciens", "tous": "jeunes", "anciens": "jeunes"}[RIVAL_AUDIENCE[round_idx]]
 					return "Manche %d/%d — choisissez la musique avec les touches 1, 2 ou 3 (%d s). Le Clos Fleuri joue pour les %s : visez plutôt les %s pour un bonus !" % [round_idx + 1, rounds_total(), int(ceil(pick_left)), RIVAL_AUDIENCE[round_idx], best]
 				"count":
-					return "Manche %d — allez à la sono (marqueur « Votre sono ») et préparez-vous : appuyez sur E quand le curseur passe au milieu. Début dans %d…" % [round_idx + 1, int(ceil(count_left / BEAT)) if count_left > 0.0 else 0]
+					return "Manche %d — allez à la sono (marqueur « Votre sono ») et préparez-vous : appuyez sur la flèche qui arrive (← ↓ ↑ →) quand elle touche la ligne. Début dans %d…" % [round_idx + 1, int(ceil(count_left / BEAT)) if count_left > 0.0 else 0]
 				"play":
 					var extra := ""
 					if sab.kind != "":
 						extra = " — %s Courez à %s !" % [SAB_NAMES[sab.kind], SAB_DEFEND[sab.kind].to_lower()]
-					return "Restez près de la sono et appuyez sur E à chaque coup de grosse caisse, quand le curseur est au milieu de la barre.%s" % extra
+					return "Restez près de la sono et appuyez sur la flèche du clavier (← ↓ ↑ →) qui touche la ligne, à chaque coup de grosse caisse.%s" % extra
 				"police":
 					return "Les gendarmes sont là : répondez (touches 1 à 3), %d s !" % int(ceil(police_left))
 				"result":
@@ -896,13 +957,13 @@ func hud_lines() -> PackedStringArray:
 		lines.append("Comment jouer :")
 		lines.append("  1. Choisissez la musique (touches 1, 2, 3) : chacune plaît à un public. Jouez pour celui que le Clos Fleuri vise le moins.")
 		lines.append("  2. Restez à moins de %d m de la sono (marqueur « Votre sono »)." % int(NEAR.deck))
-		lines.append("  3. Appuyez sur E quand le curseur █ passe au milieu de la barre de rythme : plus c'est juste, plus la foule se rallie.")
+		lines.append("  3. Des flèches défilent vers la ligne : appuyez sur la même flèche du clavier (← ↓ ↑ →) quand elle la touche. Plus c'est juste, plus la foule se rallie.")
 		lines.append("  4. Le bruit fait monter la Nuisance : à %d %%, les gendarmes arrivent." % int(police_at * 100.0))
 	if step == "round":
 		lines.append("Manche %d/%d  ·  Pommiers %d  —  Clos Fleuri %d  ·  Playlist : %s" % [round_idx + 1, rounds_total(), int(score_p), int(score_r), PLAYLIST_NAMES.get(playlist, "")])
 		lines.append("Nuisance %s%s" % [nuisance_bar(), "  (gendarmes à %d %%)" % int(police_at * 100.0) if not police_done else ""])
 		if round_state == "play":
-			lines.append("Rythme %s  %s" % [beat_bar(), {"perfect": "PARFAIT !", "good": "bien", "miss": "raté"}.get(str(last_hit.q), "")])
+			lines.append("Rythme : %s" % {"perfect": "PARFAIT !", "good": "bien", "miss": "raté"}.get(str(last_hit.q), "suivez les flèches"))
 			if mute_left > 0.0:
 				lines.append("Son coupé : %.0f s" % ceil(mute_left))
 			if usb_left > 0.0:
@@ -955,9 +1016,6 @@ func hud_gauges() -> Array:
 	if step == "round":
 		out.append(gauge("foule", "Pommiers", score_p / maxf(max_points(round_idx), 1.0), C_OK, "%d  contre  %d" % [int(score_p), int(score_r)], {"marker": clampf(score_r / maxf(max_points(round_idx), 1.0), 0.0, 1.0)}))
 		out.append(gauge("nuisance", "Nuisance", nuisance, C_DANGER, "%d %%" % int(nuisance * 100.0), {"danger": true, "zone": Vector2(police_at, 1.0)}))
-		if round_state == "play":
-			var ph := fposmod(play_t / BEAT + 0.5, 1.0)
-			out.append(gauge("rythme", "Rythme", ph, C_ITEM, {"perfect": "PARFAIT !", "good": "bien", "miss": "raté"}.get(str(last_hit.q), ""), {"cursor": true, "zone": Vector2(0.5 - GOOD / BEAT, 0.5 + GOOD / BEAT), "zone2": Vector2(0.5 - PERFECT / BEAT, 0.5 + PERFECT / BEAT)}))
 	return out
 
 

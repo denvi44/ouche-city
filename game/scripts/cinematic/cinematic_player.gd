@@ -31,6 +31,7 @@ var _shot := -1
 var _shot_t := 0.0
 var _t := 0.0
 var _total := 0.0
+var _pace := 1.0
 var _done := false
 var _we_paused := false
 
@@ -98,7 +99,8 @@ func start(definition: Dictionary, anchor_map: Dictionary) -> void:
 	anchors = anchor_map
 	layer = 50
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_total = total_duration(def)
+	_pace = _read_pace()
+	_total = total_duration(def) * _pace
 	active = true
 	var host := get_parent()
 	_prev_cam = get_viewport().get_camera_3d()
@@ -219,6 +221,11 @@ func _apply(u: float) -> void:
 	_cam.look_at_from_position(st.cam, st.look, Vector3.UP)
 
 
+func _read_pace() -> float:
+	var st := get_node_or_null("/root/Settings")
+	return float(st.dialogue_pace) if st else 1.0
+
+
 func _process(delta: float) -> void:
 	if _done:
 		return
@@ -226,7 +233,7 @@ func _process(delta: float) -> void:
 	_shot_t += delta
 	var shots: Array = def.get("shots", [])
 	if _shot < shots.size():
-		var dur := float(shots[_shot].dur)
+		var dur := float(shots[_shot].dur) * _pace
 		_apply(_shot_t / dur)
 		if _shot_t >= dur:
 			_next_shot()

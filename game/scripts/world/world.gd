@@ -219,6 +219,10 @@ func _unhandled_input(event: InputEvent) -> void:
 						mission.request_choice(MissionM01.OPTIONS[i])
 				else:
 					mission.request_choice(str(i + 1))
+		if mission.has_method("request_arrow"):
+			for d in 4:
+				if event.is_action_pressed(["beat_left", "beat_down", "beat_up", "beat_right"][d]):
+					mission.request_arrow(d)
 		if event.is_action_pressed("sprint") and van and van.driver == multiplayer.get_unique_id():
 			mission.request_boost()
 	if event.is_action_pressed("dialogue_skip") and mission and Net.has_local_player():
